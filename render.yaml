@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: debugbench-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DAYTONA_API_KEY
+        sync: false
+      - key: DAYTONA_API_URL
+        value: https://app.daytona.io/api
+      - key: DAYTONA_TARGET
+        value: us
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: debugbench
+      - key: CLIENT_ORIGINS
+        sync: false
+      - key: SESSION_IDLE_MINUTES
+        value: 25
+      - key: SESSION_TTL_MINUTES
+        value: 30
