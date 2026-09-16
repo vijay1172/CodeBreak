@@ -57,7 +57,7 @@ export type TestRunResult = {
 };
 
 export const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_DEBUGBENCH_API_URL || "http://localhost:4000"
+  process.env.NEXT_PUBLIC_CODEBREAK_API_URL || "http://localhost:4000"
 ).replace(/\/$/, "");
 
 async function jsonRequest<T>(path: string, init?: RequestInit): Promise<T> {

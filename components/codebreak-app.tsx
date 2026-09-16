@@ -14,13 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   createSession, deleteSession, endSessionOnUnload, getSession, reportChallenge, runSessionTests,
   type Challenge, type SessionStatus, type TestRunResult,
-} from "@/lib/debugbench-api";
+} from "@/lib/codebreak-api";
 
 const challengeId = "locked-out-sometimes";
 const fileName = (path: string) => path.split("/").pop() || path;
 const fileMap = (challenge: Challenge) => Object.fromEntries(challenge.files.map((file) => [file.path, file.content]));
 
-export function DebugBenchApp() {
+export function CodeBreakApp() {
   const startedRef = useRef(false);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -166,7 +166,7 @@ export function DebugBenchApp() {
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-white/10 bg-[#090d17]/95 px-4 backdrop-blur-xl sm:px-6">
         <div className="flex items-center gap-3">
           <span className="grid size-9 place-items-center rounded-xl border border-[#8b7aff]/40 bg-[#8b7aff]/15 text-[#b5a9ff] shadow-[0_0_24px_rgba(139,122,255,0.18)]"><Code2 className="size-5" strokeWidth={2.4} /></span>
-          <div><div className="text-[15px] font-bold tracking-[-0.02em] text-white">DebugBench</div><div className="text-[11px] text-[#8790a8]">Real sandbox practice lab</div></div>
+          <div><div className="text-[15px] font-bold tracking-[-0.02em] text-white">CodeBreak</div><div className="text-[11px] text-[#8790a8]">Real sandbox practice lab</div></div>
         </div>
         <StatusBadge status={sessionStatus} />
       </header>
@@ -198,7 +198,7 @@ export function DebugBenchApp() {
         <aside className="hidden border-r border-white/10 bg-[#090d16] lg:block">
           <div className="flex h-11 items-center justify-between border-b border-white/10 px-4"><span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#7f899f]"><Files className="size-3.5" /> Explorer</span><span className="font-mono text-[10px] text-[#566076]">MERN</span></div>
           <div className="p-2.5">
-            <div className="mb-1 px-2 py-1.5 text-[12px] font-semibold text-[#c2c9d8]">debugbench-challenge</div>
+            <div className="mb-1 px-2 py-1.5 text-[12px] font-semibold text-[#c2c9d8]">codebreak-challenge</div>
             {(challenge?.files || []).map((file) => {
               const selected = activeFile === file.path;
               const depth = Math.max(0, file.path.split("/").length - 1);

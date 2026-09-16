@@ -1,5 +1,5 @@
-import { DebugBenchApp } from "@/components/debugbench-app";
+import { CodeBreakApp } from "@/components/codebreak-app";
 
 export default function Home() {
-  return <DebugBenchApp />;
+  return <CodeBreakApp />;
 }

@@ -1,6 +1,6 @@
-# DebugBench
+# CodeBreak
 
-DebugBench is a browser-based debugging practice platform for college students and early-career engineers. Students inspect a realistic MERN-style project, edit source files, and run hidden assertions inside a private Daytona sandbox.
+CodeBreak is a browser-based debugging practice platform for college students and early-career engineers. Students inspect a realistic MERN-style project, edit source files, and run hidden assertions inside a private Daytona sandbox.
 
 ## What is real today
 
@@ -41,7 +41,7 @@ Requirements: Node.js 22+, a Daytona account, and MongoDB.
    - `DAYTONA_API_URL`
    - `DAYTONA_TARGET` (optional; defaults to `us`)
    - `MONGODB_URI`
-   - `MONGODB_DB_NAME` (optional; defaults to `debugbench`)
+   - `MONGODB_DB_NAME` (optional; defaults to `codebreak`)
    - `CLIENT_ORIGINS`
 3. Install both applications:
 
@@ -74,7 +74,7 @@ The pilot's intentionally buggy version should return two passing assertions and
 ## Deployment
 
 - Render reads `render.yaml`. Add the private values from `server/.env.example` in Render.
-- Vercel reads `vercel.json`. Set `NEXT_PUBLIC_DEBUGBENCH_API_URL` to the deployed Render URL.
+- Vercel reads `vercel.json`. Set `NEXT_PUBLIC_CODEBREAK_API_URL` to the deployed Render URL.
 - Set Render's `CLIENT_ORIGINS` to the final Vercel production URL and any approved preview URLs.
 - Neither `.env.local` nor any provider token is committed.
 

@@ -45,8 +45,8 @@ export async function provisionSandbox({ sessionId, challenge }) {
   const sandbox = await daytona.create(
     {
       language: CodeLanguage.JAVASCRIPT,
-      name: `debugbench-${sessionId.slice(0, 12)}`,
-      labels: { product: "debugbench", session: sessionId, challenge: challenge.id },
+      name: `codebreak-${sessionId.slice(0, 12)}`,
+      labels: { product: "codebreak", session: sessionId, challenge: challenge.id },
       public: false,
       ephemeral: true,
       autoStopInterval: config.sessionIdleMinutes,
@@ -58,7 +58,7 @@ export async function provisionSandbox({ sessionId, challenge }) {
   try {
     const baseDirectory = (await sandbox.getWorkDir()) || (await sandbox.getUserHomeDir());
     if (!baseDirectory) throw new Error("Daytona did not provide a working directory");
-    const workspaceDirectory = `${baseDirectory}/debugbench`;
+    const workspaceDirectory = `${baseDirectory}/codebreak`;
     const prepare = await sandbox.process.executeCommand(
       `mkdir -p ${shellQuote(workspaceDirectory)}`,
       baseDirectory,
@@ -122,7 +122,7 @@ export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory
   );
 
   await sandbox.process.executeCommand(
-    "rm -f /tmp/debugbench-results.json",
+    "rm -f /tmp/codebreak-results.json",
     workspaceDirectory,
     undefined,
     10,
@@ -136,7 +136,7 @@ export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory
   );
 
   const report = await sandbox.process.executeCommand(
-    "test -f /tmp/debugbench-results.json && cat /tmp/debugbench-results.json",
+    "test -f /tmp/codebreak-results.json && cat /tmp/codebreak-results.json",
     workspaceDirectory,
     undefined,
     30,

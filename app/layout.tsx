@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DebugBench — Practice debugging real apps",
+  title: "CodeBreak — Practice debugging real apps",
   description: "A hands-on debugging practice lab for students and early-career developers.",
   other: {
     "codex-preview": "development",

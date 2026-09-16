@@ -35,7 +35,7 @@ const challengeDefinitions = {
     installCommand: "npm install --no-audit --no-fund",
     startCommand: "npm run start:challenge",
     testCommand:
-      "npm test -- --reporter=json --outputFile=/tmp/debugbench-results.json",
+      "npm test -- --reporter=json --outputFile=/tmp/codebreak-results.json",
     criteria: [
       { id: "rejects-missing-token", title: "rejects requests without a token" },
       { id: "client-server-contract", title: "client and middleware agree on the authentication header" },

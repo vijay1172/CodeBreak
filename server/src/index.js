@@ -83,7 +83,7 @@ async function destroySession(record) {
 }
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "debugbench-orchestrator" });
+  res.json({ ok: true, service: "codebreak-orchestrator" });
 });
 
 app.get("/api/challenges/:challengeId", async (req, res) => {
@@ -226,7 +226,7 @@ const cleanupInterval = setInterval(async () => {
 cleanupInterval.unref();
 
 const server = app.listen(config.port, "0.0.0.0", () => {
-  console.log(`DebugBench orchestrator listening on ${config.port}`);
+  console.log(`CodeBreak orchestrator listening on ${config.port}`);
 });
 
 async function shutdown() {
