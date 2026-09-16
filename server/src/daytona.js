@@ -12,6 +12,10 @@ function shellQuote(value) {
   return `'${String(value).replaceAll("'", "'\\''")}'`;
 }
 
+function cleanProcessOutput(value) {
+  return String(value || "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+}
+
 async function runSessionCommand(sandbox, sessionId, command, timeout = 120) {
   await sandbox.process.createSession(sessionId);
   try {
@@ -22,9 +26,9 @@ async function runSessionCommand(sandbox, sessionId, command, timeout = 120) {
     );
     return {
       exitCode: response.exitCode ?? 1,
-      stdout: response.stdout || "",
-      stderr: response.stderr || "",
-      output: response.output || "",
+      stdout: cleanProcessOutput(response.stdout),
+      stderr: cleanProcessOutput(response.stderr),
+      output: cleanProcessOutput(response.output),
     };
   } finally {
     await sandbox.process.deleteSession(sessionId).catch(() => {});
@@ -35,6 +39,14 @@ function combinedCommandOutput(command) {
   return [...new Set([command.stderr, command.stdout, command.output].filter((value) => value?.trim()))]
     .join("\n")
     .trim();
+}
+
+function reportHasExecutedAssertions(report) {
+  return (report?.testResults || []).some((suite) =>
+    (suite.assertionResults || []).some((assertion) =>
+      ["passed", "failed"].includes(assertion.status),
+    ),
+  );
 }
 
 async function uploadFiles(sandbox, workspaceDirectory, files) {
@@ -153,11 +165,11 @@ export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory
   if (command.exitCode !== 0) {
     try {
       const parsed = reportText ? JSON.parse(reportText) : null;
-      if (!parsed || parsed.numTotalTests === 0) {
+      if (!parsed || !reportHasExecutedAssertions(parsed)) {
         const diagnostic = await runSessionCommand(
           sandbox,
           `diagnostic-${sessionId}-${Date.now()}`,
-          `cd ${shellQuote(workspaceDirectory)} && npm test -- --reporter=verbose`,
+          `cd ${shellQuote(workspaceDirectory)} && ./node_modules/.bin/vitest run --reporter=verbose`,
           180,
         );
         diagnosticOutput = combinedCommandOutput(diagnostic);

@@ -83,7 +83,17 @@ test("surfaces runtime output when the runner reports zero assertions", () => {
       stderr: "",
       output: "SyntaxError: requested module does not provide an export named auth",
     },
-    reportText: JSON.stringify({ numTotalTests: 0, testResults: [] }),
+    reportText: JSON.stringify({
+      numTotalTests: 3,
+      testResults: [
+        {
+          assertionResults: criteria.map((criterion) => ({
+            title: criterion.title,
+            status: "skipped",
+          })),
+        },
+      ],
+    }),
   });
 
   assert.equal(result.phase, "compile");

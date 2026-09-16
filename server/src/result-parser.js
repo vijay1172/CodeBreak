@@ -36,6 +36,9 @@ export function parseTestRun({ criteria, reportText, command }) {
   }
 
   const assertions = report ? collectAssertions(report) : [];
+  const executedAssertions = assertions.filter((assertion) =>
+    ["passed", "failed"].includes(assertion.status),
+  );
   const results = criteria.map((criterion) => {
     const assertion = assertions.find((item) => item.title === criterion.title);
     if (!assertion) {
@@ -74,7 +77,7 @@ export function parseTestRun({ criteria, reportText, command }) {
 
   const passed = results.filter((result) => result.status === "passed").length;
   return {
-    phase: report && assertions.length > 0 ? "test" : "compile",
+    phase: report && executedAssertions.length > 0 ? "test" : "compile",
     exitCode: command.exitCode,
     stdout: command.stdout || "",
     stderr: command.stderr || "",
