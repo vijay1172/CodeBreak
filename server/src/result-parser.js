@@ -65,6 +65,7 @@ export function parseTestRun({ criteria, reportText, command }) {
     ...(parseError ? [parseError] : []),
     ...(report ? collectFailureMessages(report) : []),
     ...(command.stderr?.trim() ? [command.stderr.trim()] : []),
+    ...(command.output?.trim() ? [command.output.trim()] : []),
   ].filter(Boolean);
 
   if (!report && command.exitCode !== 0 && command.stdout?.trim()) {

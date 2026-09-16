@@ -31,6 +31,12 @@ async function runSessionCommand(sandbox, sessionId, command, timeout = 120) {
   }
 }
 
+function combinedCommandOutput(command) {
+  return [...new Set([command.stderr, command.stdout, command.output].filter((value) => value?.trim()))]
+    .join("\n")
+    .trim();
+}
+
 async function uploadFiles(sandbox, workspaceDirectory, files) {
   await sandbox.fs.uploadFiles(
     files.map((file) => ({
@@ -154,10 +160,10 @@ export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory
           `cd ${shellQuote(workspaceDirectory)} && npm test -- --reporter=verbose`,
           180,
         );
-        diagnosticOutput = diagnostic.stderr || diagnostic.stdout || diagnostic.output;
+        diagnosticOutput = combinedCommandOutput(diagnostic);
       }
     } catch {
-      diagnosticOutput = command.stderr || command.stdout || command.output;
+      diagnosticOutput = combinedCommandOutput(command);
     }
   }
 

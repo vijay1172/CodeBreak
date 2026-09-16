@@ -73,3 +73,21 @@ test("does not invent passes when the report cannot be parsed", () => {
   assert.ok(result.tests.every((item) => item.status === "not_run"));
   assert.match(result.diagnostics.join("\n"), /invalid JSON/);
 });
+
+test("surfaces runtime output when the runner reports zero assertions", () => {
+  const result = parseTestRun({
+    criteria,
+    command: {
+      exitCode: 1,
+      stdout: "JSON report written",
+      stderr: "",
+      output: "SyntaxError: requested module does not provide an export named auth",
+    },
+    reportText: JSON.stringify({ numTotalTests: 0, testResults: [] }),
+  });
+
+  assert.equal(result.phase, "compile");
+  assert.equal(result.summary.passed, 0);
+  assert.ok(result.tests.every((item) => item.status === "not_run"));
+  assert.match(result.diagnostics.join("\n"), /does not provide an export named auth/);
+});
