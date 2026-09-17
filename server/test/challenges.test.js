@@ -21,6 +21,7 @@ test("each challenge exposes a realistic project without hidden tests", async ()
   for (const id of expectedIds) {
     const challenge = await getChallenge(id);
     const visible = publicChallenge(challenge);
+    assert.doesNotMatch(challenge.validationCommand, /\bexit\b/, "validation must not terminate Daytona's managed shell");
     assert.ok(visible.files.length >= 20, `${id} should expose at least 20 project files`);
     assert.ok(visible.files.some((file) => file.path.startsWith("client/src/")));
     assert.ok(visible.files.some((file) => file.path.startsWith("server/")));
