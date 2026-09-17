@@ -24,7 +24,7 @@ const baseEditablePaths = [
 ];
 
 const validationCommand =
-  "status=0; for file in $(find client/src server -type f \\( -name '*.js' -o -name '*.jsx' \\)); do ./node_modules/.bin/esbuild \"$file\" --loader:.js=jsx --format=esm --outfile=/dev/null --log-level=error || { status=1; break; }; done; test \"$status\" -eq 0";
+  "codebreak_validation_status=0; for file in $(find client/src server -type f \\( -name '*.js' -o -name '*.jsx' \\)); do ./node_modules/.bin/esbuild \"$file\" --loader:.js=jsx --format=esm --outfile=/dev/null --log-level=error || { codebreak_validation_status=1; break; }; done; test \"$codebreak_validation_status\" -eq 0";
 
 function defineChallenge({
   id,
