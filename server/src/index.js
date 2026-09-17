@@ -3,7 +3,7 @@ import cors from "cors";
 import express from "express";
 import { z } from "zod";
 import { config } from "./config.js";
-import { assertEditableFiles, getChallenge, publicChallenge } from "./challenges.js";
+import { assertEditableFiles, getChallenge, listChallenges, publicChallenge } from "./challenges.js";
 import { deleteSandbox, provisionSandbox, runSandboxTests } from "./daytona.js";
 import { parseTestRun } from "./result-parser.js";
 import {
@@ -84,6 +84,10 @@ async function destroySession(record) {
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "codebreak-orchestrator" });
+});
+
+app.get("/api/challenges", (_req, res) => {
+  res.json({ challenges: listChallenges() });
 });
 
 app.get("/api/challenges/:challengeId", async (req, res) => {

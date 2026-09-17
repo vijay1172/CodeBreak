@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Daytona, CodeLanguage } from "@daytona/sdk";
 import { config } from "./config.js";
 
@@ -59,6 +60,31 @@ async function uploadFiles(sandbox, workspaceDirectory, files) {
   );
 }
 
+async function verifyUploadedFiles(sandbox, workspaceDirectory, files) {
+  if (files.length === 0) return;
+  const expected = files.map((file) =>
+    createHash("sha256").update(file.content, "utf8").digest("hex"),
+  );
+  const command = [
+    "set -e",
+    ...files.map((file) => `sha256sum ${shellQuote(file.path)} | cut -d " " -f 1`),
+  ].join("\n");
+  const response = await sandbox.process.executeCommand(
+    command,
+    workspaceDirectory,
+    undefined,
+    30,
+  );
+  const actual = cleanProcessOutput(response.result).trim().split("\n").filter(Boolean);
+  if (response.exitCode !== 0 || actual.length !== expected.length) {
+    throw new Error("The sandbox could not verify the uploaded file set");
+  }
+  const mismatch = expected.findIndex((hash, index) => hash !== actual[index]?.trim());
+  if (mismatch !== -1) {
+    throw new Error(`The sandbox received stale content for ${files[mismatch].path}`);
+  }
+}
+
 export async function provisionSandbox({ sessionId, challenge }) {
   const sandbox = await daytona.create(
     {
@@ -86,6 +112,7 @@ export async function provisionSandbox({ sessionId, challenge }) {
     if (prepare.exitCode !== 0) throw new Error(`Unable to prepare sandbox workspace: ${prepare.result}`);
 
     await uploadFiles(sandbox, workspaceDirectory, challenge.files);
+    await verifyUploadedFiles(sandbox, workspaceDirectory, challenge.files);
 
     const install = await runSessionCommand(
       sandbox,
@@ -133,11 +160,28 @@ export async function provisionSandbox({ sessionId, challenge }) {
 
 export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory, challenge, files }) {
   const sandbox = await daytona.get(sandboxId);
-  await uploadFiles(
+  const submittedFiles = Object.entries(files).map(([filePath, content]) => ({
+    path: filePath,
+    content,
+  }));
+  await uploadFiles(sandbox, workspaceDirectory, submittedFiles);
+  await verifyUploadedFiles(sandbox, workspaceDirectory, submittedFiles);
+
+  const validation = await runSessionCommand(
     sandbox,
-    workspaceDirectory,
-    Object.entries(files).map(([filePath, content]) => ({ path: filePath, content })),
+    `validate-${sessionId}-${Date.now()}`,
+    `cd ${shellQuote(workspaceDirectory)} && ${challenge.validationCommand}`,
+    180,
   );
+  if (validation.exitCode !== 0) {
+    return {
+      command: {
+        ...validation,
+        stderr: combinedCommandOutput(validation),
+      },
+      reportText: "",
+    };
+  }
 
   await sandbox.process.executeCommand(
     "rm -f /tmp/codebreak-results.json",

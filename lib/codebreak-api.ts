@@ -11,6 +11,7 @@ export type Challenge = {
   title: string;
   category: string;
   difficulty: string;
+  stack: string;
   problemStatement: string;
   criteria: Criterion[];
   hints: { tier1: string; tier2: string; tier3: string };
@@ -21,6 +22,8 @@ export type Challenge = {
   };
   files: ChallengeFile[];
 };
+
+export type ChallengeSummary = Pick<Challenge, "id" | "title" | "category" | "difficulty" | "stack">;
 
 export type SessionStatus =
   | "provisioning"
@@ -78,6 +81,10 @@ export function createSession(challengeId: string) {
       body: JSON.stringify({ challengeId }),
     },
   );
+}
+
+export function listChallenges() {
+  return jsonRequest<{ challenges: ChallengeSummary[] }>("/api/challenges");
 }
 
 export function getSession(sessionId: string) {

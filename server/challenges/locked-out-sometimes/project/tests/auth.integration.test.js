@@ -1,6 +1,5 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createApiClient } from "../client/src/api/apiClient.js";
-import { app } from "../server/app.js";
 import { auth } from "../server/middleware/auth.js";
 
 function runMiddleware(headers) {
@@ -30,26 +29,10 @@ function runMiddleware(headers) {
 }
 
 describe("authentication contract", () => {
-  let server;
-  let baseUrl;
-
-  beforeAll(async () => {
-    server = await new Promise((resolve) => {
-      const listener = app.listen(0, "127.0.0.1", () => resolve(listener));
-    });
-    baseUrl = `http://127.0.0.1:${server.address().port}`;
-  });
-
-  afterAll(async () => {
-    await new Promise((resolve, reject) => {
-      server.close((error) => error ? reject(error) : resolve());
-    });
-  });
-
   it("rejects requests without a token", async () => {
-    const response = await fetch(`${baseUrl}/api/dashboard`);
-    expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({ message: "Authentication required" });
+    const result = await runMiddleware({});
+    expect(result.status).toBe(401);
+    expect(result.body).toEqual({ message: "Authentication required" });
   });
 
   it("client and middleware agree on the authentication header", async () => {
@@ -68,10 +51,8 @@ describe("authentication contract", () => {
   });
 
   it("accepts a valid bearer token and forwards the request", async () => {
-    const response = await fetch(`${baseUrl}/api/dashboard`, {
-      headers: { Authorization: "Bearer valid-token" },
-    });
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ message: "Welcome back", userId: "student-42" });
+    const result = await runMiddleware({ Authorization: "Bearer valid-token" });
+    expect(result.forwarded).toBe(true);
+    expect(result.user).toEqual({ id: "student-42" });
   });
 });

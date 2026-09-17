@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "test": "node --test test/result-parser.test.js",
+    "test": "node --test test/*.test.js",
     "check": "node --check src/index.js && node --check src/daytona.js && node --check src/challenges.js && node --check src/result-parser.js && node --check src/session-store.js"
   },
   "dependencies": {

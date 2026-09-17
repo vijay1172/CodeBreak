@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   AlertTriangle, Beaker, Check, CheckCircle2, Circle, Code2, FileCode2, Files,
   Flag, FlaskConical, Lightbulb, LoaderCircle, LockKeyhole, Play, RefreshCw,
@@ -12,16 +12,17 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  createSession, deleteSession, endSessionOnUnload, getSession, reportChallenge, runSessionTests,
-  type Challenge, type SessionStatus, type TestRunResult,
+  createSession, deleteSession, endSessionOnUnload, getSession, listChallenges, reportChallenge, runSessionTests,
+  type Challenge, type ChallengeSummary, type SessionStatus, type TestRunResult,
 } from "@/lib/codebreak-api";
 
-const challengeId = "locked-out-sometimes";
 const fileName = (path: string) => path.split("/").pop() || path;
 const fileMap = (challenge: Challenge) => Object.fromEntries(challenge.files.map((file) => [file.path, file.content]));
 
 export function CodeBreakApp() {
   const startedRef = useRef(false);
+  const [challengeOptions, setChallengeOptions] = useState<ChallengeSummary[]>([]);
+  const [selectedChallengeId, setSelectedChallengeId] = useState("");
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>("provisioning");
@@ -39,7 +40,7 @@ export function CodeBreakApp() {
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
 
-  async function startNewSession() {
+  async function startNewSession(challengeId: string) {
     setSessionStatus("provisioning");
     setSessionError(null);
     setResult(null);
@@ -61,7 +62,18 @@ export function CodeBreakApp() {
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
-    void startNewSession();
+    void (async () => {
+      try {
+        const { challenges } = await listChallenges();
+        if (challenges.length === 0) throw new Error("No challenges are available");
+        setChallengeOptions(challenges);
+        setSelectedChallengeId(challenges[0].id);
+        await startNewSession(challenges[0].id);
+      } catch (error) {
+        setSessionStatus("error");
+        setSessionError(error instanceof Error ? error.message : "Unable to load challenges");
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -101,10 +113,6 @@ export function CodeBreakApp() {
 
   const activeDefinition = challenge?.files.find((file) => file.path === activeFile);
   const activeCode = files[activeFile] ?? "";
-  const editableFiles = useMemo(
-    () => Object.fromEntries((challenge?.files || []).filter((file) => file.editable).map((file) => [file.path, files[file.path] ?? ""])),
-    [challenge, files],
-  );
   const runEnabled = sessionStatus === "ready" && !isRunning;
   const hints = challenge ? [challenge.hints.tier1, challenge.hints.tier2, challenge.hints.tier3] : [];
 
@@ -128,7 +136,10 @@ export function CodeBreakApp() {
     setResult(null);
     setBottomTab("output");
     try {
-      const nextResult = await runSessionTests(sessionId, editableFiles);
+      const currentFileSnapshot = Object.fromEntries(
+        (challenge?.files || []).filter((file) => file.editable).map((file) => [file.path, files[file.path] ?? ""]),
+      );
+      const nextResult = await runSessionTests(sessionId, currentFileSnapshot);
       setResult(nextResult);
       setSessionStatus("ready");
       if (nextResult.diagnostics.length > 0) setBottomTab("problems");
@@ -145,14 +156,30 @@ export function CodeBreakApp() {
   async function retrySession() {
     if (sessionId) await deleteSession(sessionId).catch(() => undefined);
     setSessionId(null);
-    await startNewSession();
+    if (selectedChallengeId) await startNewSession(selectedChallengeId);
+  }
+
+  async function switchChallenge(nextChallengeId: string) {
+    if (!nextChallengeId || nextChallengeId === selectedChallengeId || isRunning) return;
+    const oldSessionId = sessionId;
+    setSelectedChallengeId(nextChallengeId);
+    setSessionId(null);
+    setChallenge(null);
+    setFiles({});
+    setInitialFiles({});
+    setActiveFile("");
+    setResult(null);
+    setHintCount(0);
+    setSessionStatus("provisioning");
+    if (oldSessionId) await deleteSession(oldSessionId).catch(() => undefined);
+    await startNewSession(nextChallengeId);
   }
 
   async function submitReport() {
     setReportSubmitting(true);
     setReportError(null);
     try {
-      await reportChallenge(challengeId, sessionId);
+      await reportChallenge(challenge?.id || selectedChallengeId, sessionId);
       setReported(true);
     } catch (error) {
       setReportError(error instanceof Error ? error.message : "Unable to submit the report");
@@ -174,8 +201,10 @@ export function CodeBreakApp() {
       <section className="border-b border-white/10 bg-[#0a0e19] px-4 py-3 sm:px-6">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="font-mono text-xs font-semibold text-[#7165d8]">01</span>
-            <h1 className="truncate text-base font-semibold tracking-[-0.01em] text-white sm:text-lg">{challenge?.title || "Starting your challenge…"}</h1>
+            <span className="font-mono text-xs font-semibold text-[#7165d8]">{String(Math.max(1, challengeOptions.findIndex((item) => item.id === selectedChallengeId) + 1)).padStart(2, "0")}/{String(challengeOptions.length || 8).padStart(2, "0")}</span>
+            <select aria-label="Select challenge" value={selectedChallengeId} disabled={challengeOptions.length === 0 || isRunning} onChange={(event) => void switchChallenge(event.target.value)} className="max-w-[260px] cursor-pointer truncate rounded-lg border border-white/10 bg-[#111725] px-3 py-1.5 text-sm font-semibold text-white outline-none focus:border-[#7d6cff] sm:max-w-[420px] sm:text-base">
+              {challengeOptions.map((item) => <option key={item.id} value={item.id} className="bg-[#111725]">{item.title} · {item.category}</option>)}
+            </select>
             {challenge && <Badge variant="outline" className="hidden border-white/10 bg-white/[0.03] capitalize text-[#aab3c8] sm:flex">{challenge.difficulty}</Badge>}
           </div>
           <div className="flex items-center gap-2">
