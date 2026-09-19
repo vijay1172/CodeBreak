@@ -116,7 +116,9 @@ function serializeSession(record) {
 
 async function provisionSession(sessionId, challenge) {
   try {
-    const provisioned = await provisionSandbox({ sessionId, challenge, onStep: (step) => { void markSessionStep(sessionId, step).catch(() => {}); } });
+    const provisioned = await provisionSandbox({ sessionId, challenge, onStep: (step) => {
+      markSessionStep(sessionId, step).catch(() => markSessionStep(sessionId, "step-write-failed").catch(() => {}));
+    } });
     const current = await getSessionRecord(sessionId);
     if (["deleted", "deleting"].includes(current?.status)) {
       await deleteSandbox(provisioned.sandboxId);
