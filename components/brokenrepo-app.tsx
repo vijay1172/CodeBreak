@@ -37,6 +37,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     let disposed = false;
     let id = "";
     let timer: ReturnType<typeof setTimeout>;
+    const beganAt = Date.now();
     async function poll() {
       try {
         const record = await getSession(id);
@@ -123,7 +124,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
       <ol className="provision-steps">
         {stepList.map((entry, index) => {
           const state = index < stepIndex ? "done" : index === stepIndex ? "active" : "todo";
-          return <li key={entry.id} className={state}>
+          return <li key={entry.label} className={state}>
             <span className="marker" aria-hidden="true">{state === "done" ? <CheckCircle2 size={15}/> : <span className="dot"/>}</span>
             <span>{entry.label}{state === "active" ? "…" : ""}</span>
           </li>;
