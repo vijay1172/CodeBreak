@@ -23,8 +23,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
   const [reported, setReported] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [retry, setRetry] = useState(0);
-  const [step, setStep] = useState("booting");
-  const [stepSince, setStepSince] = useState(Date.now());
+  const [provisionStartedAt, setProvisionStartedAt] = useState(Date.now());
   const [now, setNow] = useState(Date.now());
   const [resetOpen, setResetOpen] = useState(false);
   const filesRef = useRef(files);
@@ -38,7 +37,6 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     let disposed = false;
     let id = "";
     let timer: ReturnType<typeof setTimeout>;
-    const beganAt = Date.now();
     async function poll() {
       try {
         const record = await getSession(id);
@@ -46,12 +44,12 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
         setStatus(record.status);
         if (record.error) setError(record.error);
         if (record.status === "provisioning") {
-          if (record.provisionStep !== step) { setStep(record.provisionStep || "booting"); setStepSince(Date.now()); }
           if (Date.now() - beganAt > 360_000) { setStatus("error"); setError("The sandbox is taking unusually long to prepare. Start a fresh session to try again."); return; }
           timer = setTimeout(poll, 1500);
         }
       } catch (error) { if (!disposed) { setStatus("error"); setError(error instanceof Error ? error.message : "Couldn’t prepare your lab."); } }
     }
+    setProvisionStartedAt(Date.now());
     void createSession(challengeId).then(async created => {
       id = created.sessionId;
       if (disposed) { await deleteSession(id); return; }
@@ -108,19 +106,16 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     catch (error) { toast.error(error instanceof Error ? error.message : "Couldn’t send the report."); }
     finally { setReporting(false); }
   }
+  const provisionElapsed = Math.floor((now - provisionStartedAt) / 1000);
   const stepList = [
-    { id: "booting", label: "Booting the sandbox" },
-    ...(challenge?.requiresMongo ? [{ id: "database", label: "Preparing the database runtime" }] : []),
-    { id: "files", label: "Loading project files" },
-    { id: "installing", label: "Installing dependencies" },
-    { id: "starting", label: "Starting the challenge app" },
+    { until: 20, label: "Booting the sandbox" },
+    { until: 35, label: "Loading project files" },
+    { until: 110, label: "Installing dependencies" },
+    { until: Infinity, label: "Starting the challenge app" },
   ];
-  const stepIndex = Math.max(stepList.findIndex((entry) => entry.id === step), 0);
-  const stepElapsedSeconds = Math.floor((now - stepSince) / 1000);
-  const reassure = status === "provisioning" && stepElapsedSeconds > 40
-    ? step === "installing"
-      ? "Still installing dependencies — this can take a moment on the first load."
-      : "Still working — this step can take a moment."
+  const stepIndex = stepList.findIndex((entry) => provisionElapsed < entry.until);
+  const reassure = status === "provisioning" && provisionElapsed > 45
+    ? "Still working — first runs can take a couple of minutes."
     : "";
   const provisionPanel = status === "provisioning" && challenge && (
     <div className="provision-panel" role="status" aria-live="polite">

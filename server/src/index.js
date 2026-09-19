@@ -22,7 +22,6 @@ import {
   markSessionError,
   markSessionReady,
   markSessionRunning,
-  markSessionStep,
   saveSessionRun,
   touchSession,
 } from "./session-store.js";
@@ -108,7 +107,6 @@ function serializeSession(record) {
     status: record.status,
     files: record.files,
     error: record.error,
-    provisionStep: record.provisionStep ?? null,
     lastRun: record.lastRun,
     lastActivityAt: record.lastActivityAt,
   };
@@ -116,9 +114,7 @@ function serializeSession(record) {
 
 async function provisionSession(sessionId, challenge) {
   try {
-    const provisioned = await provisionSandbox({ sessionId, challenge, onStep: (step) => {
-      markSessionStep(sessionId, step).catch(() => markSessionStep(sessionId, "step-write-failed").catch(() => {}));
-    } });
+    const provisioned = await provisionSandbox({ sessionId, challenge });
     const current = await getSessionRecord(sessionId);
     if (["deleted", "deleting"].includes(current?.status)) {
       await deleteSandbox(provisioned.sandboxId);

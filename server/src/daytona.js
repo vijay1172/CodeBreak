@@ -86,8 +86,7 @@ async function verifyUploadedFiles(sandbox, workspaceDirectory, files) {
   }
 }
 
-export async function provisionSandbox({ sessionId, challenge, onStep }) {
-  onStep?.("booting");
+export async function provisionSandbox({ sessionId, challenge }) {
   const sandbox = await daytona.create(
     {
       language: CodeLanguage.JAVASCRIPT,
@@ -107,10 +106,7 @@ export async function provisionSandbox({ sessionId, challenge, onStep }) {
   );
 
   try {
-    if (challenge.requiresMongo) {
-      onStep?.("database");
-      await installSandboxMongo(sandbox);
-    }
+    if (challenge.requiresMongo) await installSandboxMongo(sandbox);
     const baseDirectory = (await sandbox.getWorkDir()) || (await sandbox.getUserHomeDir());
     if (!baseDirectory) throw new Error("Daytona did not provide a working directory");
     const workspaceDirectory = `${baseDirectory}/brokenrepo`;
@@ -122,11 +118,9 @@ export async function provisionSandbox({ sessionId, challenge, onStep }) {
     );
     if (prepare.exitCode !== 0) throw new Error(`Unable to prepare sandbox workspace: ${prepare.result}`);
 
-    onStep?.("files");
     await uploadFiles(sandbox, workspaceDirectory, challenge.files);
     await verifyUploadedFiles(sandbox, workspaceDirectory, challenge.files);
 
-    onStep?.("installing");
     const install = await runSessionCommand(
       sandbox,
       `install-${sessionId}`,
@@ -137,7 +131,6 @@ export async function provisionSandbox({ sessionId, challenge, onStep }) {
       throw new Error(`Dependency installation failed:\n${install.stderr || install.stdout || install.output}`);
     }
 
-    onStep?.("starting");
     const appSessionId = `app-${sessionId}`;
     await sandbox.process.createSession(appSessionId);
     const appCommand = await sandbox.process.executeSessionCommand(
