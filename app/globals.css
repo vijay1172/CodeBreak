@@ -164,10 +164,10 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono)}
 .page-heading h1{font-size:clamp(2rem,4vw,3.5rem)}
 .page-heading p{color:var(--muted-foreground);margin-top:16px}
 .library{min-height:72vh;padding-bottom:80px}
-.progress-strip,.account-prompt{display:flex;align-items:center;gap:30px;flex-wrap:wrap;border-block:1px solid var(--border);padding:24px 0}
+.progress-strip{display:flex;align-items:center;gap:30px;flex-wrap:wrap;border-block:1px solid var(--border);padding:24px 0}
+.save-note{margin-top:-6px;font-size:12px;color:var(--muted-foreground)}
 .progress-strip strong{font-size:24px;color:var(--primary);margin-right:8px}
 .progress-strip>span:last-child{font-size:12px;color:var(--muted-foreground);margin-left:auto}
-.account-prompt p{margin-right:auto}
 .filters{display:flex;gap:12px;margin-block:35px 20px;flex-wrap:wrap}
 .search-field{display:flex;align-items:center;gap:8px;border:1px solid var(--input);background:var(--card);border-radius:5px;flex:1;min-width:190px;padding-left:12px}
 .search-field input{border:0;width:100%}
@@ -264,7 +264,7 @@ progress{width:100%;height:7px;accent-color:var(--success)}
  .site-footer{padding:25px 20px;gap:18px}.site-footer nav{width:100%;gap:20px}
  .auth-layout,.contact-layout{grid-template-columns:1fr;gap:30px;padding-block:45px}.auth-copy h1{font-size:2.7rem}.auth-note{display:none}.auth-form{max-width:100%;padding:24px}.auth-copy p{margin-top:18px}
  .contact-copy{padding-top:0}.contact-copy h1{font-size:2.7rem}.contact-copy>p{font-size:15px;margin-top:18px}.contact-copy dl{margin-top:28px}.contact-form,.contact-success{padding:24px}.contact-copy dl>div{grid-template-columns:90px 1fr;font-size:13px}
- .page-heading{padding-block:40px 25px}.progress-strip{gap:15px}.progress-strip>span:last-child{margin-left:0;width:100%}.account-prompt{gap:18px}.account-prompt p{width:100%;font-size:13px}
+ .page-heading{padding-block:40px 25px}.progress-strip{gap:15px}.progress-strip>span:last-child{margin-left:0;width:100%}
  .filters{gap:8px}.search-field{flex-basis:100%}.filters select{flex:1;width:45%;padding:10px 6px}
  .challenge-row{grid-template-columns:22px minmax(0,1fr) auto;gap:10px;padding-block:22px}.challenge-row h2{font-size:17px}.challenge-row>.level{grid-column:2}.challenge-row>.completion{grid-column:3;grid-row:2}.challenge-row>.button{grid-column:2/4;grid-row:3;margin-top:7px}
  .category-progress ul{grid-template-columns:1fr;gap:14px}.category-progress li{grid-template-columns:1fr 65px 25px}
