@@ -68,16 +68,23 @@ export function parseTestRun({ criteria, reportText, command }) {
     ...(parseError ? [parseError] : []),
     ...(report ? collectFailureMessages(report) : []),
     ...(command.stderr?.trim() ? [command.stderr.trim()] : []),
-    ...(command.output?.trim() ? [command.output.trim()] : []),
+    ...(command.exitCode !== 0 && command.output?.trim() ? [command.output.trim()] : []),
   ].filter(Boolean);
 
   if (!report && command.exitCode !== 0 && command.stdout?.trim()) {
     diagnostics.push(command.stdout.trim());
   }
 
+  // A broken runtime is not a valid partially passing submission.
+  const runtimeFailure = diagnostics.some(message =>
+    /^(?:SyntaxError|ReferenceError|TypeError|RangeError|EvalError|URIError):/m.test(message),
+  );
+  if (runtimeFailure) {
+    for (const result of results) result.status = "not_run";
+  }
   const passed = results.filter((result) => result.status === "passed").length;
   return {
-    phase: report && executedAssertions.length > 0 ? "test" : "compile",
+    phase: !runtimeFailure && report && executedAssertions.length > 0 ? "test" : "compile",
     exitCode: command.exitCode,
     stdout: command.stdout || "",
     stderr: command.stderr || "",

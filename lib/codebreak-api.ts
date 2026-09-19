@@ -59,21 +59,19 @@ export type TestRunResult = {
   allPassed: boolean;
 };
 
-export const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_CODEBREAK_API_URL || "http://localhost:4000"
-).replace(/\/$/, "");
+export const apiBaseUrl = "/api/backend";
 
-async function jsonRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, init);
+export async function jsonRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${apiBaseUrl}${path.replace(/^\/api/, "")}`, { ...init, cache: "no-store" });
   const body = (await response.json().catch(() => ({}))) as T & { error?: string };
   if (!response.ok) {
-    throw new Error(body.error || `Request failed with status ${response.status}`);
+    throw new Error(body.error || "We couldn’t complete that action. Please try again.");
   }
   return body;
 }
 
 export function createSession(challengeId: string) {
-  return jsonRequest<{ sessionId: string; status: SessionStatus; challenge: Challenge }>(
+  return jsonRequest<{ sessionId: string; status: SessionStatus; challenge: Challenge; starterFiles: ChallengeFile[] }>(
     "/api/sessions",
     {
       method: "POST",
@@ -92,7 +90,7 @@ export function getSession(sessionId: string) {
 }
 
 export async function runSessionTests(sessionId: string, files: Record<string, string>) {
-  const response = await fetch(`${apiBaseUrl}/api/sessions/${sessionId}/run`, {
+  const response = await fetch(`${apiBaseUrl}/sessions/${sessionId}/run`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ files }),
@@ -105,14 +103,14 @@ export async function runSessionTests(sessionId: string, files: Record<string, s
 }
 
 export function deleteSession(sessionId: string, keepalive = false) {
-  return fetch(`${apiBaseUrl}/api/sessions/${sessionId}`, {
+  return fetch(`${apiBaseUrl}/sessions/${sessionId}`, {
     method: "DELETE",
     keepalive,
   });
 }
 
 export function endSessionOnUnload(sessionId: string) {
-  const endpoint = `${apiBaseUrl}/api/sessions/${sessionId}/end`;
+  const endpoint = `${apiBaseUrl}/sessions/${sessionId}/end`;
   if (typeof navigator !== "undefined" && navigator.sendBeacon(endpoint)) return;
   void fetch(endpoint, { method: "POST", keepalive: true });
 }

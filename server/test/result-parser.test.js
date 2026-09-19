@@ -8,6 +8,27 @@ const criteria = [
   { id: "valid", title: "accepts a valid bearer token and forwards the request" },
 ];
 
+test("invalidates unrelated passes when a submitted module throws at runtime", () => {
+  const result = parseTestRun({
+    criteria,
+    command: { exitCode: 1, stdout: "", stderr: "" },
+    reportText: JSON.stringify({
+      testResults: [{
+        assertionResults: [
+          { title: criteria[0].title, status: "passed" },
+          { title: criteria[1].title, status: "failed", failureMessages: ["TypeError: createApiClient is not a function"] },
+          { title: criteria[2].title, status: "passed" },
+        ],
+      }],
+    }),
+  });
+  assert.equal(result.phase, "compile");
+  assert.equal(result.summary.passed, 0);
+  assert.equal(result.allPassed, false);
+  assert.ok(result.tests.every(item => item.status === "not_run"));
+  assert.match(result.diagnostics.join("\n"), /createApiClient is not a function/);
+});
+
 test("maps only actual assertion results to passed criteria", () => {
   const result = parseTestRun({
     criteria,

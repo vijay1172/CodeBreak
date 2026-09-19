@@ -9,6 +9,8 @@ const client = new MongoClient(config.mongoUri, {
 let sessions;
 let reports;
 
+export function database() { return client.db(config.mongoDbName); }
+
 export async function connectSessionStore() {
   await client.connect();
   const database = client.db(config.mongoDbName);
@@ -24,11 +26,12 @@ function collection() {
   return sessions;
 }
 
-export async function createSessionRecord({ id, challengeId, files }) {
+export async function createSessionRecord({ id, challengeId, files, userId }) {
   const now = new Date();
   await collection().insertOne({
     _id: id,
     challengeId,
+    userId,
     files,
     status: "provisioning",
     sandboxId: null,

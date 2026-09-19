@@ -6,6 +6,8 @@ import { config } from "./config.js";
 import { assertEditableFiles, getChallenge, listChallenges, publicChallenge } from "./challenges.js";
 import { deleteSandbox, provisionSandbox, runSandboxTests } from "./daytona.js";
 import { parseTestRun } from "./result-parser.js";
+import { accountRouter, requireAccount, saveProgress, setupAccounts } from "./accounts.js";
+import { database } from "./session-store.js";
 import {
   closeSessionStore,
   connectSessionStore,
@@ -66,6 +68,11 @@ function serializeSession(record) {
 async function provisionSession(sessionId, challenge) {
   try {
     const provisioned = await provisionSandbox({ sessionId, challenge });
+    const current = await getSessionRecord(sessionId);
+    if (["deleted", "deleting"].includes(current?.status)) {
+      await deleteSandbox(provisioned.sandboxId);
+      return;
+    }
     await markSessionReady(sessionId, provisioned);
   } catch (error) {
     await markSessionError(sessionId, safeError(error));
@@ -90,13 +97,26 @@ app.get("/api/challenges", (_req, res) => {
   res.json({ challenges: listChallenges() });
 });
 
+app.use("/api/auth", accountRouter);
+app.get("/api/progress", requireAccount, async (req, res) => {
+  const progress = await database().collection("progress").find({ userId: req.userId }, { projection: { files: 0, lastResult: 0, userId: 0, _id: 0 } }).toArray();
+  res.set("Cache-Control", "no-store").json({ progress });
+});
+app.use("/api/sessions", requireAccount);
+app.use("/api/sessions/:sessionId", async (req, res, next) => {
+  const record = await getSessionRecord(req.params.sessionId);
+  if (!record || record.userId !== req.userId) return res.status(404).json({ error: "This lab session isn’t available. Open a challenge to start again." });
+  res.set("Cache-Control", "no-store");
+  next();
+});
+
 app.get("/api/challenges/:challengeId", async (req, res) => {
   const challenge = await getChallenge(req.params.challengeId);
   if (!challenge) return res.status(404).json({ error: "Challenge not found" });
   return res.json(publicChallenge(challenge));
 });
 
-app.post("/api/challenges/:challengeId/reports", async (req, res) => {
+app.post("/api/challenges/:challengeId/reports", requireAccount, async (req, res) => {
   const parsed = challengeReportSchema.safeParse(req.body || {});
   if (!parsed.success) return res.status(400).json({ error: "Invalid challenge report" });
   const challenge = await getChallenge(req.params.challengeId);
@@ -118,16 +138,21 @@ app.post("/api/sessions", async (req, res) => {
 
   const sessionId = randomUUID();
   const editable = new Set(challenge.editablePaths);
-  const files = Object.fromEntries(
+  let files = Object.fromEntries(
     challenge.files.filter((file) => editable.has(file.path)).map((file) => [file.path, file.content]),
   );
-  await createSessionRecord({ id: sessionId, challengeId: challenge.id, files });
-  void provisionSession(sessionId, challenge);
+  const saved = await database().collection("progress").findOne({ userId: req.userId, challengeId: challenge.id });
+  if (saved?.files) files = { ...files, ...saved.files };
+  const starterFiles = challenge.files;
+  challenge.files = challenge.files.map((file) => ({ ...file, content: files[file.path] ?? file.content }));
+  await createSessionRecord({ id: sessionId, challengeId: challenge.id, files, userId: req.userId });
+  void provisionSession(sessionId, { ...challenge, files: starterFiles });
 
   return res.status(202).json({
     sessionId,
     status: "provisioning",
     challenge: publicChallenge(challenge),
+    starterFiles: starterFiles.filter(file => editable.has(file.path)),
   });
 });
 
@@ -174,6 +199,7 @@ app.post("/api/sessions/:sessionId/run", async (req, res) => {
       command: execution.command,
     });
     await saveSessionRun(record._id, { files, result });
+    await saveProgress(req.userId, challenge.id, files, result);
     return res.json(result);
   } catch (error) {
     const message = safeError(error);
@@ -204,6 +230,17 @@ app.delete("/api/sessions/:sessionId", async (req, res) => {
   return res.status(204).end();
 });
 
+app.put("/api/sessions/:sessionId/files", async (req, res) => {
+  const parsed = runTestsSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "We couldn’t read those files. Please try saving again." });
+  const record = await getSessionRecord(req.params.sessionId);
+  const challenge = await getChallenge(record.challengeId);
+  try { assertEditableFiles(challenge, parsed.data.files); }
+  catch { return res.status(400).json({ error: "Only editable project files can be saved." }); }
+  await saveProgress(req.userId, record.challengeId, parsed.data.files);
+  res.json({ message: "Your code is saved to your account." });
+});
+
 app.post("/api/sessions/:sessionId/end", async (req, res) => {
   const record = await getSessionRecord(req.params.sessionId);
   if (!record) return res.status(204).end();
@@ -218,6 +255,7 @@ app.use((error, _req, res, _next) => {
 });
 
 await connectSessionStore();
+await setupAccounts();
 
 const cleanupInterval = setInterval(async () => {
   const cutoff = new Date(Date.now() - config.sessionIdleMinutes * 60_000);

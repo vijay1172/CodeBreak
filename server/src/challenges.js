@@ -94,7 +94,7 @@ const challengeDefinitions = {
     criteria: [
       { id: "single-search", title: "shows results for a single completed search" },
       { id: "latest-search", title: "keeps results from the most recent query" },
-      { id: "search-errors", title: "surfaces search-service failures" },
+      { id: "search-errors", title: "rejects when the search service fails" },
     ],
     hints: {
       tier1: "Two requests can resolve in a different order from the order in which they started.",
@@ -188,7 +188,7 @@ const challengeDefinitions = {
     criteria: [
       { id: "dashboard-path", title: "builds the dashboard endpoint correctly" },
       { id: "environment-url", title: "uses the deployment API URL supplied by the environment" },
-      { id: "trailing-slash", title: "avoids duplicate slashes when joining URL paths" },
+      { id: "trailing-slash", title: "removes a trailing slash before appending a route" },
     ],
     hints: {
       tier1: "Look for a URL that is fixed to one developer environment.",
