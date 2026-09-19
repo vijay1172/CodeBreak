@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-const SUPPORT_EMAIL = process.env.CODEBREAK_SUPPORT_EMAIL?.trim() || "vijaysharma11702@gmail.com";
-const SUPPORT_FROM = process.env.CODEBREAK_SUPPORT_FROM?.trim() || "CodeBreak Support <onboarding@resend.dev>";
+const SUPPORT_EMAIL = process.env.BROKENREPO_SUPPORT_EMAIL?.trim() || "vijaysharma11702@gmail.com";
+const SUPPORT_FROM = process.env.BROKENREPO_SUPPORT_FROM?.trim() || "BrokenRepo Support <onboarding@resend.dev>";
 const topics = {
   challenge: "Challenge or test result",
   account: "Account or progress",
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       from: SUPPORT_FROM,
       to: [SUPPORT_EMAIL],
       reply_to: email,
-      subject: `CodeBreak support: ${topics[topic]}`,
+      subject: `BrokenRepo support: ${topics[topic]}`,
       text: [
         `From: ${name} <${email}>`,
         `Topic: ${topics[topic]}`,

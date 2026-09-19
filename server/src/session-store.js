@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb";
 import { config } from "./config.js";
 
 const client = new MongoClient(config.mongoUri, {
-  appName: "codebreak-orchestrator",
+  appName: "brokenrepo-orchestrator",
   serverSelectionTimeoutMS: 10_000,
 });
 

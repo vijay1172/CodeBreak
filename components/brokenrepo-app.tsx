@@ -4,10 +4,10 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { CheckCircle2, Circle, FileCode2, Play, Save, RotateCcw, XCircle } from "lucide-react";
-import { createSession, deleteSession, endSessionOnUnload, getSession, jsonRequest, reportChallenge, runSessionTests, type Challenge, type TestRunResult, type SessionStatus } from "@/lib/codebreak-api";
+import { createSession, deleteSession, endSessionOnUnload, getSession, jsonRequest, reportChallenge, runSessionTests, type Challenge, type TestRunResult, type SessionStatus } from "@/lib/brokenrepo-api";
 import { SiteHeader, SiteFooter } from "./site-shell";
 const CodeEditor = dynamic(() => import("./code-editor").then(m => m.CodeEditor), { ssr: false, loading: () => <p className="editor-loading">Loading code editor…</p> });
-export function CodeBreakApp({ challengeId }: { challengeId: string }) {
+export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [sessionId, setSessionId] = useState("");
   const [status, setStatus] = useState<SessionStatus>("provisioning");

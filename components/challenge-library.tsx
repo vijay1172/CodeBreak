@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Circle, Search } from "lucide-react";
-import { jsonRequest, listChallenges, type ChallengeSummary } from "@/lib/codebreak-api";
+import { jsonRequest, listChallenges, type ChallengeSummary } from "@/lib/brokenrepo-api";
 import { SiteHeader, SiteFooter } from "./site-shell";
 type Progress = { challengeId: string; attempted?: boolean; solved?: boolean; attempts?: number };
 export function ChallengeLibrary({ progressOnly = false }: { progressOnly?: boolean }) {

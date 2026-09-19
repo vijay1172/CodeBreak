@@ -1,5 +1,5 @@
 {
-  "name": "codebreak-the-split-import",
+  "name": "brokenrepo-the-split-import",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "start:challenge": "npm run build:client && CODEBREAK_SANDBOX=1 node server/server.js",
+    "start:challenge": "npm run build:client && BROKENREPO_SANDBOX=1 node server/server.js",
     "start:client": "vite --host 0.0.0.0",
     "build:client": "vite build",
     "test": "vitest run"

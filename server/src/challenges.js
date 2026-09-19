@@ -25,7 +25,7 @@ const baseEditablePaths = [
 ];
 
 const validationCommand =
-  "codebreak_validation_status=0; for file in $(find client/src server -type f \\( -name '*.js' -o -name '*.jsx' \\)); do ./node_modules/.bin/esbuild \"$file\" --loader:.js=jsx --format=esm --outfile=/dev/null --log-level=error || { codebreak_validation_status=1; break; }; done; test \"$codebreak_validation_status\" -eq 0";
+  "brokenrepo_validation_status=0; for file in $(find client/src server -type f \\( -name '*.js' -o -name '*.jsx' \\)); do ./node_modules/.bin/esbuild \"$file\" --loader:.js=jsx --format=esm --outfile=/dev/null --log-level=error || { brokenrepo_validation_status=1; break; }; done; test \"$brokenrepo_validation_status\" -eq 0";
 
 function defineChallenge({
   id,
@@ -52,7 +52,7 @@ function defineChallenge({
     installCommand: "npm install --no-audit --no-fund",
     startCommand: "npm run start:challenge",
     validationCommand,
-    testCommand: "npm test -- --reporter=json --outputFile=/tmp/codebreak-results.json",
+    testCommand: "npm test -- --reporter=json --outputFile=/tmp/brokenrepo-results.json",
     criteria,
     hints,
     debrief,

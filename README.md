@@ -1,6 +1,6 @@
-# CodeBreak
+# BrokenRepo
 
-CodeBreak is a browser-based debugging practice platform for college students and early-career engineers. Students inspect a realistic MERN-style project, edit source files, and run hidden assertions inside a private Daytona sandbox.
+BrokenRepo is a browser-based debugging practice platform for college students and early-career engineers. Students inspect a realistic MERN-style project, edit source files, and run hidden assertions inside a private Daytona sandbox.
 
 ## What is real today
 
@@ -37,13 +37,13 @@ The Render process orchestrates untrusted code but never executes that code itse
 
 Requirements: Node.js 22+, a Daytona account, and MongoDB.
 
-1. Copy `.env.example` to `.env.local` and set `CODEBREAK_BACKEND_URL=http://localhost:4000`.
+1. Copy `.env.example` to `.env.local` and set `BROKENREPO_BACKEND_URL=http://localhost:4000`.
 2. Add these private backend values to the same ignored `.env.local`:
    - `DAYTONA_API_KEY`
    - `DAYTONA_API_URL`
    - `DAYTONA_TARGET` (optional; defaults to `us`)
    - `MONGODB_URI`
-   - `MONGODB_DB_NAME` (optional; defaults to `Codebreak`)
+   - `MONGODB_DB_NAME` (optional; defaults to `Brokenrepo`)
    - `CLIENT_ORIGINS`
 3. Install both applications:
 
@@ -78,10 +78,10 @@ The seven-challenge release has [reproducible real-sandbox checks and recorded r
 
 The header's Dark mode toggle applies to every page, the CodeMirror editor, diagnostics, and notifications. It follows the device preference initially, remembers an explicit selection, and synchronizes across tabs.
 
-The first-party support form sends through Resend. Configure `RESEND_API_KEY`, `CODEBREAK_SUPPORT_EMAIL`, and `CODEBREAK_SUPPORT_FROM` in Vercel. The sender must be allowed by the associated Resend account.
+The first-party support form sends through Resend. Configure `RESEND_API_KEY`, `BROKENREPO_SUPPORT_EMAIL`, and `BROKENREPO_SUPPORT_FROM` in Vercel. The sender must be allowed by the associated Resend account.
 
 - Render reads `render.yaml`. Add the private values from `server/.env.example` in Render.
-- Vercel reads `vercel.json`. Set server-only `CODEBREAK_BACKEND_URL` to the deployed Render URL (the older `NEXT_PUBLIC_CODEBREAK_API_URL` is supported as a fallback).
+- Vercel reads `vercel.json`. Set server-only `BROKENREPO_BACKEND_URL` to the deployed Render URL (the older `NEXT_PUBLIC_BROKENREPO_API_URL` is supported as a fallback).
 - Set Render's `CLIENT_ORIGINS` to the final Vercel production URL and any approved preview URLs.
 - Neither `.env.local` nor any provider token is committed.
 

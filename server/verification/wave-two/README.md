@@ -5,7 +5,7 @@ Run from the repository root with the normal ignored backend environment configu
 ```sh
 node server/verification/wave-two/verify.mjs
 # Optionally select IDs, or change the report destination:
-CODEBREAK_VERIFICATION_OUTPUT=/tmp/codebreak-verification.json node server/verification/wave-two/verify.mjs the-penny-gap
+BROKENREPO_VERIFICATION_OUTPUT=/tmp/brokenrepo-verification.json node server/verification/wave-two/verify.mjs the-penny-gap
 ```
 
 This provisions real Daytona sandboxes through the production orchestrator functions. Each project installs its dependencies, builds its React client, starts Express and a real isolated MongoDB process, and passes its health check before testing. MongoDB is not a mocked repository.

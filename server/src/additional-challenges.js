@@ -287,6 +287,6 @@ export function additionalChallenges(validationCommand) {
     installCommand: 'npm install --no-audit --no-fund',
     startCommand: 'npm run start:challenge',
     validationCommand,
-    testCommand: 'npm test -- --reporter=json --outputFile=/tmp/codebreak-results.json',
+    testCommand: 'npm test -- --reporter=json --outputFile=/tmp/brokenrepo-results.json',
   }]));
 }

@@ -3,11 +3,11 @@ import { BugDemo } from "@/components/bug-demo";
 import { SiteHeader, SiteFooter } from "@/components/site-shell";
 
 const faqs = [
-  { q: "What is CodeBreak?", a: "CodeBreak is a code debugging practice platform. You get a real full-stack MERN repo with a planted bug, a symptom report, and hidden tests — and you fix it in the browser editor." },
+  { q: "What is BrokenRepo?", a: "BrokenRepo is a code debugging practice platform. You get a real full-stack MERN repo with a planted bug, a symptom report, and hidden tests — and you fix it in the browser editor." },
   { q: "Do I need to install anything on my machine?", a: "No. The project opens in your browser editor and the tests run in an isolated cloud sandbox, so there is nothing to set up locally." },
   { q: "Who is this for?", a: "Beginners who want debugging practice, freshers preparing for campus placement coding rounds, and SDE-1 candidates working on interview practice." },
   { q: "What kind of bugs will I meet?", a: "Real-world ones: API contract mismatches, race conditions, React state bugs, caching mistakes, timezone and rounding errors — the repo-based question style of online assessments." },
-  { q: "Is CodeBreak free?", a: "Yes. Create an account to save your code and track progress across all fifteen challenges." },
+  { q: "Is BrokenRepo free?", a: "Yes. Create an account to save your code and track progress across all fifteen challenges." },
 ];
 
 export const metadata = {
@@ -19,7 +19,7 @@ export default function Home() {
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: "CodeBreak",
+      name: "BrokenRepo",
       url: "https://codebreak-vijay1172s-projects.vercel.app/",
       description: "Code debugging practice on real repo bugs for beginners, freshers, and SDE-1 interview preparation.",
     },

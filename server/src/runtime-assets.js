@@ -9,7 +9,7 @@ const archiveName = 'mongodb-linux-x86_64-debian12-8.2.6';
 const archiveURL = 'https://fastdl.mongodb.org/linux/' + archiveName + '.tgz';
 // Published at the same official URL with the .sha256 suffix.
 const archiveSHA256 = 'ebf8bd8eb59c746a1ec834db4fe84d853453ed67ae3c39aea379dd0bbd16a2e6';
-export const sandboxMongoPath = '/tmp/codebreak-mongod-8.2.6';
+export const sandboxMongoPath = '/tmp/brokenrepo-mongod-8.2.6';
 let pending;
 
 async function hashFile(filename) {
@@ -18,7 +18,7 @@ async function hashFile(filename) {
   return hash.digest('hex');
 }
 async function prepareMongoBinary() {
-  const directory = await fs.mkdtemp(path.join(tmpdir(), 'codebreak-mongo-'));
+  const directory = await fs.mkdtemp(path.join(tmpdir(), 'brokenrepo-mongo-'));
   const archive = path.join(directory, 'mongodb.tgz');
   try {
     const response = await fetch(archiveURL, { signal: AbortSignal.timeout(180000) });
@@ -35,7 +35,7 @@ async function prepareMongoBinary() {
 export async function installSandboxMongo(sandbox) {
   if (!pending) pending = prepareMongoBinary().catch(error => { pending = undefined; throw error; });
   const artifact = await pending;
-  const remoteArchive = '/tmp/codebreak-mongodb-8.2.6.tgz';
+  const remoteArchive = '/tmp/brokenrepo-mongodb-8.2.6.tgz';
   // Transfer the compressed archive, not the much larger executable.
   await sandbox.fs.uploadFileStream(artifact.archive, remoteArchive, { timeout: 180 });
   const check = await sandbox.process.executeCommand('sha256sum ' + remoteArchive, undefined, undefined, 30);
@@ -43,9 +43,9 @@ export async function installSandboxMongo(sandbox) {
     throw new Error('The sandbox MongoDB archive failed its upload-integrity check.');
   }
   const extract = await sandbox.process.executeCommand(
-    'mkdir -p /tmp/codebreak-mongo-runtime && tar -xzf ' + remoteArchive +
-    ' --strip-components=2 -C /tmp/codebreak-mongo-runtime ' + archiveName + '/bin/mongod' +
-    ' && mv /tmp/codebreak-mongo-runtime/mongod ' + sandboxMongoPath +
+    'mkdir -p /tmp/brokenrepo-mongo-runtime && tar -xzf ' + remoteArchive +
+    ' --strip-components=2 -C /tmp/brokenrepo-mongo-runtime ' + archiveName + '/bin/mongod' +
+    ' && mv /tmp/brokenrepo-mongo-runtime/mongod ' + sandboxMongoPath +
     ' && chmod 755 ' + sandboxMongoPath + ' && rm -f ' + remoteArchive,
     undefined, undefined, 60,
   );

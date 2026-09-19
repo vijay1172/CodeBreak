@@ -12,7 +12,7 @@ const fixtures = JSON.parse(await fs.readFile(path.join(directory, 'fixtures.jso
 const requested = process.argv.slice(2).filter(x => !x.startsWith('--'));
 const selected = requested.length ? fixtures.filter(x => requested.includes(x.id)) : fixtures;
 assert(selected.length, 'No matching challenge IDs');
-const output = process.env.CODEBREAK_VERIFICATION_OUTPUT || '/tmp/codebreak-wave-two-results.json';
+const output = process.env.BROKENREPO_VERIFICATION_OUTPUT || '/tmp/brokenrepo-wave-two-results.json';
 const report = { startedAt: new Date().toISOString(), environment: 'Real Daytona / Node / Express / isolated MongoDB', challenges: [] };
 async function persist() { await fs.writeFile(output, JSON.stringify(report, null, 2) + '\n'); }
 async function verify(fixture) {

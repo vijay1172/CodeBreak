@@ -10,15 +10,15 @@ describe("environment-specific API configuration", () => {
   });
 
   it("uses the deployment API URL supplied by the environment", () => {
-    expect(resolveApiBaseUrl({ VITE_API_BASE_URL: "https://api.codebreak.example" }))
-      .toBe("https://api.codebreak.example");
+    expect(resolveApiBaseUrl({ VITE_API_BASE_URL: "https://api.brokenrepo.example" }))
+      .toBe("https://api.brokenrepo.example");
   });
 
   it("removes a trailing slash before appending a route", async () => {
     let requestedUrl;
     const client = createApiClient({
       token: "valid-token",
-      env: { VITE_API_BASE_URL: "https://api.codebreak.example/" },
+      env: { VITE_API_BASE_URL: "https://api.brokenrepo.example/" },
       fetchImpl: async (url) => { requestedUrl = url; return { ok: true }; },
     });
     await client.getDashboard();

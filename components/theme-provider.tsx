@@ -9,7 +9,7 @@ const clientSnapshot = () => true;
 const serverSnapshot = () => false;
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  return <NextThemeProvider attribute="class" storageKey="codebreak-theme" defaultTheme="system" enableSystem disableTransitionOnChange>{children}</NextThemeProvider>;
+  return <NextThemeProvider attribute="class" storageKey="brokenrepo-theme" defaultTheme="system" enableSystem disableTransitionOnChange>{children}</NextThemeProvider>;
 }
 
 export function ThemeToggle() {

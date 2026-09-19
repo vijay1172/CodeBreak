@@ -1,4 +1,4 @@
-import { CodeBreakApp } from "@/components/codebreak-app";
+import { BrokenRepoApp } from "@/components/brokenrepo-app";
 import { notFound } from "next/navigation";
 const titles: Record<string, string> = {
   "the-missing-name": "The Missing Name", "the-ghost-update": "The Ghost Update",
@@ -12,10 +12,10 @@ const titles: Record<string, string> = {
 };
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return { title: titles[id] || "Challenge not found", description: "Debug " + (titles[id] || "a project") + " in the CodeBreak practice lab. Edit code and verify your fix with live tests.", robots: { index: false } };
+  return { title: titles[id] || "Challenge not found", description: "Debug " + (titles[id] || "a project") + " in the BrokenRepo practice lab. Edit code and verify your fix with live tests.", robots: { index: false } };
 }
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!titles[id]) notFound();
-  return <CodeBreakApp challengeId={id}/>;
+  return <BrokenRepoApp challengeId={id}/>;
 }

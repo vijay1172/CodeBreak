@@ -95,8 +95,8 @@ export async function provisionSandbox({ sessionId, challenge }) {
         MONGOMS_RUNTIME_DOWNLOAD: "0",
         MONGOMS_DISABLE_POSTINSTALL: "1",
       } : {},
-      name: `codebreak-${sessionId.slice(0, 12)}`,
-      labels: { product: "codebreak", session: sessionId, challenge: challenge.id },
+      name: `brokenrepo-${sessionId.slice(0, 12)}`,
+      labels: { product: "brokenrepo", session: sessionId, challenge: challenge.id },
       public: false,
       ephemeral: true,
       autoStopInterval: config.sessionIdleMinutes,
@@ -109,7 +109,7 @@ export async function provisionSandbox({ sessionId, challenge }) {
     if (challenge.requiresMongo) await installSandboxMongo(sandbox);
     const baseDirectory = (await sandbox.getWorkDir()) || (await sandbox.getUserHomeDir());
     if (!baseDirectory) throw new Error("Daytona did not provide a working directory");
-    const workspaceDirectory = `${baseDirectory}/codebreak`;
+    const workspaceDirectory = `${baseDirectory}/brokenrepo`;
     const prepare = await sandbox.process.executeCommand(
       `mkdir -p ${shellQuote(workspaceDirectory)}`,
       baseDirectory,
@@ -192,7 +192,7 @@ export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory
   }
 
   await sandbox.process.executeCommand(
-    "rm -f /tmp/codebreak-results.json",
+    "rm -f /tmp/brokenrepo-results.json",
     workspaceDirectory,
     undefined,
     10,
@@ -206,7 +206,7 @@ export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory
   );
 
   const report = await sandbox.process.executeCommand(
-    "test -f /tmp/codebreak-results.json && cat /tmp/codebreak-results.json",
+    "test -f /tmp/brokenrepo-results.json && cat /tmp/brokenrepo-results.json",
     workspaceDirectory,
     undefined,
     30,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
-const backend = process.env.CODEBREAK_BACKEND_URL || process.env.NEXT_PUBLIC_CODEBREAK_API_URL || "https://codebreak-api.onrender.com";
+const backend = process.env.BROKENREPO_BACKEND_URL || process.env.NEXT_PUBLIC_BROKENREPO_API_URL || "https://codebreak-api.onrender.com";
 
 // The backend sits behind this proxy, so only this layer sees real client IPs.
 // Limits are in-memory per serverless instance; the backend keeps independent
@@ -27,9 +27,9 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
     return NextResponse.json({ error: "Too many attempts. Please wait 15 minutes and try again." }, { status: 429 });
   }
   if (request.method !== "GET" && request.headers.get("origin") !== request.nextUrl.origin) {
-    return NextResponse.json({ error: "Please refresh CodeBreak and try again." }, { status: 403 });
+    return NextResponse.json({ error: "Please refresh BrokenRepo and try again." }, { status: 403 });
   }
-  const token = request.cookies.get("codebreak_session")?.value;
+  const token = request.cookies.get("brokenrepo_session")?.value;
   try {
     const response = await fetch(`${backend.replace(/\/$/, "")}/api/${path.map(encodeURIComponent).join("/")}`, {
       method: request.method,
@@ -42,8 +42,8 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
     if (sessionToken) delete body.token;
     const result = body === null ? new NextResponse(null, { status: response.status }) : NextResponse.json(body, { status: response.status });
     result.headers.set("Cache-Control", "no-store");
-    if (typeof sessionToken === "string") result.cookies.set("codebreak_session", sessionToken, { httpOnly: true, secure: request.nextUrl.protocol === "https:", sameSite: "lax", path: "/", maxAge: 7 * 86400 });
-    if (path.join("/") === "auth/logout") result.cookies.delete("codebreak_session");
+    if (typeof sessionToken === "string") result.cookies.set("brokenrepo_session", sessionToken, { httpOnly: true, secure: request.nextUrl.protocol === "https:", sameSite: "lax", path: "/", maxAge: 7 * 86400 });
+    if (path.join("/") === "auth/logout") result.cookies.delete("brokenrepo_session");
     return result;
   } catch {
     return NextResponse.json({ error: "The lab service isn’t responding. Wait a moment and try again." }, { status: 503 });

@@ -1,5 +1,5 @@
 ---
-name: CodeBreak
+name: BrokenRepo
 description: A precise code-review workspace for debugging practice.
 colors:
   primary: "#2459bd"
@@ -103,13 +103,13 @@ components:
     padding: "18px"
 ---
 
-# Design System: CodeBreak
+# Design System: BrokenRepo
 
 ## Overview
 
 **Creative North Star: "The Code Review Desk"**
 
-CodeBreak pairs cool paper, dark ink, and deliberate blue actions with the visual language of source files and diagnostic results. The atmosphere is calm, direct, and technical without making the interface itself feel like a terminal.
+BrokenRepo pairs cool paper, dark ink, and deliberate blue actions with the visual language of source files and diagnostic results. The atmosphere is calm, direct, and technical without making the interface itself feel like a terminal.
 
 Generous space introduces the product; tighter rows and panels support practice. File paths, line numbers, restrained separators, and readable code carry the identity. The system serves students and junior engineers investigating unfamiliar projects.
 
@@ -128,7 +128,7 @@ This is a scan of the completed implementation. The frontmatter captures reusabl
 
 The global header toggle preserves the Code Review Desk hierarchy for low-light practice: slate canvas (#14202d), raised working surfaces (#1d2a39), pale review blue (#8fb5ff), and readable ink (#e0e8f2). Success stays green and diagnostics stay warm, each with its own darker surface. Syntax, gutters, selections, native controls, focus, and toast colors use semantic variables rather than fixed light colors.
 
-The initial theme follows the device preference. Explicit choices persist under `codebreak-theme`, synchronize between tabs, and apply before page content paints. The same toggle appears on every route, including authentication and 404. Switching themes must never reset editor contents or test results.
+The initial theme follows the device preference. Explicit choices persist under `brokenrepo-theme`, synchronize between tabs, and apply before page content paints. The same toggle appears on every route, including authentication and 404. Switching themes must never reset editor contents or test results.
 
 The palette combines cool neutrals and a clear working blue with semantic diagnostic colors.
 

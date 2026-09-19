@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-09-19T07:39:09.073Z",
-  "title": "Design System: CodeBreak",
+  "title": "Design System: BrokenRepo",
   "extensions": {
     "colorMeta": {
       "primary": {
@@ -397,7 +397,7 @@
   ],
   "narrative": {
     "northStar": "The Code Review Desk",
-    "overview": "CodeBreak pairs cool paper, dark ink, and deliberate blue actions with the visual language of source files and diagnostic results. The atmosphere is calm, direct, and technical without making the interface itself feel like a terminal.\n\nGenerous space introduces the product; tighter rows and panels support practice. File paths, line numbers, restrained separators, and readable code carry the identity. The system serves students and junior engineers investigating unfamiliar projects.",
+    "overview": "BrokenRepo pairs cool paper, dark ink, and deliberate blue actions with the visual language of source files and diagnostic results. The atmosphere is calm, direct, and technical without making the interface itself feel like a terminal.\n\nGenerous space introduces the product; tighter rows and panels support practice. File paths, line numbers, restrained separators, and readable code carry the identity. The system serves students and junior engineers investigating unfamiliar projects.",
     "keyCharacteristics": [
       "Cool paper and white working surfaces.",
       "Strong Manrope headings with system monospace for code.",
