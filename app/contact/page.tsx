@@ -3,7 +3,8 @@ import { SiteFooter, SiteHeader } from "@/components/site-shell";
 
 export const metadata = {
   title: "Contact support",
-  description: "Send the CodeBreak team a question, bug report, or account support request.",
+  description: "Send the CodeBreak team a question about a debugging challenge, your account, or a bug you found on the site.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {

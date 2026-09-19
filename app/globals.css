@@ -98,6 +98,26 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono)}
 .curriculum li span:last-child{color:var(--supporting-ink)}
 .closing{padding-block:100px;text-align:center}
 .closing p{margin:22px auto 28px;max-width:560px}
+.faq{border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1.4fr;gap:80px;padding-block:75px}
+.faq>div>p{margin-top:22px;max-width:390px;color:var(--supporting-ink);line-height:1.85}
+.faq dl{margin:0}
+.faq dl>div{padding:19px 0;border-bottom:1px solid var(--border)}
+.faq dt{font-weight:750;font-size:15px}
+.faq dd{margin:9px 0 0;color:var(--supporting-ink);line-height:1.8;font-size:14px}
+.crumbs{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);margin-top:40px}
+.crumbs a{color:var(--primary)}
+.challenge-detail{padding-bottom:100px}
+.challenge-detail .page-heading{padding-block:22px 0}
+.challenge-detail h1{font-size:clamp(2rem,4vw,3.5rem)}
+.detail-meta{margin-top:16px;font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground)}
+.detail-symptom{margin-top:26px;font-size:18px;line-height:1.8;color:var(--supporting-ink);max-width:640px}
+.detail-section{margin-top:52px;max-width:640px}
+.detail-section h2{font-size:25px}
+.detail-section p{margin-top:16px;color:var(--supporting-ink);line-height:1.85}
+.criteria-list{list-style:none;margin:18px 0 0;padding:0}
+.criteria-list li{display:flex;gap:16px;align-items:baseline;padding:15px 0;border-bottom:1px solid var(--border);font-size:14px}
+.criteria-list li span:first-child{font-family:var(--font-mono);font-size:12px;color:var(--primary)}
+.challenge-detail .hero-actions{margin-top:52px}
 .site-footer{border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;font-size:12px;color:var(--muted-foreground)}
 .site-footer .brand{font-size:17px;color:var(--foreground)}
 .site-footer nav{font-size:12px}
@@ -223,6 +243,8 @@ progress{width:100%;height:7px;accent-color:var(--success)}
  .hero-actions{gap:18px}.hero-actions .underlined{font-size:13px}.demo-files pre{font-size:12px}.demo-files>div{padding:16px 20px}
  .workflow{grid-template-columns:1fr;gap:30px;padding-block:45px}.workflow li{margin-bottom:25px}.workflow h2{font-size:2rem}
  .curriculum-inner{grid-template-columns:1fr;padding-block:45px;gap:30px}.curriculum li{grid-template-columns:1fr 1.5fr;font-size:12px}.closing{padding-block:60px}.closing h2{font-size:2rem}
+ .faq{grid-template-columns:1fr;gap:30px;padding-block:45px}.faq h2{font-size:2rem}.faq dt{font-size:14px}.faq dd{font-size:13px}
+ .crumbs{margin-top:28px}.challenge-detail{padding-bottom:60px}.detail-symptom{font-size:15px;margin-top:20px}.detail-section{margin-top:36px}.criteria-list li{padding:13px 0}
  .site-footer{padding:25px 20px;gap:18px}.site-footer nav{width:100%;gap:20px}
  .auth-layout,.contact-layout{grid-template-columns:1fr;gap:30px;padding-block:45px}.auth-copy h1{font-size:2.7rem}.auth-note{display:none}.auth-form{max-width:100%;padding:24px}.auth-copy p{margin-top:18px}
  .contact-copy{padding-top:0}.contact-copy h1{font-size:2.7rem}.contact-copy>p{font-size:15px;margin-top:18px}.contact-copy dl{margin-top:28px}.contact-form,.contact-success{padding:24px}.contact-copy dl>div{grid-template-columns:90px 1fr;font-size:13px}

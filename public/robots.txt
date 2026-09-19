@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /lab/
+Disallow: /progress/
+
+Sitemap: https://codebreak-vijay1172s-projects.vercel.app/sitemap.xml
