@@ -10,7 +10,7 @@ CodeBreak is a browser-based debugging practice platform for college students an
 - Syntax, module-load, and runtime failures produce zero green criteria and include verbose diagnostics.
 - MongoDB stores session state, current editable files, the latest run, and idle timestamps.
 - The backend explicitly deletes idle sandboxes after 25 minutes; Daytona also has a 30-minute TTL safety net.
-- All eight challenges have realistic client/server trees, 21–23 visible files, searchable navigation, and isolated bugs.
+- All fifteen challenges have realistic client/server trees, searchable navigation, and isolated bugs. The seven newest projects use real MongoDB-backed APIs and include two independently verified solution variants each.
 - Email/password accounts use salted scrypt hashes and HttpOnly session cookies. MongoDB stores each account's saved code, attempts, solved challenges, and category progress.
 - The editor is CodeMirror 6 with JavaScript/JSX highlighting, line numbers, folding, bracket matching, and wrapped lines.
 
@@ -73,6 +73,10 @@ npm test
 An intentionally buggy challenge can return two passing assertions and one failure: passing assertions cover behavior that is already correct. Invalid syntax or runtime exceptions invalidate the run, produce zero green criteria, and show diagnostics. Emptying both auth files must never count as a solved challenge.
 
 ## Deployment
+
+The seven-challenge release has [reproducible real-sandbox checks and recorded results](server/verification/wave-two/README.md). Each new starter passes four controls and fails one intended criterion; each of two valid fixes passes all five.
+
+The header's Dark mode toggle applies to every page, the CodeMirror editor, diagnostics, and notifications. It follows the device preference initially, remembers an explicit selection, and synchronizes across tabs.
 
 - Render reads `render.yaml`. Add the private values from `server/.env.example` in Render.
 - Vercel reads `vercel.json`. Set server-only `CODEBREAK_BACKEND_URL` to the deployed Render URL (the older `NEXT_PUBLIC_CODEBREAK_API_URL` is supported as a fallback).

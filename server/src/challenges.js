@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "./config.js";
+import { additionalChallenges } from "./additional-challenges.js";
 
 const baseEditablePaths = [
   "client/src/api/apiClient.js",
@@ -249,13 +250,14 @@ const challengeDefinitions = {
       patternToWatch: "Ensure every asynchronous route has an explicit error path to next(error).",
     },
   }),
+  ...additionalChallenges(validationCommand),
 };
 
 async function walk(directory, root = directory) {
   const entries = await fs.readdir(directory, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
-    if (entry.name === "node_modules" || entry.name === ".git") continue;
+    if (["node_modules", ".git", "dist", "coverage", ".cache"].includes(entry.name)) continue;
     const absolute = path.join(directory, entry.name);
     if (entry.isDirectory()) {
       files.push(...(await walk(absolute, root)));
@@ -283,7 +285,10 @@ export async function getChallenge(id) {
   const definition = challengeDefinitions[id];
   if (!definition) return null;
   const files = await walk(definition.projectDirectory);
-  return { ...definition, files };
+  const editablePaths = definition.discoverEditablePaths
+    ? files.filter(file => /^(client\/src|server)\//.test(file.path) && /\.(js|jsx|css)$/.test(file.path)).map(file => file.path)
+    : definition.editablePaths;
+  return { ...definition, editablePaths, files };
 }
 
 export function publicChallenge(challenge) {
@@ -299,7 +304,7 @@ export function publicChallenge(challenge) {
     hints: challenge.hints,
     debrief: challenge.debrief,
     files: challenge.files
-      .filter((file) => !hidden.has(file.path))
+      .filter((file) => !hidden.has(file.path) && !file.path.startsWith("tests/"))
       .map((file) => ({ ...file, editable: challenge.editablePaths.includes(file.path) })),
   };
 }

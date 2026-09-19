@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "@fontsource-variable/manrope";
 import { Notifications } from "@/components/site-shell";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: { default: "CodeBreak — Practice debugging real code", template: "%s | CodeBreak" },
@@ -18,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased"><a className="skip-link" href="#main-content">Skip to content</a>{children}<Notifications/></body>
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<Notifications/></ThemeProvider></body>
     </html>
   );
 }

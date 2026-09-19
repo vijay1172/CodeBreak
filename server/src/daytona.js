@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { Daytona, CodeLanguage } from "@daytona/sdk";
 import { config } from "./config.js";
+import { installSandboxMongo, sandboxMongoPath } from "./runtime-assets.js";
 
 const daytona = new Daytona({
   apiKey: config.daytonaApiKey,
@@ -89,6 +90,11 @@ export async function provisionSandbox({ sessionId, challenge }) {
   const sandbox = await daytona.create(
     {
       language: CodeLanguage.JAVASCRIPT,
+      envVars: challenge.requiresMongo ? {
+        MONGOMS_SYSTEM_BINARY: sandboxMongoPath,
+        MONGOMS_RUNTIME_DOWNLOAD: "0",
+        MONGOMS_DISABLE_POSTINSTALL: "1",
+      } : {},
       name: `codebreak-${sessionId.slice(0, 12)}`,
       labels: { product: "codebreak", session: sessionId, challenge: challenge.id },
       public: false,
@@ -100,6 +106,7 @@ export async function provisionSandbox({ sessionId, challenge }) {
   );
 
   try {
+    if (challenge.requiresMongo) await installSandboxMongo(sandbox);
     const baseDirectory = (await sandbox.getWorkDir()) || (await sandbox.getUserHomeDir());
     if (!baseDirectory) throw new Error("Daytona did not provide a working directory");
     const workspaceDirectory = `${baseDirectory}/codebreak`;
@@ -126,7 +133,7 @@ export async function provisionSandbox({ sessionId, challenge }) {
 
     const appSessionId = `app-${sessionId}`;
     await sandbox.process.createSession(appSessionId);
-    await sandbox.process.executeSessionCommand(
+    const appCommand = await sandbox.process.executeSessionCommand(
       appSessionId,
       {
         command: `cd ${shellQuote(workspaceDirectory)} && ${challenge.startCommand}`,
@@ -137,14 +144,15 @@ export async function provisionSandbox({ sessionId, challenge }) {
     );
 
     const health = await sandbox.process.executeCommand(
-      "for i in 1 2 3 4 5 6 7 8 9 10; do curl -fsS http://127.0.0.1:3000/health && exit 0; sleep 1; done; exit 1",
+      "for i in $(seq 1 60); do curl -fsS http://127.0.0.1:3000/health && exit 0; sleep 1; done; exit 1",
       workspaceDirectory,
       undefined,
-      20,
+      75,
     );
     if (health.exitCode !== 0) {
-      const logs = await sandbox.process.getSession(appSessionId).catch(() => null);
-      throw new Error(`Challenge application did not become healthy.${logs ? " Check the app process logs." : ""}`);
+      const logs = await sandbox.process.getSessionCommandLogs(appSessionId, appCommand.cmdId).catch(() => null);
+      const details = cleanProcessOutput(logs ? (logs.stderr || logs.stdout || logs.output) : health.result);
+      throw new Error(`Challenge application did not become healthy.\n${details || "No startup logs were available."}`);
     }
 
     return {

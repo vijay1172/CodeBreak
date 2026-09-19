@@ -1,0 +1,1416 @@
+{
+  "startedAt": "2026-09-19T08:59:07.478Z",
+  "environment": "Real Daytona / Node / Express / isolated MongoDB",
+  "challenges": [
+    {
+      "id": "the-penny-gap",
+      "title": "The Penny Gap",
+      "visibleFiles": 32,
+      "sourceHash": "163f42a82ba4167a0623f6e8ea64bcca65e60dd4d7b433ef98354b1e0c71b73d",
+      "cases": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed",
+              "durationMs": 22.790247000000022
+            },
+            {
+              "id": "decimal-prices",
+              "status": "failed",
+              "durationMs": 7.20647299999996
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed",
+              "durationMs": 44.882827999999904
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed",
+              "durationMs": 7.797846999999933
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed",
+              "durationMs": 4.460507000000007
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "description": "round validated two-decimal prices",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed",
+              "durationMs": 24.556997000000024
+            },
+            {
+              "id": "decimal-prices",
+              "status": "passed",
+              "durationMs": 22.044011999999952
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed",
+              "durationMs": 7.927877999999964
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed",
+              "durationMs": 5.844455000000039
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed",
+              "durationMs": 3.818193000000065
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "description": "parse decimal strings directly into integer cents",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed",
+              "durationMs": 27.381004000000075
+            },
+            {
+              "id": "decimal-prices",
+              "status": "passed",
+              "durationMs": 24.861358999999993
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed",
+              "durationMs": 9.007623999999964
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed",
+              "durationMs": 6.6813900000000785
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed",
+              "durationMs": 4.242414999999937
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "decimal-prices",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "quantity-validation",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "unknown-product",
+              "status": "not_run",
+              "durationMs": 0
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed",
+              "durationMs": 23.122849000000087
+            },
+            {
+              "id": "decimal-prices",
+              "status": "failed",
+              "durationMs": 9.871648999999934
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed",
+              "durationMs": 9.053604000000064
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed",
+              "durationMs": 7.131643000000054
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed",
+              "durationMs": 3.9387029999999186
+            }
+          ]
+        }
+      ],
+      "verified": true
+    },
+    {
+      "id": "a-day-too-early",
+      "title": "A Day Too Early",
+      "visibleFiles": 32,
+      "sourceHash": "0cde32b22679f2fcfb44a513e20be592a0c800221e70b99cc997daf3387e08a9",
+      "cases": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed",
+              "durationMs": 32.049772000000075
+            },
+            {
+              "id": "date-display",
+              "status": "failed",
+              "durationMs": 77.817454
+            },
+            {
+              "id": "date-order",
+              "status": "passed",
+              "durationMs": 6.964030999999977
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed",
+              "durationMs": 8.285617000000002
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed",
+              "durationMs": 4.390399000000116
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "description": "format the date-only value without applying the viewer zone",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed",
+              "durationMs": 39.6503560000001
+            },
+            {
+              "id": "date-display",
+              "status": "passed",
+              "durationMs": 154.463483
+            },
+            {
+              "id": "date-order",
+              "status": "passed",
+              "durationMs": 48.11818199999993
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed",
+              "durationMs": 7.8104339999999866
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed",
+              "durationMs": 5.039712000000009
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "description": "represent the value as a Temporal.PlainDate",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed",
+              "durationMs": 35.00271500000008
+            },
+            {
+              "id": "date-display",
+              "status": "passed",
+              "durationMs": 217.49945100000014
+            },
+            {
+              "id": "date-order",
+              "status": "passed",
+              "durationMs": 7.542173000000048
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed",
+              "durationMs": 9.295800999999983
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed",
+              "durationMs": 3.838846999999987
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "date-display",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "date-order",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "invalid-date",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "missing-assignment",
+              "status": "not_run",
+              "durationMs": 0
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed",
+              "durationMs": 33.496218
+            },
+            {
+              "id": "date-display",
+              "status": "failed",
+              "durationMs": 76.02511600000003
+            },
+            {
+              "id": "date-order",
+              "status": "passed",
+              "durationMs": 7.326211999999941
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed",
+              "durationMs": 8.161575999999968
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed",
+              "durationMs": 3.752565999999888
+            }
+          ]
+        }
+      ],
+      "verified": true
+    },
+    {
+      "id": "the-split-import",
+      "title": "The Split Import",
+      "visibleFiles": 35,
+      "sourceHash": "2c710f97c2d24bab7df888101bdeeba205a4078f6cb0d383c19a339ee056f249",
+      "cases": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed",
+              "durationMs": 59.99109899999985
+            },
+            {
+              "id": "multiline-csv",
+              "status": "failed",
+              "durationMs": 35.19144499999993
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed",
+              "durationMs": 18.82493099999988
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed",
+              "durationMs": 7.450045999999929
+            },
+            {
+              "id": "empty-import",
+              "status": "passed",
+              "durationMs": 3.9395179999999073
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "description": "parse the complete document in one bounded synchronous pass",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed",
+              "durationMs": 53.25948399999993
+            },
+            {
+              "id": "multiline-csv",
+              "status": "passed",
+              "durationMs": 10.507603000000017
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed",
+              "durationMs": 13.445148999999901
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed",
+              "durationMs": 4.477718999999979
+            },
+            {
+              "id": "empty-import",
+              "status": "passed",
+              "durationMs": 35.55977699999994
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "description": "retain CSV parser state through a streaming pipeline",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed",
+              "durationMs": 76.73151499999994
+            },
+            {
+              "id": "multiline-csv",
+              "status": "passed",
+              "durationMs": 46.099820000000136
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed",
+              "durationMs": 17.922317999999905
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed",
+              "durationMs": 4.404849999999897
+            },
+            {
+              "id": "empty-import",
+              "status": "passed",
+              "durationMs": 2.062063999999964
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "multiline-csv",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "repeat-import",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "invalid-import",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "empty-import",
+              "status": "not_run",
+              "durationMs": 0
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed",
+              "durationMs": 31.8665289999999
+            },
+            {
+              "id": "multiline-csv",
+              "status": "failed",
+              "durationMs": 6.263134000000036
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed",
+              "durationMs": 11.16990399999986
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed",
+              "durationMs": 6.811584000000039
+            },
+            {
+              "id": "empty-import",
+              "status": "passed",
+              "durationMs": 2.2978650000000016
+            }
+          ]
+        }
+      ],
+      "verified": true
+    },
+    {
+      "id": "the-room-that-wont-leave",
+      "title": "The Room That Won’t Leave",
+      "visibleFiles": 33,
+      "sourceHash": "5267602d04fd2fd8b11b59b6bd15064e6764e9e4e58a361ed5f4dc113b033fc7",
+      "cases": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed",
+              "durationMs": 26.68967699999996
+            },
+            {
+              "id": "status-update",
+              "status": "passed",
+              "durationMs": 16.662758000000053
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed",
+              "durationMs": 5.115970000000061
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed",
+              "durationMs": 11.288289000000077
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "failed",
+              "durationMs": 5.614369000000011
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "description": "register and remove the same listener function",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed",
+              "durationMs": 28.189647000000036
+            },
+            {
+              "id": "status-update",
+              "status": "passed",
+              "durationMs": 17.126089000000093
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed",
+              "durationMs": 5.076649000000089
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed",
+              "durationMs": 12.276478999999995
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "passed",
+              "durationMs": 6.167889000000059
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "description": "own the listener with an AbortController",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed",
+              "durationMs": 30.295487999999978
+            },
+            {
+              "id": "status-update",
+              "status": "passed",
+              "durationMs": 15.896048999999948
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed",
+              "durationMs": 5.313969000000043
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed",
+              "durationMs": 11.558709000000022
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "passed",
+              "durationMs": 7.044399999999996
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "status-update",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "invalid-status",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "live-delivery",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "not_run",
+              "durationMs": 0
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed",
+              "durationMs": 28.595409000000018
+            },
+            {
+              "id": "status-update",
+              "status": "passed",
+              "durationMs": 19.917839000000072
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed",
+              "durationMs": 5.453769999999963
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed",
+              "durationMs": 12.484609999999975
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "failed",
+              "durationMs": 6.143009000000006
+            }
+          ]
+        }
+      ],
+      "verified": true
+    },
+    {
+      "id": "the-borrowed-language",
+      "title": "The Borrowed Language",
+      "visibleFiles": 33,
+      "sourceHash": "d3b5b3b9677a3d90e3cf40f7e724820f0318ca202af72a67db94d273ae374795",
+      "cases": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed",
+              "durationMs": 20.935073999999986
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed",
+              "durationMs": 6.8124500000000126
+            },
+            {
+              "id": "locale-isolation",
+              "status": "failed",
+              "durationMs": 7.220622999999932
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed",
+              "durationMs": 3.4830309999999827
+            },
+            {
+              "id": "missing-product",
+              "status": "passed",
+              "durationMs": 5.103330000000028
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "description": "include locale in the derived response cache key",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed",
+              "durationMs": 21.08984499999997
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed",
+              "durationMs": 6.748710000000074
+            },
+            {
+              "id": "locale-isolation",
+              "status": "passed",
+              "durationMs": 14.119223000000034
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed",
+              "durationMs": 3.360439999999926
+            },
+            {
+              "id": "missing-product",
+              "status": "passed",
+              "durationMs": 4.591276999999991
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "description": "cache neutral product records and localize after retrieval",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed",
+              "durationMs": 23.361188000000084
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed",
+              "durationMs": 7.679336000000035
+            },
+            {
+              "id": "locale-isolation",
+              "status": "passed",
+              "durationMs": 38.39734699999997
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed",
+              "durationMs": 3.861293000000046
+            },
+            {
+              "id": "missing-product",
+              "status": "passed",
+              "durationMs": 7.967887000000019
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "cache-reuse",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "locale-isolation",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "locale-validation",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "missing-product",
+              "status": "not_run",
+              "durationMs": 0
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed",
+              "durationMs": 20.743902999999932
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed",
+              "durationMs": 6.770389999999907
+            },
+            {
+              "id": "locale-isolation",
+              "status": "failed",
+              "durationMs": 7.055841999999984
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed",
+              "durationMs": 3.9875940000000583
+            },
+            {
+              "id": "missing-product",
+              "status": "passed",
+              "durationMs": 5.344351000000074
+            }
+          ]
+        }
+      ],
+      "verified": true
+    },
+    {
+      "id": "the-search-that-guesses",
+      "title": "The Search That Guesses",
+      "visibleFiles": 32,
+      "sourceHash": "7295711a12dbcd380f871788ddadbf067e972f05df38c36755ec57ab92baeaeb",
+      "cases": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed",
+              "durationMs": 30.013828999999987
+            },
+            {
+              "id": "literal-search",
+              "status": "failed",
+              "durationMs": 11.12192099999993
+            },
+            {
+              "id": "archived-items",
+              "status": "passed",
+              "durationMs": 5.692942000000016
+            },
+            {
+              "id": "empty-search",
+              "status": "passed",
+              "durationMs": 27.493963000000008
+            },
+            {
+              "id": "query-length",
+              "status": "passed",
+              "durationMs": 4.080987999999934
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "description": "escape pattern metacharacters before building the query",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed",
+              "durationMs": 58.990455
+            },
+            {
+              "id": "literal-search",
+              "status": "passed",
+              "durationMs": 18.15824500000008
+            },
+            {
+              "id": "archived-items",
+              "status": "passed",
+              "durationMs": 6.287421999999992
+            },
+            {
+              "id": "empty-search",
+              "status": "passed",
+              "durationMs": 6.719103000000018
+            },
+            {
+              "id": "query-length",
+              "status": "passed",
+              "durationMs": 3.8670680000000175
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "description": "use MongoDB literal substring expressions instead of regex",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed",
+              "durationMs": 31.504521000000068
+            },
+            {
+              "id": "literal-search",
+              "status": "passed",
+              "durationMs": 37.820213999999964
+            },
+            {
+              "id": "archived-items",
+              "status": "passed",
+              "durationMs": 6.0812519999999495
+            },
+            {
+              "id": "empty-search",
+              "status": "passed",
+              "durationMs": 9.840559000000098
+            },
+            {
+              "id": "query-length",
+              "status": "passed",
+              "durationMs": 5.2478210000000445
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "literal-search",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "archived-items",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "empty-search",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "query-length",
+              "status": "not_run",
+              "durationMs": 0
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed",
+              "durationMs": 26.53932199999997
+            },
+            {
+              "id": "literal-search",
+              "status": "failed",
+              "durationMs": 11.21720199999993
+            },
+            {
+              "id": "archived-items",
+              "status": "passed",
+              "durationMs": 4.84210900000005
+            },
+            {
+              "id": "empty-search",
+              "status": "passed",
+              "durationMs": 6.33136300000001
+            },
+            {
+              "id": "query-length",
+              "status": "passed",
+              "durationMs": 5.979880999999978
+            }
+          ]
+        }
+      ],
+      "verified": true
+    },
+    {
+      "id": "one-click-two-bookings",
+      "title": "One Click, Two Bookings",
+      "visibleFiles": 35,
+      "sourceHash": "7d61a973e633185ab021012a630913654026707627c4c0da3655781baca9f3f3",
+      "cases": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed",
+              "durationMs": 49.94088599999998
+            },
+            {
+              "id": "server-replay",
+              "status": "passed",
+              "durationMs": 48.09260100000006
+            },
+            {
+              "id": "lost-response",
+              "status": "failed",
+              "durationMs": 14.827679999999987
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed",
+              "durationMs": 8.441381999999976
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed",
+              "durationMs": 5.061080000000061
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "description": "prepare one operation before the transport-attempt loop",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed",
+              "durationMs": 81.48943099999997
+            },
+            {
+              "id": "server-replay",
+              "status": "passed",
+              "durationMs": 18.60221999999999
+            },
+            {
+              "id": "lost-response",
+              "status": "passed",
+              "durationMs": 14.355844000000161
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed",
+              "durationMs": 55.97638699999993
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed",
+              "durationMs": 7.803906999999981
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "description": "retry a closure over an immutable prepared operation",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed",
+              "durationMs": 69.98071499999992
+            },
+            {
+              "id": "server-replay",
+              "status": "passed",
+              "durationMs": 22.22375000000011
+            },
+            {
+              "id": "lost-response",
+              "status": "passed",
+              "durationMs": 15.794512999999824
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed",
+              "durationMs": 12.975284999999985
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed",
+              "durationMs": 55.441700999999966
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "server-replay",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "lost-response",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "separate-operations",
+              "status": "not_run",
+              "durationMs": 0
+            },
+            {
+              "id": "invalid-booking",
+              "status": "not_run",
+              "durationMs": 0
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed",
+              "durationMs": 56.574062000000026
+            },
+            {
+              "id": "server-replay",
+              "status": "passed",
+              "durationMs": 47.677864
+            },
+            {
+              "id": "lost-response",
+              "status": "failed",
+              "durationMs": 15.24920700000007
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed",
+              "durationMs": 73.29113800000005
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed",
+              "durationMs": 6.875525000000152
+            }
+          ]
+        }
+      ],
+      "verified": true
+    }
+  ],
+  "completedAt": "2026-09-19T16:51:42.113Z",
+  "verified": true,
+  "notes": "Combined final successful runs. Date assertion corrected to inspect DOM semantics; CSV reference solutions corrected for mixed record delimiters. Every sourceHash checked against the published project files. All verification sandboxes deleted."
+}

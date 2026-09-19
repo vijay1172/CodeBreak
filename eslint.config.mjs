@@ -14,6 +14,13 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
   {
+    files: ["server/challenges/**/project/client/**/*.{js,jsx}"],
+    rules: {
+      // These are standalone React/Vite applications, not Next.js routes.
+      "@next/next/no-html-link-for-pages": "off",
+    },
+  },
+  {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {
       // These files are vendored verbatim from shadcn@4.17.0. Keep the

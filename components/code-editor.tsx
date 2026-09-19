@@ -7,23 +7,23 @@ import { css } from "@codemirror/lang-css";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
 const theme = EditorView.theme({
-  "&": { fontSize: "13px", backgroundColor: "#fff", color: "#1c3046" },
-  ".cm-content": { fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace", lineHeight: "1.8", padding: "16px 0", caretColor: "#2459bd" },
-  ".cm-gutters": { backgroundColor: "#f0f3f7", color: "#62748a", border: "none", paddingRight: "8px" },
-  ".cm-activeLine, .cm-activeLineGutter": { backgroundColor: "#eaf0fa" },
-  ".cm-cursor": { borderLeftColor: "#2459bd" },
-  "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": { backgroundColor: "#cbdcf5" },
+  "&": { fontSize: "13px", backgroundColor: "var(--card)", color: "var(--foreground)" },
+  ".cm-content": { fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace", lineHeight: "1.8", padding: "16px 0", caretColor: "var(--primary)" },
+  ".cm-gutters": { backgroundColor: "var(--editor-gutter)", color: "var(--code-comment)", border: "none", paddingRight: "8px" },
+  ".cm-activeLine, .cm-activeLineGutter": { backgroundColor: "var(--editor-active)" },
+  ".cm-cursor": { borderLeftColor: "var(--primary)" },
+  "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": { backgroundColor: "var(--selection)" },
   ".cm-scroller": { overflowX: "hidden" },
-  ".cm-foldPlaceholder": { backgroundColor: "#eaf0fa", border: "none", color: "#2459bd" },
+  ".cm-foldPlaceholder": { backgroundColor: "var(--editor-active)", border: "none", color: "var(--primary)" },
 });
 const highlight = syntaxHighlighting(HighlightStyle.define([
-  { tag: tags.keyword, color: "#7134a5" },
-  { tag: [tags.string, tags.regexp], color: "#196e50" },
-  { tag: [tags.number, tags.bool, tags.null], color: "#ac3b27" },
-  { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: "#2459bd" },
-  { tag: tags.comment, color: "#62748a", fontStyle: "italic" },
-  { tag: [tags.tagName, tags.typeName], color: "#964322" },
-  { tag: tags.propertyName, color: "#195e75" },
+  { tag: tags.keyword, color: "var(--syntax-keyword)" },
+  { tag: [tags.string, tags.regexp], color: "var(--success)" },
+  { tag: [tags.number, tags.bool, tags.null], color: "var(--destructive)" },
+  { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: "var(--primary)" },
+  { tag: tags.comment, color: "var(--code-comment)", fontStyle: "italic" },
+  { tag: [tags.tagName, tags.typeName], color: "var(--syntax-type)" },
+  { tag: tags.propertyName, color: "var(--syntax-property)" },
 ]));
 export function CodeEditor({ path, value, editable, onChange }: { path: string; value: string; editable: boolean; onChange: (value: string) => void }) {
   const language = path.endsWith(".json") ? json() : path.endsWith(".html") ? html() : path.endsWith(".css") ? css() : javascript({ jsx: true });

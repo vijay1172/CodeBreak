@@ -124,6 +124,12 @@ This is a scan of the completed implementation. The frontmatter captures reusabl
 
 ## Colors
 
+### Dark theme
+
+The global header toggle preserves the Code Review Desk hierarchy for low-light practice: slate canvas (#14202d), raised working surfaces (#1d2a39), pale review blue (#8fb5ff), and readable ink (#e0e8f2). Success stays green and diagnostics stay warm, each with its own darker surface. Syntax, gutters, selections, native controls, focus, and toast colors use semantic variables rather than fixed light colors.
+
+The initial theme follows the device preference. Explicit choices persist under `codebreak-theme`, synchronize between tabs, and apply before page content paints. The same toggle appears on every route, including authentication and 404. Switching themes must never reset editor contents or test results.
+
 The palette combines cool neutrals and a clear working blue with semantic diagnostic colors.
 
 ### Primary
@@ -244,4 +250,3 @@ Respect reduced motion: the implementation disables animations and transitions a
 - **Don't** turn every challenge row into a floating card.
 - **Don't** use diagnostic colors as arbitrary action accents.
 - **Don't** animate essential interaction when reduced motion is requested.
-

@@ -1,0 +1,143 @@
+[
+  {
+    "id": "the-penny-gap",
+    "expectedFailures": [
+      "decimal-prices"
+    ],
+    "fixes": [
+      {
+        "name": "round validated two-decimal prices",
+        "files": {
+          "server/services/money.js": "export function toMinorUnits(decimalPrice) {\n  if (!/^\\d{1,6}\\.\\d{2}$/.test(decimalPrice)) throw new Error('Expected a two-decimal product price.');\n  return Math.round(Number(decimalPrice) * 100);\n}\nexport function formatMinorUnits(cents) {\n  return (cents / 100).toFixed(2);\n}\n"
+        }
+      },
+      {
+        "name": "parse decimal strings directly into integer cents",
+        "files": {
+          "server/services/money.js": "export function toMinorUnits(decimalPrice) {\n  if (!/^\\d{1,6}\\.\\d{2}$/.test(decimalPrice)) throw new Error('Expected a two-decimal product price.');\n  const [whole, fraction] = decimalPrice.split('.');\n  return Number(whole) * 100 + Number(fraction);\n}\nexport function formatMinorUnits(cents) {\n  return (cents / 100).toFixed(2);\n}\n"
+        }
+      }
+    ]
+  },
+  {
+    "id": "a-day-too-early",
+    "expectedFailures": [
+      "date-display"
+    ],
+    "fixes": [
+      {
+        "name": "format the date-only value without applying the viewer zone",
+        "files": {
+          "client/src/formatters/calendarDate.js": "export function formatCalendarDate(value, viewerTimeZone, locale = 'en-US') {\n  const instant = new Date(value);\n  return new Intl.DateTimeFormat(locale, {\n    year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',\n  }).format(instant);\n}\n"
+        }
+      },
+      {
+        "name": "represent the value as a Temporal.PlainDate",
+        "files": {
+          "client/src/formatters/calendarDate.js": "import { Temporal } from '@js-temporal/polyfill';\nexport function formatCalendarDate(value, _viewerTimeZone, locale = 'en-US') {\n  return Temporal.PlainDate.from(value).toLocaleString(locale, { year: 'numeric', month: 'long', day: 'numeric' });\n}\n"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the-split-import",
+    "expectedFailures": [
+      "multiline-csv"
+    ],
+    "fixes": [
+      {
+        "name": "parse the complete document in one bounded synchronous pass",
+        "files": {
+          "server/services/readCsvRows.js": "import { parse } from 'csv-parse/sync';\nexport async function readCsvRows(text) {\n  return parse(text, { bom: true, skip_empty_lines: true, record_delimiter: ['\\r\\n', '\\n', '\\r'] });\n}\n"
+        }
+      },
+      {
+        "name": "retain CSV parser state through a streaming pipeline",
+        "files": {
+          "server/services/readCsvRows.js": "import { Readable } from 'node:stream';\nimport { parse } from 'csv-parse';\nexport async function readCsvRows(text) {\n  const parser = Readable.from([text]).pipe(parse({ bom: true, skip_empty_lines: true, record_delimiter: ['\\r\\n', '\\n', '\\r'] }));\n  const rows = [];\n  for await (const row of parser) rows.push(row);\n  return rows;\n}\n"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the-room-that-wont-leave",
+    "expectedFailures": [
+      "subscription-lifecycle"
+    ],
+    "fixes": [
+      {
+        "name": "register and remove the same listener function",
+        "files": {
+          "client/src/realtime/subscribePresence.js": "export function subscribePresence(source, onPresence) {\n  const decode = event => {\n    let payload;\n    try { payload = JSON.parse(event.data); } catch { return; }\n    if (payload.type !== 'presence' || typeof payload.handle !== 'string') return;\n    if (!['online', 'away', 'offline'].includes(payload.status)) return;\n    onPresence(payload);\n  };\n  source.addEventListener('message', decode);\n  return () => source.removeEventListener('message', decode);\n}\n"
+        }
+      },
+      {
+        "name": "own the listener with an AbortController",
+        "files": {
+          "client/src/realtime/subscribePresence.js": "export function subscribePresence(source, onPresence) {\n  const decode = event => {\n    let payload;\n    try { payload = JSON.parse(event.data); } catch { return; }\n    if (payload.type !== 'presence' || typeof payload.handle !== 'string') return;\n    if (!['online', 'away', 'offline'].includes(payload.status)) return;\n    onPresence(payload);\n  };\n  const controller = new AbortController();\n  source.addEventListener('message', event => decode(event), { signal: controller.signal });\n  return () => controller.abort();\n}\n"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the-borrowed-language",
+    "expectedFailures": [
+      "locale-isolation"
+    ],
+    "fixes": [
+      {
+        "name": "include locale in the derived response cache key",
+        "files": {
+          "server/services/productCatalogue.js": "import { serializeProduct } from '../serializers/product.js';\nimport { RequestError } from '../middleware/errorHandler.js';\nexport function productCatalogue(repository, cache) {\n  return {\n    list: () => repository.list(),\n    async get(sku, locale) {\n      const key = JSON.stringify([sku, locale]);\n      const cached = cache.get(key);\n      if (cached) return cached;\n      const product = await repository.find(sku);\n      if (!product) throw new RequestError(404, 'Product not found.');\n      const response = serializeProduct(product, locale);\n      cache.set(key, response);\n      return response;\n    },\n  };\n}\n"
+        }
+      },
+      {
+        "name": "cache neutral product records and localize after retrieval",
+        "files": {
+          "server/services/productCatalogue.js": "import { serializeProduct } from '../serializers/product.js';\nimport { RequestError } from '../middleware/errorHandler.js';\nexport function productCatalogue(repository, cache) {\n  return {\n    list: () => repository.list(),\n    async get(sku, locale) {\n      let product = cache.get(sku);\n      if (!product) {\n        product = await repository.find(sku);\n        if (!product) throw new RequestError(404, 'Product not found.');\n        cache.set(sku, product);\n      }\n      return serializeProduct(product, locale);\n    },\n  };\n}\n"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the-search-that-guesses",
+    "expectedFailures": [
+      "literal-search"
+    ],
+    "fixes": [
+      {
+        "name": "escape pattern metacharacters before building the query",
+        "files": {
+          "server/repositories/library.js": "export function libraryRepository({ LibraryEntry }) {\n  return {\n    async search(text) {\n      const filter = { archived: false };\n      if (text) filter.name = new RegExp(text.replace(/[|\\\\{}()[\\]^$+*?.]/g, '\\\\$&'), 'i');\n      return LibraryEntry.find(filter).sort({ name: 1, code: 1 }).limit(50).lean();\n    },\n  };\n}\n"
+        }
+      },
+      {
+        "name": "use MongoDB literal substring expressions instead of regex",
+        "files": {
+          "server/repositories/library.js": "export function libraryRepository({ LibraryEntry }) {\n  return {\n    async search(text) {\n      const filter = { archived: false };\n      if (text) filter.$expr = { $gte: [{ $indexOfCP: [{ $toLower: '$name' }, text.toLowerCase()] }, 0] };\n      return LibraryEntry.find(filter).sort({ name: 1, code: 1 }).limit(50).lean();\n    },\n  };\n}\n"
+        }
+      }
+    ]
+  },
+  {
+    "id": "one-click-two-bookings",
+    "expectedFailures": [
+      "lost-response"
+    ],
+    "fixes": [
+      {
+        "name": "prepare one operation before the transport-attempt loop",
+        "files": {
+          "client/src/api/createRegistration.js": "import { prepareRegistration } from './prepareRegistration.js';\nimport { sendRegistration } from './sendRegistration.js';\nimport { shouldRetry } from './retryPolicy.js';\nexport async function createRegistration(input, {\n  transport = fetch, baseURL = '', makeKey = () => crypto.randomUUID(), attempts = 2,\n} = {}) {\n  const operation = prepareRegistration(input, makeKey);\n  for (let attempt = 0; attempt < attempts; attempt++) {\n    try {\n      return await sendRegistration(operation, { transport, baseURL });\n    } catch (error) {\n      if (!shouldRetry(error, attempt, attempts)) throw error;\n    }\n  }\n}\n"
+        }
+      },
+      {
+        "name": "retry a closure over an immutable prepared operation",
+        "files": {
+          "client/src/api/createRegistration.js": "import { prepareRegistration } from './prepareRegistration.js';\nimport { sendRegistration } from './sendRegistration.js';\nimport { retryNetworkOperation } from './retryPolicy.js';\nexport async function createRegistration(input, {\n  transport = fetch, baseURL = '', makeKey = () => crypto.randomUUID(), attempts = 2,\n} = {}) {\n  const operation = Object.freeze(prepareRegistration(input, makeKey));\n  return retryNetworkOperation(() => sendRegistration(operation, { transport, baseURL }), attempts);\n}\n",
+          "client/src/api/retryPolicy.js": "export function shouldRetry(error, attempt, attempts) {\n  // Only network failures are retried. A server rejection needs user action.\n  return error instanceof TypeError && attempt + 1 < attempts;\n}\n\nexport async function retryNetworkOperation(send, attempts) {\n  for (let attempt = 0; attempt < attempts; attempt++) {\n    try { return await send(); }\n    catch (error) { if (!shouldRetry(error, attempt, attempts)) throw error; }\n  }\n}\n"
+        }
+      }
+    ]
+  }
+]
