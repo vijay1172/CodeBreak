@@ -228,6 +228,19 @@ progress{width:100%;height:7px;accent-color:var(--success)}
 .hint{border-top:1px solid var(--border);padding:14px 0}
 .report-button{margin-top:32px;padding:12px 0;background:transparent;border:0;border-top:1px solid var(--border);width:100%;text-align:left;font-size:12px;color:var(--muted-foreground)}
 .debrief{border-top:1px solid var(--border);margin-top:25px}
+/* Sandbox provisioning: step list mirrors the real server pipeline. */
+.provision-panel{padding:34px 26px;max-width:430px}
+.provision-title{font-weight:750;font-size:18px}
+.provision-steps{list-style:none;margin:22px 0 0;padding:0}
+.provision-steps li{display:flex;gap:13px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted-foreground)}
+.provision-steps li.active{color:var(--foreground);font-weight:650}
+.provision-steps li.done{color:var(--supporting-ink)}
+.provision-steps .marker{width:17px;flex:none;display:inline-flex;align-self:center;color:var(--success)}
+.provision-steps .dot{width:8px;height:8px;border-radius:50%;background:var(--primary);display:inline-block}
+.provision-steps li.active .dot{animation:provision-pulse 1.2s ease-in-out infinite}
+.provision-steps li.todo .marker .dot{background:var(--border)}
+@keyframes provision-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.provision-reassure{margin-top:16px;font-size:12px;color:var(--muted-foreground)}
 /* One-time hero entrance: the landing's opening beat. Scopes to .hero so reused
    classes on other pages stay static. Disabled by the reduced-motion rule below. */
 @keyframes hero-rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}

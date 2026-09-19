@@ -83,6 +83,14 @@ export async function markSessionRunning(id) {
   );
 }
 
+export async function markSessionStep(id, step) {
+  const now = new Date();
+  await collection().updateOne(
+    { _id: id },
+    { $set: { provisioningStep: step, lastActivityAt: now } },
+  );
+}
+
 export async function saveSessionRun(id, { files, result }) {
   const now = new Date();
   await collection().updateOne(

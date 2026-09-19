@@ -12,6 +12,7 @@ export type Challenge = {
   category: string;
   difficulty: string;
   stack: string;
+  requiresMongo?: boolean;
   problemStatement: string;
   criteria: Criterion[];
   hints: { tier1: string; tier2: string; tier3: string };
@@ -39,6 +40,7 @@ export type SessionRecord = {
   status: SessionStatus;
   files: Record<string, string>;
   error: string | null;
+  provisionStep: string | null;
   lastRun: TestRunResult | null;
 };
 

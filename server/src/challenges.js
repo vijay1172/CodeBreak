@@ -299,6 +299,7 @@ export function publicChallenge(challenge) {
     category: challenge.category,
     difficulty: challenge.difficulty,
     stack: challenge.stack,
+    requiresMongo: Boolean(challenge.requiresMongo),
     problemStatement: challenge.problemStatement,
     criteria: challenge.criteria,
     hints: challenge.hints,

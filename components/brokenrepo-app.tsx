@@ -23,20 +23,33 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
   const [reported, setReported] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [step, setStep] = useState("booting");
+  const [stepSince, setStepSince] = useState(Date.now());
+  const [now, setNow] = useState(Date.now());
   const [resetOpen, setResetOpen] = useState(false);
   const filesRef = useRef(files);
   useEffect(() => { filesRef.current = files; }, [files]);
   useEffect(() => {
+    if (status !== "provisioning") return;
+    const clock = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(clock);
+  }, [status]);
+  useEffect(() => {
     let disposed = false;
     let id = "";
     let timer: ReturnType<typeof setTimeout>;
+    const beganAt = Date.now();
     async function poll() {
       try {
         const record = await getSession(id);
         if (disposed) return;
         setStatus(record.status);
         if (record.error) setError(record.error);
-        if (record.status === "provisioning") timer = setTimeout(poll, 1500);
+        if (record.status === "provisioning") {
+          if (record.provisionStep !== step) { setStep(record.provisionStep || "booting"); setStepSince(Date.now()); }
+          if (Date.now() - beganAt > 360_000) { setStatus("error"); setError("The sandbox is taking unusually long to prepare. Start a fresh session to try again."); return; }
+          timer = setTimeout(poll, 1500);
+        }
       } catch (error) { if (!disposed) { setStatus("error"); setError(error instanceof Error ? error.message : "Couldn’t prepare your lab."); } }
     }
     void createSession(challengeId).then(async created => {
@@ -95,6 +108,35 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     catch (error) { toast.error(error instanceof Error ? error.message : "Couldn’t send the report."); }
     finally { setReporting(false); }
   }
+  const stepList = [
+    { id: "booting", label: "Booting the sandbox" },
+    ...(challenge?.requiresMongo ? [{ id: "database", label: "Preparing the database runtime" }] : []),
+    { id: "files", label: "Loading project files" },
+    { id: "installing", label: "Installing dependencies" },
+    { id: "starting", label: "Starting the challenge app" },
+  ];
+  const stepIndex = Math.max(stepList.findIndex((entry) => entry.id === step), 0);
+  const stepElapsedSeconds = Math.floor((now - stepSince) / 1000);
+  const reassure = status === "provisioning" && stepElapsedSeconds > 40
+    ? step === "installing"
+      ? "Still installing dependencies — this can take a moment on the first load."
+      : "Still working — this step can take a moment."
+    : "";
+  const provisionPanel = status === "provisioning" && challenge && (
+    <div className="provision-panel" role="status" aria-live="polite">
+      <p className="provision-title">Preparing your lab</p>
+      <ol className="provision-steps">
+        {stepList.map((entry, index) => {
+          const state = index < stepIndex ? "done" : index === stepIndex ? "active" : "todo";
+          return <li key={entry.id} className={state}>
+            <span className="marker" aria-hidden="true">{state === "done" ? <CheckCircle2 size={15}/> : <span className="dot"/>}</span>
+            <span>{entry.label}{state === "active" ? "…" : ""}</span>
+          </li>;
+        })}
+      </ol>
+      {reassure && <p className="provision-reassure">{reassure}</p>}
+    </div>
+  );
   const current = challenge?.files.find(f => f.path === active);
   const hints = challenge ? Object.values(challenge.hints) : [];
   return <><SiteHeader/><main id="main-content" tabIndex={-1} className="lab">
@@ -104,7 +146,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
       <aside className="file-explorer"><h2>Project files</h2>{challenge?.files.map(file => <button key={file.path} className={file.path === active ? "active" : ""} onClick={() => setActive(file.path)} title={file.path}><FileCode2 size={15}/><span>{file.path}</span></button>)}</aside>
       <section className="workspace" aria-label="Code workspace">
         <div className="editor-toolbar"><label><span className="sr-only">Choose project file</span><select value={active} onChange={e => setActive(e.target.value)}>{challenge?.files.map(file => <option key={file.path}>{file.path}</option>)}</select></label><span>{current?.editable ? dirty ? "Unsaved changes" : "Saved" : "Read only"}</span></div>
-        {challenge ? <CodeEditor path={active} value={files[active] || ""} editable={Boolean(current?.editable) && status !== "running"} onChange={value => { setFiles(prev => ({ ...prev, [active]: value })); setDirty(true); setResult(null); }}/> : <div className="editor-loading">Your project files will appear here.</div>}
+        {provisionPanel ? provisionPanel : challenge ? <CodeEditor path={active} value={files[active] || ""} editable={Boolean(current?.editable) && status !== "running"} onChange={value => { setFiles(prev => ({ ...prev, [active]: value })); setDirty(true); setResult(null); }}/> : <div className="editor-loading">Your project files will appear here.</div>}
         <div className="lab-actions"><button className="button secondary small" disabled={!challenge || status === "running" || saving} onClick={() => setResetOpen(true)}><RotateCcw size={15}/>Reset code</button><button className="button secondary small" disabled={!sessionId || saving || status === "running"} onClick={save}><Save size={15}/>{saving ? "Saving…" : "Save code"}</button><button className="button small" disabled={status !== "ready" || saving} onClick={run}><Play size={15}/>{status === "running" ? "Running…" : "Run tests"}</button></div>
         {resetOpen && <div className="reset-confirm" role="group" aria-label="Confirm code reset"><p>Replace your edits with the starter code? Your solved progress will stay saved.</p><button className="button small" onClick={() => { setFiles({ ...starter }); setResult(null); setDirty(true); setHintCount(0); setResetOpen(false); toast.success("Starter code restored. Save to keep this version."); }}>Restore starter code</button><button className="text-button" onClick={() => setResetOpen(false)}>Keep my edits</button></div>}
         <div className="output-tabs" role="tablist" aria-label="Test panels">{["output", "problems"].map(value => <button key={value} id={value + "-tab"} role="tab" aria-selected={tab === value} aria-controls={value + "-panel"} tabIndex={tab === value ? 0 : -1} onKeyDown={event => { if (event.key === "ArrowRight" || event.key === "ArrowLeft") { const next = value === "output" ? "problems" : "output"; setTab(next); document.getElementById(next + "-tab")?.focus(); } }} onClick={() => setTab(value)}>{value === "output" ? "Test output" : "Problems"}</button>)}</div>
