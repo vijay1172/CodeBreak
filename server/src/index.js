@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import cors from "cors";
 import express from "express";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import { config } from "./config.js";
 import { assertEditableFiles, getChallenge, listChallenges, publicChallenge } from "./challenges.js";
@@ -25,7 +27,7 @@ import {
 } from "./session-store.js";
 
 const createSessionSchema = z.object({
-  challengeId: z.string().min(1),
+  challengeId: z.string().min(1).max(120),
 });
 
 const runTestsSchema = z.object({
@@ -38,7 +40,9 @@ const challengeReportSchema = z.object({
 });
 
 const app = express();
+app.set("trust proxy", 1);
 app.disable("x-powered-by");
+app.use(helmet());
 app.use(express.json({ limit: "2mb" }));
 app.use(
   cors({
@@ -49,9 +53,52 @@ app.use(
   }),
 );
 
-function safeError(error) {
-  return String(error?.message || error || "Unknown error").slice(0, 20_000);
+function redactSecrets(value) {
+  return String(value)
+    .replace(/(mongodb(\+srv)?|https?):\/\/[^@\s/:]+:[^@\s]+@/gi, "$1://[redacted]@")
+    .replace(/\b(?:re|sk|ghp)_[A-Za-z0-9_-]{16,}\b/g, "[redacted-key]")
+    .replace(/Bearer\s+[A-Za-z0-9._-]{16,}/gi, "Bearer [redacted]");
 }
+
+function safeError(error) {
+  return redactSecrets(String(error?.message || error || "Unknown error")).slice(0, 20_000);
+}
+
+function tooManyRequests(message) {
+  return (_req, res) => {
+    res.status(429).json({ error: message });
+  };
+}
+
+// Coarse per-IP backstop for direct hits on this service. Traffic proxied through
+// the Vercel frontend shares an egress address, so this threshold is deliberately
+// high; fine-grained per-IP limits live in the frontend proxy and per-user limits below.
+const directTrafficLimiter = rateLimit({
+  windowMs: 15 * 60_000,
+  limit: 3_000,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  handler: tooManyRequests("Too many requests. Please slow down and try again shortly."),
+});
+app.use("/api", directTrafficLimiter);
+
+const testRunLimiter = rateLimit({
+  windowMs: 15 * 60_000,
+  limit: 40,
+  keyGenerator: (req) => String(req.userId),
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  handler: tooManyRequests("You’ve run a lot of tests in a short time. Please wait a few minutes before running more."),
+});
+
+const sandboxStartLimiter = rateLimit({
+  windowMs: 60 * 60_000,
+  limit: 10,
+  keyGenerator: (req) => String(req.userId),
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  handler: tooManyRequests("You’ve started many lab sessions this hour. Please try again later."),
+});
 
 function serializeSession(record) {
   return {
@@ -129,12 +176,20 @@ app.post("/api/challenges/:challengeId/reports", requireAccount, async (req, res
   return res.status(201).json(report);
 });
 
-app.post("/api/sessions", async (req, res) => {
+app.post("/api/sessions", sandboxStartLimiter, async (req, res) => {
   const parsed = createSessionSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "A valid challengeId is required" });
 
   const challenge = await getChallenge(parsed.data.challengeId);
   if (!challenge) return res.status(404).json({ error: "Challenge not found" });
+
+  const activeSessions = await database().collection("sessions").countDocuments({
+    userId: req.userId,
+    status: { $in: ["provisioning", "ready", "running"] },
+  });
+  if (activeSessions >= 3) {
+    return res.status(429).json({ error: "You already have three active lab sessions. End one before starting another." });
+  }
 
   const sessionId = randomUUID();
   const editable = new Set(challenge.editablePaths);
@@ -163,7 +218,7 @@ app.get("/api/sessions/:sessionId", async (req, res) => {
   return res.json(serializeSession(record));
 });
 
-app.post("/api/sessions/:sessionId/run", async (req, res) => {
+app.post("/api/sessions/:sessionId/run", testRunLimiter, async (req, res) => {
   const parsed = runTestsSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "files must be a text-file map" });
 
@@ -234,7 +289,9 @@ app.put("/api/sessions/:sessionId/files", async (req, res) => {
   const parsed = runTestsSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "We couldn’t read those files. Please try saving again." });
   const record = await getSessionRecord(req.params.sessionId);
+  if (!record) return res.status(404).json({ error: "Session not found" });
   const challenge = await getChallenge(record.challengeId);
+  if (!challenge) return res.status(410).json({ error: "Challenge content is unavailable" });
   try { assertEditableFiles(challenge, parsed.data.files); }
   catch { return res.status(400).json({ error: "Only editable project files can be saved." }); }
   await saveProgress(req.userId, record.challengeId, parsed.data.files);

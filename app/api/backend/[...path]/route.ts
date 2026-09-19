@@ -2,8 +2,30 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 const backend = process.env.CODEBREAK_BACKEND_URL || process.env.NEXT_PUBLIC_CODEBREAK_API_URL || "https://codebreak-api.onrender.com";
+
+// The backend sits behind this proxy, so only this layer sees real client IPs.
+// Limits are in-memory per serverless instance; the backend keeps independent
+// per-account and per-user limits as the durable second layer.
+const hitLog = new Map<string, number[]>();
+function allowClient(key: string, limit: number, windowMs: number) {
+  if (hitLog.size > 10_000) hitLog.clear();
+  const now = Date.now();
+  const recent = (hitLog.get(key) || []).filter((time) => now - time < windowMs);
+  const allowed = recent.length < limit;
+  if (allowed) { recent.push(now); hitLog.set(key, recent); }
+  return allowed;
+}
+
 async function proxy(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
+  const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!allowClient(`all:${clientIp}`, 400, 900_000)) {
+    return NextResponse.json({ error: "Too many requests. Please slow down and try again shortly." }, { status: 429 });
+  }
+  const route = path.join("/");
+  if (request.method === "POST" && (route === "auth/login" || route === "auth/signup") && !allowClient(`auth:${clientIp}`, 30, 900_000)) {
+    return NextResponse.json({ error: "Too many attempts. Please wait 15 minutes and try again." }, { status: 429 });
+  }
   if (request.method !== "GET" && request.headers.get("origin") !== request.nextUrl.origin) {
     return NextResponse.json({ error: "Please refresh CodeBreak and try again." }, { status: 403 });
   }
