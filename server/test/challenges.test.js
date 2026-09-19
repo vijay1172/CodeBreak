@@ -69,3 +69,21 @@ test("each challenge exposes a realistic project without hidden tests", async ()
     assert.ok(visible.files.every((file) => !file.path.startsWith("tests/")));
   }
 });
+
+test("student-facing READMEs describe the problem, not developer setup", async () => {
+  // The lab shows README.md as a read-only project file. It must never carry
+  // sandbox wiring (install commands, ports, env vars, proxies) — students run
+  // everything through the Run Tests button. If a new challenge copies in the
+  // old boilerplate, this test fails before it reaches students.
+  const banned = /npm (install|run|test)|start:challenge|start:client|MONGODB_URI|port \d{3,4}|Vite prox|Node\.js \d/;
+  for (const id of expectedIds) {
+    const challenge = await getChallenge(id);
+    const readme = challenge.files.find((file) => file.path === "README.md");
+    assert.ok(readme, `${id}: README.md is present`);
+    assert.ok(publicChallenge(challenge).files.some((file) => file.path === "README.md"), `${id}: README.md is student-visible`);
+    assert.doesNotMatch(readme.content, banned, `${id}: README.md leaks developer setup instructions`);
+    for (const section of ["## Where to look", "## Expected behavior"]) {
+      assert.ok(readme.content.includes(section), `${id}: README.md should contain "${section}"`);
+    }
+  }
+});

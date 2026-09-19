@@ -1,5 +1,15 @@
-# Student Portal
+# The Missing Name
 
-This small MERN-style project powers an authenticated dashboard. The browser API client and the Express middleware must use the same authentication contract.
+The profile endpoint returns a user, but the student's name is blank in the React UI.
 
-Run `npm install`, then `npm run start:challenge` to start the API. The hidden challenge tests run with `npm test`.
+## Where to look
+
+Routes, controllers, repositories, and Mongoose models live under `server/`. React pages, hooks, components, and API clients live under `client/src/`.
+
+## Expected behavior
+
+- returns the requested user from the API.
+- shows the user's name from the live API response.
+- returns 404 for an unknown user.
+
+Investigate the symptom across the project. The hidden tests run inside the practice workspace when you use Run Tests — they check behavior rather than requiring one particular implementation.

@@ -1,5 +1,15 @@
-# Student Portal
+# The Stubborn Counter
 
-This small MERN-style project powers an authenticated dashboard. The browser API client and the Express middleware must use the same authentication contract.
+Rapid clicks are batched, but the like counter increases only once instead of once per click.
 
-Run `npm install`, then `npm run start:challenge` to start the API. The hidden challenge tests run with `npm test`.
+## Where to look
+
+Routes, controllers, repositories, and Mongoose models live under `server/`. React pages, hooks, components, and API clients live under `client/src/`.
+
+## Expected behavior
+
+- increments once for one click.
+- counts every rapid click in one render batch.
+- does not mutate the captured count value.
+
+Investigate the symptom across the project. The hidden tests run inside the practice workspace when you use Run Tests — they check behavior rather than requiring one particular implementation.

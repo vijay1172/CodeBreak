@@ -2,11 +2,9 @@
 
 A workshop booking sometimes appears twice after a brief connection interruption. The attendee clicked once and saw one confirmation. Normal bookings work, and refreshing the bookings list confirms that both entries were saved.
 
-## Running the workspace
+## Where to look
 
-Use Node.js 20.19 or newer. Run `npm install`, then `npm run start:challenge`. React is built and served by Express on port 3000. The practice profile starts a real isolated MongoDB process. Outside this profile set MONGODB_URI; no production credentials are included.
-
-For client development use `npm run start:client`. Vite proxies /api to Express. Read the pages, hooks, and API modules in client/src alongside the routes, controllers, repositories, and models in server/.
+Routes, controllers, repositories, and Mongoose models live under `server/`. React pages, hooks, components, and API clients live under `client/src/`.
 
 ## Expected behavior
 
@@ -16,4 +14,4 @@ For client development use `npm run start:client`. Vite proxies /api to Express.
 - keeps independently submitted bookings distinct.
 - does not retry a rejected booking request.
 
-The hidden tests check behavior rather than requiring one particular implementation.
+Investigate the symptom across the project. The hidden tests run inside the practice workspace when you use Run Tests — they check behavior rather than requiring one particular implementation.
