@@ -19,6 +19,17 @@ export function SiteHeader() {
 }
 export function SiteFooter() {
   const support = "vijaysharma11702@gmail.com";
-  return <footer className="site-footer"><Link href="/" className="brand"><Code2 aria-hidden="true"/>CodeBreak</Link><span>© {new Date().getFullYear()} CodeBreak</span><nav aria-label="Footer navigation"><Link href="/challenges">Practice</Link>{support ? <a href={"mailto:" + support}>Contact support</a> : <a href="https://github.com/vijay1172/CodeBreak/issues">Report an issue</a>}</nav></footer>;
+  const mailto = `mailto:${support}?subject=${encodeURIComponent("CodeBreak support request")}`;
+  function contactSupport() {
+    if (!navigator.clipboard) {
+      toast.info(`Opening your email app. You can also write to ${support}.`);
+      return;
+    }
+    void navigator.clipboard.writeText(support).then(
+      () => toast.success(`Opening your email app. ${support} was copied too.`),
+      () => toast.info(`Opening your email app. You can also write to ${support}.`),
+    );
+  }
+  return <footer className="site-footer"><Link href="/" className="brand"><Code2 aria-hidden="true"/>CodeBreak</Link><span>© {new Date().getFullYear()} CodeBreak</span><nav aria-label="Footer navigation"><Link href="/challenges">Practice</Link><a href={mailto} onClick={contactSupport} aria-label={`Email CodeBreak support at ${support}`}>Contact support</a></nav></footer>;
 }
 export function Notifications() { const { resolvedTheme } = useTheme(); return <Toaster theme={resolvedTheme === "dark" ? "dark" : "light"} position="bottom-right" richColors closeButton />; }
