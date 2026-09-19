@@ -220,7 +220,13 @@ Inputs and selects have white backgrounds, Input Gray borders, the control radiu
 
 ### Navigation
 
-The header uses an inline code mark, a heavy wordmark, and a compact horizontal navigation group. Plain navigation links underline on hover. At mobile widths the header and navigation can wrap. Authenticated links reflect the account state; there is no invented active-page treatment.
+The header uses an inline code mark, a heavy wordmark, and a compact horizontal navigation group. Navigation links change to Review Blue on hover without underlines. At mobile widths the header and navigation can wrap. Authenticated links reflect the account state; there is no invented active-page treatment.
+
+The theme control is deliberately borderless. Its sun and moon share a compact orbit: changing themes rotates and crossfades the icons, while hovering briefly reveals small orbiting points. Motion pauses unless the control is being used and is removed for reduced-motion preferences.
+
+### Support form
+
+The footer opens a first-party support page rather than invoking a device mail application. The form uses the same flat working surface as authentication, with persistent labels, specific validation and delivery errors, an anti-spam field, and a dedicated confirmation state. Messages are delivered server-side so provider credentials never reach the browser.
 
 ### Status and Diagnostics
 

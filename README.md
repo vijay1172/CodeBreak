@@ -78,6 +78,8 @@ The seven-challenge release has [reproducible real-sandbox checks and recorded r
 
 The header's Dark mode toggle applies to every page, the CodeMirror editor, diagnostics, and notifications. It follows the device preference initially, remembers an explicit selection, and synchronizes across tabs.
 
+The first-party support form sends through Resend. Configure `RESEND_API_KEY`, `CODEBREAK_SUPPORT_EMAIL`, and `CODEBREAK_SUPPORT_FROM` in Vercel. The sender must be allowed by the associated Resend account.
+
 - Render reads `render.yaml`. Add the private values from `server/.env.example` in Render.
 - Vercel reads `vercel.json`. Set server-only `CODEBREAK_BACKEND_URL` to the deployed Render URL (the older `NEXT_PUBLIC_CODEBREAK_API_URL` is supported as a fallback).
 - Set Render's `CLIENT_ORIGINS` to the final Vercel production URL and any approved preview URLs.
