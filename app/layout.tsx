@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "@fontsource-variable/manrope";
+import { Analytics } from "@vercel/analytics/react";
 import { Notifications } from "@/components/site-shell";
+import { TrackVisit } from "@/components/track-visit";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
@@ -36,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<Notifications/></ThemeProvider></body>
+      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<TrackVisit/><Notifications/><Analytics/></ThemeProvider></body>
     </html>
   );
 }

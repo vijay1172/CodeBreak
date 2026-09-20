@@ -317,3 +317,30 @@ input,textarea{caret-color:var(--primary)}
 [data-sonner-toast][data-styled=true]{--normal-bg:var(--card);--normal-text:var(--foreground);--normal-border:var(--border);--success-bg:var(--success-surface);--success-text:var(--success);--success-border:var(--success);--error-bg:var(--error-surface);--error-text:var(--error-ink)}
 
 @media(max-width:760px){.site-header{position:relative}.site-header>.brand{min-height:44px}.site-header nav{width:100%}.site-header .theme-toggle{position:absolute;right:20px;top:16px}}
+
+/* Internal admin dashboard — deliberately plain. */
+.admin{padding-bottom:80px}
+.admin-section{margin-top:45px;border-top:1px solid var(--border);padding-top:28px}
+.admin-section h2{font-size:24px}
+.admin-section h3{margin-top:22px;font-size:14px;color:var(--supporting-ink)}
+.admin-note{margin-top:10px;font-size:12px;color:var(--muted-foreground)}
+.admin-stats{display:flex;gap:40px;margin-top:18px}
+.admin-stats strong{display:block;font-size:32px;color:var(--primary)}
+.admin-stats span{font-size:12px;color:var(--muted-foreground)}
+.admin-bars{display:flex;gap:4px;align-items:flex-end;margin-top:14px;min-height:90px;flex-wrap:wrap}
+.admin-bar{display:flex;flex-direction:column;align-items:center;gap:4px}
+.admin-bar span{width:14px;background:var(--primary);opacity:.85;display:block}
+.admin-bar em{font-style:normal;font-family:var(--font-mono);font-size:9px;color:var(--muted-foreground)}
+.admin-empty{font-size:12px;color:var(--muted-foreground)}
+.admin-table{margin-top:14px;border-collapse:collapse;font-size:13px;min-width:min(100%,520px)}
+.admin-table th{text-align:left;font-size:11px;color:var(--muted-foreground);font-weight:650;padding:8px 18px 8px 0;border-bottom:1px solid var(--border)}
+.admin-table td{padding:9px 18px 9px 0;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+.admin-challenge{margin-top:26px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.admin-challenge h3{font-size:17px;color:var(--foreground);margin-top:0}
+.admin-funnel{margin-top:12px;max-width:520px}
+.admin-funnel-stage{display:grid;grid-template-columns:80px 1fr 110px;gap:12px;align-items:center;padding:4px 0}
+.admin-funnel-label{font-size:11px;color:var(--muted-foreground)}
+.admin-funnel-track{background:var(--muted);height:14px}
+.admin-funnel-track span{display:block;height:100%;background:var(--primary)}
+.admin-funnel-value{font-size:11px;color:var(--supporting-ink);font-variant-numeric:tabular-nums}
+.admin-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:30px;margin-top:8px}
