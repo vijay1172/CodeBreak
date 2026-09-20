@@ -430,27 +430,6 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
   });
 });
 
-// TEMPORARY one-time admin bootstrap. Guarded by a secret that only exists in the
-// platform env; this route is removed in the next commit after roles are assigned.
-app.post("/api/admin/bootstrap", async (req, res) => {
-  const secret = process.env.ADMIN_BOOTSTRAP_TOKEN;
-  if (!secret || req.headers["x-bootstrap-token"] !== secret) return res.status(404).json({ error: "Not found" });
-  if (req.body?.action === "list") {
-    const users = await database().collection("users").find({}, { projection: { email: 1, createdAt: 1 } }).sort({ createdAt: 1 }).toArray();
-    return res.json({ users: users.map((u) => ({ email: u.email, createdAt: u.createdAt })) });
-  }
-  const email = String(req.body?.email || "").trim().toLowerCase();
-  const role = req.body?.role === "user" ? "user" : "admin";
-  const updated = await database().collection("users").findOneAndUpdate(
-    { email },
-    { $set: { role } },
-    { returnDocument: "after", projection: { email: 1, role: 1 } },
-  );
-  if (!updated) return res.status(404).json({ error: "No such user" });
-  console.log(`BOOTSTRAP: ${updated.email} role -> ${updated.role}`);
-  return res.json({ email: updated.email, role: updated.role });
-});
-
 app.use((error, _req, res, _next) => {
   void _next;
   console.error(error);
