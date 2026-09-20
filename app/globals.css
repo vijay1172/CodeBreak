@@ -98,6 +98,15 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono)}
 .curriculum li span:last-child{color:var(--supporting-ink)}
 .closing{padding-block:100px;text-align:center}
 .closing p{margin:22px auto 28px;max-width:560px}
+.incidents-teaser{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;padding-block:75px;align-items:start}
+.incidents-teaser>div>p{margin-block:22px 28px;max-width:390px;color:var(--supporting-ink);line-height:1.85}
+.incident-teaser-list{list-style:none;margin:0;padding:0}
+.incident-teaser-list li{border-bottom:1px solid var(--border)}
+.incident-teaser-list li:first-child{border-top:1px solid var(--border)}
+.incident-teaser-list a{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:baseline;padding:19px 0}
+.incident-teaser-list .incident-name{font-weight:750;font-size:15px}
+.incident-teaser-list a:hover .incident-name{color:var(--primary)}
+.incident-teaser-list .incident-impact{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground);text-align:right}
 .faq{border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1.4fr;gap:80px;padding-block:75px}
 .faq>div>p{margin-top:22px;max-width:390px;color:var(--supporting-ink);line-height:1.85}
 .faq dl{margin:0}
@@ -272,7 +281,7 @@ progress{width:100%;height:7px;accent-color:var(--success)}
  .hero-actions{gap:18px}.hero-actions .underlined{font-size:13px}.demo-files pre{font-size:12px}.demo-files>div{padding:16px 20px}
  .workflow{grid-template-columns:1fr;gap:30px;padding-block:45px}.workflow li{margin-bottom:25px}.workflow h2{font-size:2rem}
  .curriculum-inner{grid-template-columns:1fr;padding-block:45px;gap:30px}.curriculum li{grid-template-columns:1fr 1.5fr;font-size:12px}.closing{padding-block:60px}.closing h2{font-size:2rem}
- .faq{grid-template-columns:1fr;gap:30px;padding-block:45px}.faq h2{font-size:2rem}.faq dt{font-size:14px}.faq dd{font-size:13px}
+ .faq{grid-template-columns:1fr;gap:30px;padding-block:45px}.faq h2{font-size:2rem}.faq dt{font-size:14px}.faq dd{font-size:13px}.incidents-teaser{grid-template-columns:1fr;gap:30px;padding-block:45px}.incidents-teaser h2{font-size:2rem}.incident-teaser-list .incident-impact{text-align:left}
  .crumbs{margin-top:28px}.challenge-detail{padding-bottom:60px}.detail-symptom{font-size:15px;margin-top:20px}.detail-section{margin-top:36px}.criteria-list li{padding:13px 0}
  .site-footer{padding:25px 20px;gap:18px}.site-footer nav{width:100%;gap:20px}
  .auth-layout,.contact-layout{grid-template-columns:1fr;gap:30px;padding-block:45px}.auth-copy h1{font-size:2.7rem}.auth-note{display:none}.auth-form{max-width:100%;padding:24px}.auth-copy p{margin-top:18px}
