@@ -1,8 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /admin/
+Disallow: /admin
 Disallow: /lab/
 Disallow: /progress/
 
-Sitemap: https://codebreak-vijay1172s-projects.vercel.app/sitemap.xml
+Sitemap: https://brokenrepo.tech/sitemap.xml

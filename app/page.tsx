@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BugDemo } from "@/components/bug-demo";
 import { SiteHeader, SiteFooter } from "@/components/site-shell";
+import { SITE_URL } from "@/lib/site-config";
 import { incidents } from "@/lib/incident-catalog";
 
 const faqs = [
@@ -21,7 +22,7 @@ export default function Home() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: "BrokenRepo",
-      url: "https://codebreak-vijay1172s-projects.vercel.app/",
+      url: SITE_URL + "/",
       description: "Code debugging practice on real repo bugs for beginners, freshers, and SDE-1 interview preparation.",
     },
     {

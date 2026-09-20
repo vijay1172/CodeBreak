@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { TrackVisit } from "@/components/track-visit";
 import { challengeCatalog, getCatalogEntry } from "@/lib/challenge-catalog";
+import { SITE_URL } from "@/lib/site-config";
 
 export const dynamicParams = false;
 
@@ -50,8 +51,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "BrokenRepo", item: "https://codebreak-vijay1172s-projects.vercel.app/" },
-      { "@type": "ListItem", position: 2, name: "Debugging challenges", item: "https://codebreak-vijay1172s-projects.vercel.app/challenges" },
+      { "@type": "ListItem", position: 1, name: "BrokenRepo", item: SITE_URL + "/" },
+      { "@type": "ListItem", position: 2, name: "Debugging challenges", item: SITE_URL + "/challenges" },
       { "@type": "ListItem", position: 3, name: entry.title },
     ],
   };

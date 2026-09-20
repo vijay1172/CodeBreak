@@ -3,11 +3,12 @@ import "./globals.css";
 import "@fontsource-variable/manrope";
 import { Analytics } from "@vercel/analytics/react";
 import { Notifications } from "@/components/site-shell";
+import { SITE_URL } from "@/lib/site-config";
 import { TrackVisit } from "@/components/track-visit";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://codebreak-vijay1172s-projects.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   title: { default: "BrokenRepo — Code debugging practice on real repo bugs", template: "%s | BrokenRepo" },
   description: "Practice code debugging in full MERN repos — the repo-based pattern behind Amazon’s new OA and SDE-1 interviews. Find the bug, fix it, prove it with live tests.",
   alternates: { canonical: "/" },
