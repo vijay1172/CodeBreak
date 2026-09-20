@@ -15,12 +15,14 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
   const [files, setFiles] = useState<Record<string, string>>({});
   const [starter, setStarter] = useState<Record<string, string>>({});
   const [active, setActive] = useState("");
+  const [openTabs, setOpenTabs] = useState<string[]>([]);
+  const [dirtyFiles, setDirtyFiles] = useState<Set<string>>(new Set());
+  const [closingPath, setClosingPath] = useState("");
   const [error, setError] = useState("");
   const [result, setResult] = useState<TestRunResult | null>(null);
   const [tab, setTab] = useState("output");
   const [hintCount, setHintCount] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [dirty, setDirty] = useState(false);
   const [reported, setReported] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -59,7 +61,10 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
       const next = Object.fromEntries(created.challenge.files.map(f => [f.path, f.content]));
       setFiles(next);
       setStarter({ ...next, ...Object.fromEntries(created.starterFiles.map(f => [f.path, f.content])) });
-      setActive(created.challenge.files.find(f => f.editable)?.path || "");
+      const defaultPath = created.challenge.files.find(f => f.editable)?.path || "";
+      setActive(defaultPath);
+      setOpenTabs(defaultPath ? [defaultPath] : []);
+      setDirtyFiles(new Set());
       timer = setTimeout(poll, 500);
     }).catch(error => { if (!disposed) { setStatus("error"); setError(error.message); } });
     return () => { disposed = true; clearTimeout(timer); if (id) void deleteSession(id); };
@@ -71,11 +76,11 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     return () => window.removeEventListener("pagehide", release);
   }, [sessionId]);
   useEffect(() => {
-    if (!dirty) return;
+    if (dirtyFiles.size === 0) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
+  }, [dirtyFiles]);
   const editable = () => Object.fromEntries((challenge?.files || []).filter(f => f.editable).map(f => [f.path, filesRef.current[f.path] ?? ""]));
   async function save() {
     if (!sessionId) return;
@@ -83,7 +88,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     setSaving(true);
     try {
       await jsonRequest("/sessions/" + sessionId + "/files", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ files: snapshot }) });
-      if (JSON.stringify(snapshot) === JSON.stringify(editable())) setDirty(false);
+      if (JSON.stringify(snapshot) === JSON.stringify(editable())) setDirtyFiles(new Set());
       toast.success("Your code is saved to your account.");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Couldn’t save. Try again."); }
     finally { setSaving(false); }
@@ -96,7 +101,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
       const next = await runSessionTests(sessionId, snapshot);
       setResult(next); setStatus("ready");
       if (next.phase !== "infrastructure") {
-        setDirty(false);
+        setDirtyFiles(new Set());
         toast.success(next.allPassed ? "Bug fixed. Challenge solved and progress saved." : "Attempt and code saved. Check the test results.");
       }
       if (next.phase !== "test") setTab("problems");
@@ -107,6 +112,27 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     try { await reportChallenge(challengeId, sessionId); setReported(true); toast.success("Report sent. Thanks for flagging the problem."); }
     catch (error) { toast.error(error instanceof Error ? error.message : "Couldn’t send the report."); }
     finally { setReporting(false); }
+  }
+  function openFile(path: string) {
+    setOpenTabs((prev) => (prev.includes(path) ? prev : [...prev, path]));
+    setActive(path);
+  }
+  function closeTab(path: string) {
+    const index = openTabs.indexOf(path);
+    const next = openTabs.filter((tab) => tab !== path);
+    setOpenTabs(next);
+    if (active === path) setActive(next[Math.min(index, next.length - 1)] || "");
+    setDirtyFiles((prev) => {
+      if (!prev.has(path)) return prev;
+      const remaining = new Set(prev);
+      remaining.delete(path);
+      return remaining;
+    });
+    setClosingPath("");
+  }
+  function requestClose(path: string) {
+    if (dirtyFiles.has(path)) setClosingPath(path);
+    else closeTab(path);
   }
   const provisionElapsed = Math.floor((now - provisionStartedAt) / 1000);
   const stepList = [
@@ -140,12 +166,28 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     <div className="lab-heading"><div><Link className="underlined" href="/challenges">All challenges</Link><h1>{challenge?.title || "Opening your challenge…"}</h1></div><span className={"lab-status " + status} role="status">{status === "ready" ? "Sandbox ready" : status === "provisioning" ? "Preparing sandbox…" : status === "running" ? "Running your code…" : "Session unavailable"}</span></div>
     {error && <div className="error-message" role="alert"><p>{error}</p><div className="hero-actions"><Link className="underlined" href="/login">Log in</Link><button className="button small" onClick={() => { setError(""); setStatus("provisioning"); setResult(null); setRetry(x => x + 1); }}>Restart session</button></div></div>}
     <div className="lab-grid">
-      <aside className="file-explorer"><h2>Project files</h2>{challenge && <FileTree files={challenge.files} active={active} onSelect={setActive}/>}</aside>
+      <aside className="file-explorer"><h2>Project files</h2>{challenge && <FileTree files={challenge.files} active={active} onSelect={openFile}/>}</aside>
       <section className="workspace" aria-label="Code workspace">
-        <div className="editor-toolbar"><label><span className="sr-only">Choose project file</span><select value={active} onChange={e => setActive(e.target.value)}>{challenge?.files.map(file => <option key={file.path}>{file.path}</option>)}</select></label><span>{current?.editable ? dirty ? "Unsaved changes" : "Saved" : "Read only"}</span></div>
-        {provisionPanel ? provisionPanel : challenge ? <CodeEditor path={active} value={files[active] || ""} editable={Boolean(current?.editable) && status !== "running"} onChange={value => { setFiles(prev => ({ ...prev, [active]: value })); setDirty(true); setResult(null); }}/> : <div className="editor-loading">Your project files will appear here.</div>}
+        <div className="editor-toolbar tab-toolbar">
+          <div className="tab-strip" aria-label="Open files">
+            {openTabs.map(path => {
+              const name = path.split("/").pop();
+              const isDirty = dirtyFiles.has(path);
+              return <div key={path} className={"editor-tab" + (path === active ? " active" : "")}>
+                <button className="tab-name" onClick={() => setActive(path)} title={path}><FileCode2 size={13} aria-hidden="true"/><span>{name}{isDirty ? " •" : ""}</span></button>
+                <button className="tab-close" aria-label={`Close ${name}${isDirty ? " (unsaved changes)" : ""}`} onClick={() => requestClose(path)}>×</button>
+              </div>;
+            })}
+          </div>
+          <div className="tab-toolbar-end">
+            <label className="tab-file-picker"><span className="sr-only">Choose project file</span><select value={active} onChange={e => openFile(e.target.value)}>{challenge?.files.map(file => <option key={file.path}>{file.path}</option>)}</select></label>
+            <span>{dirtyFiles.size ? (dirtyFiles.size === 1 ? "1 unsaved change" : dirtyFiles.size + " unsaved changes") : current?.editable ? "Saved" : "Read only"}</span>
+          </div>
+        </div>
+        {closingPath && <div className="reset-confirm" role="group" aria-label="Confirm close file"><p>“{closingPath.split("/").pop()}” has unsaved changes. Close it without saving?</p><button className="button small" onClick={() => closeTab(closingPath)}>Close without saving</button><button className="text-button" onClick={() => setClosingPath("")}>Keep editing</button></div>}
+        {provisionPanel ? provisionPanel : challenge && openTabs.length === 0 ? <div className="editor-loading">Select a file from the project tree to begin.</div> : challenge ? <CodeEditor path={active} value={files[active] || ""} editable={Boolean(current?.editable) && status !== "running"} onChange={value => { setFiles(prev => ({ ...prev, [active]: value })); setDirtyFiles(prev => new Set(prev).add(active)); setResult(null); }}/> : <div className="editor-loading">Your project files will appear here.</div>}
         <div className="lab-actions"><button className="button secondary small" disabled={!challenge || status === "running" || saving} onClick={() => setResetOpen(true)}><RotateCcw size={15}/>Reset code</button><button className="button secondary small" disabled={!sessionId || saving || status === "running"} onClick={save}><Save size={15}/>{saving ? "Saving…" : "Save code"}</button><button className="button small" disabled={status !== "ready" || saving} onClick={run}><Play size={15}/>{status === "running" ? "Running…" : "Run tests"}</button></div>
-        {resetOpen && <div className="reset-confirm" role="group" aria-label="Confirm code reset"><p>Replace your edits with the starter code? Your solved progress will stay saved.</p><button className="button small" onClick={() => { setFiles({ ...starter }); setResult(null); setDirty(true); setHintCount(0); setResetOpen(false); toast.success("Starter code restored. Save to keep this version."); }}>Restore starter code</button><button className="text-button" onClick={() => setResetOpen(false)}>Keep my edits</button></div>}
+        {resetOpen && <div className="reset-confirm" role="group" aria-label="Confirm code reset"><p>Replace your edits with the starter code? Your solved progress will stay saved.</p><button className="button small" onClick={() => { setFiles({ ...starter }); setResult(null); setDirtyFiles(new Set(challenge ? challenge.files.filter(f => f.editable).map(f => f.path) : [])); setHintCount(0); setResetOpen(false); toast.success("Starter code restored. Save to keep this version."); }}>Restore starter code</button><button className="text-button" onClick={() => setResetOpen(false)}>Keep my edits</button></div>}
         <div className="output-tabs" role="tablist" aria-label="Test panels">{["output", "problems"].map(value => <button key={value} id={value + "-tab"} role="tab" aria-selected={tab === value} aria-controls={value + "-panel"} tabIndex={tab === value ? 0 : -1} onKeyDown={event => { if (event.key === "ArrowRight" || event.key === "ArrowLeft") { const next = value === "output" ? "problems" : "output"; setTab(next); document.getElementById(next + "-tab")?.focus(); } }} onClick={() => setTab(value)}>{value === "output" ? "Test output" : "Problems"}</button>)}</div>
         <div className="test-panel" id={tab + "-panel"} role="tabpanel" aria-labelledby={tab + "-tab"} aria-live="polite">
           {status === "running" ? <p>Uploading your current files, checking compilation, and running the tests…</p> : tab === "output" ? result ? <><p className={result.allPassed ? "success-text" : "failure-text"}>{result.allPassed ? "All tests passed." : result.phase === "compile" ? "Compilation or runtime error. This run is invalid." : result.phase === "infrastructure" ? "The sandbox could not finish this run." : "Some tests are still failing."}</p>{result.tests.map((test, index) => <p key={test.id} className={"assertion " + test.status} style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}>{test.status === "passed" ? <CheckCircle2/> : test.status === "failed" ? <XCircle/> : <Circle/>}<span>{test.status === "not_run" ? "Not validated: " : ""}{test.title}</span></p>)}<p>{result.summary.passed} of {result.summary.total} passed</p>{result.diagnostics.length > 0 && <pre>{result.diagnostics.join("\n")}</pre>}</> : <p>Tests haven’t run yet. Run them once to reproduce the bug.</p> : result?.diagnostics.length ? result.diagnostics.map((message,index) => <pre key={index}>{message}</pre>) : <p>No compiler or assertion errors to show.</p>}
