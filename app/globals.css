@@ -209,6 +209,9 @@ progress{width:100%;height:7px;accent-color:var(--success)}
 .file-explorer h2{font-size:13px;padding:0 8px 14px}
 .file-explorer button{display:flex;gap:6px;align-items:center;width:100%;border:0;background:none;color:var(--supporting-ink);text-align:left;padding:8px 5px;font-size:10px}
 .file-explorer button span{overflow-wrap:anywhere;min-width:0}
+.file-explorer button.tree-dir{color:var(--foreground);font-weight:650}
+.file-explorer button svg{flex:none}
+.file-explorer button.tree-dir:hover{color:var(--primary-hover)}
 .file-explorer button:hover,.file-explorer button.active{background:var(--accent);color:var(--primary-hover);border-radius:3px}
 .workspace{border:1px solid var(--border);background:var(--card);border-radius:5px;min-width:0;overflow:hidden}
 .editor-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:var(--secondary)}

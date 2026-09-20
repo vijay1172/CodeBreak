@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { CheckCircle2, Circle, FileCode2, Play, Save, RotateCcw, XCircle } from "lucide-react";
 import { createSession, deleteSession, endSessionOnUnload, getSession, jsonRequest, reportChallenge, runSessionTests, type Challenge, type TestRunResult, type SessionStatus } from "@/lib/brokenrepo-api";
+import { FileTree } from "./file-tree";
 import { SiteHeader, SiteFooter } from "./site-shell";
 const CodeEditor = dynamic(() => import("./code-editor").then(m => m.CodeEditor), { ssr: false, loading: () => <p className="editor-loading">Loading code editor…</p> });
 export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
@@ -139,7 +140,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     <div className="lab-heading"><div><Link className="underlined" href="/challenges">All challenges</Link><h1>{challenge?.title || "Opening your challenge…"}</h1></div><span className={"lab-status " + status} role="status">{status === "ready" ? "Sandbox ready" : status === "provisioning" ? "Preparing sandbox…" : status === "running" ? "Running your code…" : "Session unavailable"}</span></div>
     {error && <div className="error-message" role="alert"><p>{error}</p><div className="hero-actions"><Link className="underlined" href="/login">Log in</Link><button className="button small" onClick={() => { setError(""); setStatus("provisioning"); setResult(null); setRetry(x => x + 1); }}>Restart session</button></div></div>}
     <div className="lab-grid">
-      <aside className="file-explorer"><h2>Project files</h2>{challenge?.files.map(file => <button key={file.path} className={file.path === active ? "active" : ""} onClick={() => setActive(file.path)} title={file.path}><FileCode2 size={15}/><span>{file.path}</span></button>)}</aside>
+      <aside className="file-explorer"><h2>Project files</h2>{challenge && <FileTree files={challenge.files} active={active} onSelect={setActive}/>}</aside>
       <section className="workspace" aria-label="Code workspace">
         <div className="editor-toolbar"><label><span className="sr-only">Choose project file</span><select value={active} onChange={e => setActive(e.target.value)}>{challenge?.files.map(file => <option key={file.path}>{file.path}</option>)}</select></label><span>{current?.editable ? dirty ? "Unsaved changes" : "Saved" : "Read only"}</span></div>
         {provisionPanel ? provisionPanel : challenge ? <CodeEditor path={active} value={files[active] || ""} editable={Boolean(current?.editable) && status !== "running"} onChange={value => { setFiles(prev => ({ ...prev, [active]: value })); setDirty(true); setResult(null); }}/> : <div className="editor-loading">Your project files will appear here.</div>}
