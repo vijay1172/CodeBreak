@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
 
 const backend = process.env.BROKENREPO_BACKEND_URL || process.env.NEXT_PUBLIC_BROKENREPO_API_URL || "https://codebreak-api.onrender.com";
 const teamId = process.env.VERCEL_TEAM_ID || "";
@@ -22,7 +21,7 @@ export async function GET(request: NextRequest) {
   const token = request.cookies.get("brokenrepo_session")?.value;
   if (!token) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const me = await fetch(`${backend.replace(/\/$/, "")}/api/auth/me`, {
-    headers: { authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(45_000),
+    headers: { authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(10_000),
   }).then((r) => (r.ok ? (r.json() as Promise<{ user?: { role?: string } }>) : null)).catch(() => null);
   if (me?.user?.role !== "admin") return NextResponse.json({ error: "Admin access is required." }, { status: 403 });
 
