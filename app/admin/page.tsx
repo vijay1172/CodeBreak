@@ -16,6 +16,7 @@ export default async function AdminPage() {
   const me = await fetch(`${backend.replace(/\/$/, "")}/api/auth/me`, {
     headers: { authorization: `Bearer ${token}` },
     cache: "no-store",
+    signal: AbortSignal.timeout(10_000),
   }).then((r) => (r.ok ? (r.json() as Promise<{ user?: { role?: string } }>) : null)).catch(() => null);
   if (me?.user?.role !== "admin") notFound();
   return <AdminDashboard/>;
