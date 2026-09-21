@@ -1,10 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-<<<<<<< HEAD
 Disallow: /admin
-=======
->>>>>>> parent of 4d9fac1 (Add admin dashboard with role gate, metrics, funnel, and analytics)
 Disallow: /lab/
 Disallow: /progress/
 

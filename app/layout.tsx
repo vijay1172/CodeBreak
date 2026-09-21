@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "@fontsource-variable/manrope";
 import { Notifications } from "@/components/site-shell";
+import { TrackVisit } from "@/components/track-visit";
 import { SITE_URL } from "@/lib/site-config";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -37,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<Notifications/></ThemeProvider></body>
+      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<TrackVisit/><Notifications/></ThemeProvider></body>
     </html>
   );
 }

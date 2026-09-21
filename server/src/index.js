@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -8,8 +8,8 @@ import { config } from "./config.js";
 import { assertEditableFiles, getChallenge, listChallenges, publicChallenge } from "./challenges.js";
 import { deleteSandbox, provisionSandbox, runSandboxTests } from "./daytona.js";
 import { parseTestRun } from "./result-parser.js";
-import { accountRouter, requireAccount, saveProgress, setupAccounts } from "./accounts.js";
-import { database } from "./session-store.js";
+import { accountRouter, requireAccount, requireAdmin, saveProgress, setupAccounts } from "./accounts.js";
+import { database, eventsCollection } from "./session-store.js";
 import {
   closeSessionStore,
   connectSessionStore,
@@ -80,6 +80,43 @@ const directTrafficLimiter = rateLimit({
   legacyHeaders: false,
   handler: tooManyRequests("Too many requests. Please slow down and try again shortly."),
 });
+const trackSchema = z.object({
+  kind: z.enum(["pageview", "challenge_view", "lab_open"]),
+  path: z.string().min(1).max(300),
+  challengeId: z.string().trim().max(120).optional(),
+});
+
+// Public, anonymous beacon. Registered before the global /api limiter so pageview
+// pings never consume the interactive budget. Visitor ids are salted hashes —
+// no raw IPs, cookies, or fingerprints are stored, and events expire after 180 days.
+const trackLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 900,
+  standardHeaders: false,
+  legacyHeaders: false,
+  handler: (_req, res) => res.status(204).end(),
+});
+
+app.post("/api/track", trackLimiter, async (req, res) => {
+  const parsed = trackSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(204).end();
+  const ip = req.get("x-client-ip") || req.ip || "unknown";
+  const ua = req.get("x-client-ua") || "";
+  const visitorId = createHash("sha256").update(`${ip}|${ua}`).digest("hex").slice(0, 32);
+  const device = /iPad|Tablet/i.test(ua) ? "tablet" : /Mobi|Android|iPhone/i.test(ua) ? "mobile" : "desktop";
+  const event = {
+    kind: parsed.data.kind,
+    path: parsed.data.path,
+    challengeId: parsed.data.challengeId || null,
+    visitorId,
+    device,
+    country: (req.get("x-client-country") || "").slice(0, 2).toUpperCase() || null,
+    createdAt: new Date(),
+  };
+  try { await eventsCollection().insertOne(event); } catch {}
+  return res.status(204).end();
+});
+
 app.use("/api", directTrafficLimiter);
 
 const testRunLimiter = rateLimit({
@@ -305,6 +342,94 @@ app.post("/api/sessions/:sessionId/end", async (req, res) => {
   return res.status(204).end();
 });
 
+
+app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) => {
+  const db = database();
+  const since30 = new Date(Date.now() - 30 * 864e5);
+  const since12w = new Date(Date.now() - 12 * 7 * 864e5);
+  const [totalUsers, dailySignups, weeklySignups, challengeStats, reportCounts, funnelViews, dailyTraffic, topPages, devices, countries] = await Promise.all([
+    db.collection("users").countDocuments({}),
+    db.collection("users").aggregate([
+      { $match: { createdAt: { $gte: since30 } } },
+      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]).toArray(),
+    db.collection("users").aggregate([
+      { $match: { createdAt: { $gte: since12w } } },
+      { $group: { _id: { $dateToString: { format: "%G-W%V", date: "$createdAt" } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]).toArray(),
+    db.collection("progress").aggregate([
+      { $group: {
+        _id: "$challengeId",
+        users: { $sum: 1 },
+        attempts: { $sum: { $ifNull: ["$attempts", 0] } },
+        started: { $sum: { $cond: [{ $eq: ["$attempted", true] }, 1, 0] } },
+        solved: { $sum: { $cond: [{ $eq: ["$solved", true] }, 1, 0] } },
+        avgSolveMs: { $avg: { $cond: [{ $and: [{ $eq: ["$solved", true] }, "$solvedAt", "$startedAt"] }, { $subtract: ["$solvedAt", "$startedAt"] }, null] } },
+      } },
+    ]).toArray(),
+    db.collection("challengeReports").aggregate([
+      { $group: { _id: "$challengeId", reports: { $sum: 1 } } },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: { $in: ["challenge_view", "lab_open"] }, challengeId: { $ne: null } } },
+      { $group: { _id: "$challengeId", viewers: { $addToSet: "$visitorId" } } },
+      { $project: { _id: 1, viewers: { $size: "$viewers" } } },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: "pageview", createdAt: { $gte: since30 } } },
+      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, pageviews: { $sum: 1 }, visitors: { $addToSet: "$visitorId" } } },
+      { $project: { _id: 1, pageviews: 1, visitors: { $size: "$visitors" } } },
+      { $sort: { _id: 1 } },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: "pageview", createdAt: { $gte: since30 } } },
+      { $group: { _id: "$path", pageviews: { $sum: 1 } } },
+      { $sort: { pageviews: -1 } },
+      { $limit: 10 },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: "pageview", createdAt: { $gte: since30 } } },
+      { $group: { _id: "$device", pageviews: { $sum: 1 } } },
+      { $sort: { pageviews: -1 } },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: "pageview", createdAt: { $gte: since30 } } },
+      { $group: { _id: "$country", pageviews: { $sum: 1 } } },
+      { $sort: { pageviews: -1 } },
+      { $limit: 10 },
+    ]).toArray(),
+  ]);
+  const stats = new Map(challengeStats.map((row) => [row._id, row]));
+  const reportsBy = new Map(reportCounts.map((row) => [row._id, row.reports]));
+  const viewsBy = new Map(funnelViews.map((row) => [row._id, row.viewers]));
+  const challenges = listChallenges().map(({ id, title }) => {
+    const stat = stats.get(id) || {};
+    const viewers = viewsBy.get(id) || 0;
+    const started = stat.started || 0;
+    const solved = stat.solved || 0;
+    return {
+      id,
+      title,
+      viewers,
+      started,
+      solved,
+      attempts: stat.attempts || 0,
+      users: stat.users || 0,
+      runRate: viewers ? Math.round((started / viewers) * 100) : null,
+      solveRate: started ? Math.round((solved / started) * 100) : null,
+      avgSolveMs: stat.avgSolveMs || null,
+      reports: reportsBy.get(id) || 0,
+    };
+  });
+  return res.set("Cache-Control", "no-store").json({
+    generatedAt: new Date().toISOString(),
+    growth: { totalUsers, dailySignups, weeklySignups },
+    challenges,
+    traffic: { dailyTraffic, topPages, devices, countries },
+  });
+});
 
 app.use((error, _req, res, _next) => {
   void _next;

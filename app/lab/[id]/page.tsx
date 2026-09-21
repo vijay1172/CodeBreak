@@ -1,4 +1,5 @@
 import { BrokenRepoApp } from "@/components/brokenrepo-app";
+import { TrackVisit } from "@/components/track-visit";
 import { notFound } from "next/navigation";
 const titles: Record<string, string> = {
   "the-missing-name": "The Missing Name", "the-ghost-update": "The Ghost Update",
@@ -17,5 +18,5 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!titles[id]) notFound();
-  return <BrokenRepoApp challengeId={id}/>;
+  return <><TrackVisit kind="lab_open" challengeId={id}/><BrokenRepoApp challengeId={id}/></>;
 }
