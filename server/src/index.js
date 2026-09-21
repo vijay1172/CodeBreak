@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -8,8 +8,8 @@ import { config } from "./config.js";
 import { assertEditableFiles, getChallenge, listChallenges, publicChallenge } from "./challenges.js";
 import { deleteSandbox, provisionSandbox, runSandboxTests } from "./daytona.js";
 import { parseTestRun } from "./result-parser.js";
-import { accountRouter, requireAccount, requireAdmin, saveProgress, setupAccounts } from "./accounts.js";
-import { database, eventsCollection } from "./session-store.js";
+import { accountRouter, requireAccount, saveProgress, setupAccounts } from "./accounts.js";
+import { database } from "./session-store.js";
 import {
   closeSessionStore,
   connectSessionStore,
@@ -80,43 +80,6 @@ const directTrafficLimiter = rateLimit({
   legacyHeaders: false,
   handler: tooManyRequests("Too many requests. Please slow down and try again shortly."),
 });
-const trackSchema = z.object({
-  kind: z.enum(["pageview", "challenge_view", "lab_open"]),
-  path: z.string().min(1).max(300),
-  challengeId: z.string().trim().max(120).optional(),
-});
-
-// Public, anonymous beacon. Registered before the global /api limiter so pageview
-// pings never consume the interactive budget. Visitor ids are salted hashes —
-// no raw IPs, cookies, or fingerprints are stored, and events expire after 180 days.
-const trackLimiter = rateLimit({
-  windowMs: 60_000,
-  limit: 900,
-  standardHeaders: false,
-  legacyHeaders: false,
-  handler: (_req, res) => res.status(204).end(),
-});
-
-app.post("/api/track", trackLimiter, async (req, res) => {
-  const parsed = trackSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(204).end();
-  const ip = req.get("x-client-ip") || req.ip || "unknown";
-  const ua = req.get("x-client-ua") || "";
-  const visitorId = createHash("sha256").update(`${ip}|${ua}`).digest("hex").slice(0, 32);
-  const device = /iPad|Tablet/i.test(ua) ? "tablet" : /Mobi|Android|iPhone/i.test(ua) ? "mobile" : "desktop";
-  const event = {
-    kind: parsed.data.kind,
-    path: parsed.data.path,
-    challengeId: parsed.data.challengeId || null,
-    visitorId,
-    device,
-    country: (req.get("x-client-country") || "").slice(0, 2).toUpperCase() || null,
-    createdAt: new Date(),
-  };
-  try { await eventsCollection().insertOne(event); } catch {}
-  return res.status(204).end();
-});
-
 app.use("/api", directTrafficLimiter);
 
 const testRunLimiter = rateLimit({
@@ -342,6 +305,7 @@ app.post("/api/sessions/:sessionId/end", async (req, res) => {
   return res.status(204).end();
 });
 
+<<<<<<< HEAD
 app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) => {
   const db = database();
   const since30 = new Date(Date.now() - 30 * 864e5);
@@ -430,6 +394,8 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
   });
 });
 
+=======
+>>>>>>> parent of 4d9fac1 (Add admin dashboard with role gate, metrics, funnel, and analytics)
 app.use((error, _req, res, _next) => {
   void _next;
   console.error(error);

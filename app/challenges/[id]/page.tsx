@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
-import { TrackVisit } from "@/components/track-visit";
 import { challengeCatalog, getCatalogEntry } from "@/lib/challenge-catalog";
 import { SITE_URL } from "@/lib/site-config";
 
@@ -56,7 +55,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       { "@type": "ListItem", position: 3, name: entry.title },
     ],
   };
-  return <><SiteHeader/><TrackVisit kind="challenge_view" challengeId={entry.id}/><main id="main-content" tabIndex={-1} className="page-width challenge-detail">
+  return <><SiteHeader/><main id="main-content" tabIndex={-1} className="page-width challenge-detail">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}/>
     <nav className="crumbs" aria-label="Breadcrumb"><Link href="/challenges">Debugging challenges</Link><span aria-hidden="true">/</span><span>{entry.title}</span></nav>
     <div className="page-heading"><h1>{entry.title}</h1><p className="detail-meta">{entry.category} · {entry.difficulty} · MERN stack</p></div>

@@ -33,15 +33,7 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
   try {
     const response = await fetch(`${backend.replace(/\/$/, "")}/api/${path.map(encodeURIComponent).join("/")}`, {
       method: request.method,
-      headers: {
-        "content-type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        // Server-set (client-supplied values are overwritten here): used only by
-        // the anonymous /api/track beacon for visitor hashing, device, country.
-        "x-client-ip": clientIp,
-        "x-client-ua": (request.headers.get("user-agent") || "").slice(0, 300),
-        "x-client-country": request.headers.get("x-vercel-ip-country") || "",
-      },
+      headers: { "content-type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: request.method === "GET" ? undefined : await request.text(),
       cache: "no-store", signal: AbortSignal.timeout(240000),
     });

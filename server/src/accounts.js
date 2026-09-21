@@ -36,12 +36,6 @@ export async function requireAccount(req, res, next) {
   req.authToken = token;
   next();
 }
-
-export async function requireAdmin(req, res, next) {
-  const user = await database().collection("users").findOne({ _id: req.userId }, { projection: { role: 1 } });
-  if (user?.role !== "admin") return res.status(403).json({ error: "Admin access is required." });
-  next();
-}
 export const accountRouter = Router();
 accountRouter.use((req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
 accountRouter.use(["/signup", "/login"], async (req, res, next) => {
@@ -58,7 +52,7 @@ accountRouter.use(["/signup", "/login"], async (req, res, next) => {
 accountRouter.post("/signup", async (req, res) => {
   const parsed = credentials.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Enter a valid email and a password between 10 and 128 characters." });
-  const user = { _id: randomUUID(), email: parsed.data.email, passwordHash: await hashPassword(parsed.data.password), role: "user", createdAt: new Date() };
+  const user = { _id: randomUUID(), email: parsed.data.email, passwordHash: await hashPassword(parsed.data.password), createdAt: new Date() };
   try { await database().collection("users").insertOne(user); }
   catch (error) { if (error.code === 11000) return res.status(409).json({ error: "That email is already registered. Log in instead." }); throw error; }
   res.status(201).json(await issueSession(user));
@@ -73,7 +67,7 @@ accountRouter.post("/login", async (req, res) => {
 });
 accountRouter.get("/me", requireAccount, async (req, res) => {
   const user = await database().collection("users").findOne({ _id: req.userId });
-  res.json({ user: { id: user._id, email: user.email, role: user.role ?? "user" } });
+  res.json({ user: { id: user._id, email: user.email } });
 });
 accountRouter.post("/logout", requireAccount, async (req, res) => {
   await database().collection("authSessions").deleteOne({ _id: digest(req.authToken) });

@@ -11,8 +11,6 @@ let reports;
 
 export function database() { return client.db(config.mongoDbName); }
 
-export function eventsCollection() { return database().collection("events"); }
-
 export async function connectSessionStore() {
   await client.connect();
   const database = client.db(config.mongoDbName);
@@ -21,9 +19,6 @@ export async function connectSessionStore() {
   await sessions.createIndex({ lastActivityAt: 1 });
   await sessions.createIndex({ status: 1 });
   await reports.createIndex({ challengeId: 1, status: 1, createdAt: -1 });
-  const events = database.collection("events");
-  await events.createIndex({ kind: 1, challengeId: 1 });
-  await events.createIndex({ createdAt: 1 }, { expireAfterSeconds: 180 * 86400 });
 }
 
 function collection() {
