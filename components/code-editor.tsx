@@ -25,9 +25,9 @@ const highlight = syntaxHighlighting(HighlightStyle.define([
   { tag: [tags.tagName, tags.typeName], color: "var(--syntax-type)" },
   { tag: tags.propertyName, color: "var(--syntax-property)" },
 ]));
-export function CodeEditor({ path, value, editable, onChange }: { path: string; value: string; editable: boolean; onChange: (value: string) => void }) {
+export function CodeEditor({ path, value, editable, onChange, syncKey = 0 }: { path: string; value: string; editable: boolean; onChange: (value: string) => void; syncKey?: number }) {
   const language = path.endsWith(".json") ? json() : path.endsWith(".html") ? html() : path.endsWith(".css") ? css() : javascript({ jsx: true });
-  return <CodeMirror key={path} aria-label={"Code editor for " + path} value={value} height="460px" theme={theme} editable={editable}
+  return <CodeMirror key={path + ":" + syncKey} aria-label={"Code editor for " + path} value={value} height="460px" theme={theme} editable={editable}
     extensions={[language, highlight, EditorView.lineWrapping, EditorView.contentAttributes.of({ "aria-label": "Code editor for " + path })]}
     basicSetup={{ lineNumbers: true, foldGutter: true, highlightActiveLine: true, bracketMatching: true, indentOnInput: true, autocompletion: true }}
     indentWithTab onChange={onChange}/>;
