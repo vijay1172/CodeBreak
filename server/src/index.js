@@ -222,6 +222,35 @@ app.get("/api/progress", requireAccount, async (req, res) => {
   const progress = await database().collection("progress").find({ userId: req.userId }, { projection: { files: 0, lastResult: 0, userId: 0, _id: 0 } }).toArray();
   res.set("Cache-Control", "no-store").json({ progress });
 });
+
+// Solve-time stopwatch, stored on the per-user/per-challenge progress record so
+// it survives refreshes and session churn. The server owns the clock: elapsed
+// time is derived from accumulatedMs + (runningSince ? now - runningSince : 0).
+const stopwatchSchema = z.object({
+  challengeId: z.string().min(1).max(120),
+  action: z.enum(["start", "pause", "reset"]),
+});
+app.post("/api/progress/stopwatch", requireAccount, async (req, res) => {
+  const parsed = stopwatchSchema.safeParse(req.body || {});
+  if (!parsed.success) return res.status(400).json({ error: "Invalid stopwatch update" });
+  const { challengeId, action } = parsed.data;
+  const progress = await database().collection("progress").findOne({ userId: req.userId, challengeId });
+  const stopwatch = progress?.stopwatch ?? { accumulatedMs: 0, runningSince: null, started: false };
+  const now = Date.now();
+  if (action === "start" && !stopwatch.runningSince) { stopwatch.runningSince = now; stopwatch.started = true; }
+  if (action === "pause" && stopwatch.runningSince) { stopwatch.accumulatedMs += now - stopwatch.runningSince; stopwatch.runningSince = null; }
+  if (action === "reset") { stopwatch.accumulatedMs = 0; stopwatch.runningSince = null; stopwatch.started = false; }
+  await database().collection("progress").updateOne(
+    { userId: req.userId, challengeId },
+    { $set: { stopwatch, updatedAt: new Date() }, $setOnInsert: { userId: req.userId, challengeId, startedAt: new Date() } },
+    { upsert: true },
+  );
+  return res.json({
+    elapsedMs: stopwatch.accumulatedMs + (stopwatch.runningSince ? Date.now() - stopwatch.runningSince : 0),
+    running: Boolean(stopwatch.runningSince),
+    started: stopwatch.started,
+  });
+});
 app.use("/api/sessions", requireAccount);
 app.use("/api/sessions/:sessionId", async (req, res, next) => {
   const record = await getSessionRecord(req.params.sessionId);
@@ -276,11 +305,18 @@ app.post("/api/sessions", sandboxStartLimiter, async (req, res) => {
   await createSessionRecord({ id: sessionId, challengeId: challenge.id, files, userId: req.userId });
   void provisionSession(sessionId, { ...challenge, files: starterFiles });
 
+  const stopwatch = saved?.stopwatch ? {
+    elapsedMs: (saved.stopwatch.accumulatedMs || 0) + (saved.stopwatch.runningSince ? Date.now() - saved.stopwatch.runningSince : 0),
+    running: Boolean(saved.stopwatch.runningSince),
+    started: Boolean(saved.stopwatch.started),
+  } : null;
+
   return res.status(202).json({
     sessionId,
     status: "provisioning",
     challenge: publicChallenge(challenge),
     starterFiles: starterFiles.filter(file => editable.has(file.path)),
+    stopwatch,
   });
 });
 
@@ -433,7 +469,24 @@ app.post("/api/sessions/:sessionId/run", testRunLimiter, async (req, res) => {
     });
     await saveSessionRun(record._id, { files, result });
     await saveProgress(req.userId, challenge.id, files, result);
-    return res.json(result);
+    let solveTimeMs = null;
+    if (result.allPassed) {
+      const progress = await database().collection("progress").findOne({ userId: req.userId, challengeId: challenge.id }, { projection: { stopwatch: 1 } });
+      const stopwatch = progress?.stopwatch;
+      if (stopwatch?.started) {
+        const finalMs = (stopwatch.accumulatedMs || 0) + (stopwatch.runningSince ? Date.now() - stopwatch.runningSince : 0);
+        if (finalMs > 0) {
+          solveTimeMs = finalMs;
+          // Freeze the clock at the solve time and record it on the account's
+          // progress record — the admin "Avg time to solve" metric reads this.
+          await database().collection("progress").updateOne(
+            { userId: req.userId, challengeId: challenge.id },
+            { $set: { solveTimeMs: finalMs, stopwatch: { accumulatedMs: finalMs, runningSince: null, started: true } } },
+          );
+        }
+      }
+    }
+    return res.json({ ...result, solveTimeMs });
   } catch (error) {
     const message = safeError(error);
     const result = {
@@ -529,7 +582,7 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
         attempts: { $sum: { $ifNull: ["$attempts", 0] } },
         started: { $sum: { $cond: [{ $eq: ["$attempted", true] }, 1, 0] } },
         solved: { $sum: { $cond: [{ $eq: ["$solved", true] }, 1, 0] } },
-        avgSolveMs: { $avg: { $cond: [{ $and: [{ $eq: ["$solved", true] }, "$solvedAt", "$startedAt"] }, { $subtract: ["$solvedAt", "$startedAt"] }, null] } },
+        avgSolveMs: { $avg: { $cond: [{ $and: [{ $eq: ["$solved", true] }, "$solveTimeMs"] }, "$solveTimeMs", { $cond: [{ $and: [{ $eq: ["$solved", true] }, "$solvedAt", "$startedAt"] }, { $subtract: ["$solvedAt", "$startedAt"] }, null] }] } },
       } },
     ]).toArray(),
     db.collection("challengeReports").aggregate([

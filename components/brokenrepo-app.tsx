@@ -13,8 +13,10 @@ import {
   reportChallenge,
   runSessionTests,
   saveSessionFiles as saveWorkspaceFiles,
+  updateStopwatch,
   type Challenge,
   type SessionStatus,
+  type StopwatchState,
   type TestRunResult,
 } from "@/lib/brokenrepo-api";
 import { FileTree } from "./file-tree";
@@ -31,6 +33,11 @@ const CodeEditor = dynamic(() => import("./code-editor").then((module) => module
 type RightTab = "preview" | "logs" | "tests";
 const rightTabStorageKey = "brokenrepo-active-runtime-tab";
 
+function formatClock(elapsedMs: number) {
+  const total = Math.max(0, Math.floor(elapsedMs / 1000));
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
+
 function TestsPanel({ status, result, challenge }: {
   status: SessionStatus;
   result: TestRunResult | null;
@@ -43,6 +50,7 @@ function TestsPanel({ status, result, challenge }: {
     <div className="test-summary"><strong>{result.summary.passed} of {result.summary.total}</strong><span>assertions passed</span></div>
     {result.tests.map((test, index) => <p key={test.id} className={`assertion ${test.status}`} style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}>{test.status === "passed" ? <CheckCircle2/> : test.status === "failed" ? <XCircle/> : <Circle/>}<span>{test.status === "not_run" ? "Not validated: " : ""}{test.title}</span></p>)}
     {result.diagnostics.length > 0 && <div className="test-diagnostics"><h3>Diagnostics</h3>{result.diagnostics.map((message, index) => <pre key={index}>{message}</pre>)}</div>}
+    {result.allPassed && result.solveTimeMs ? <p className="solve-time">You solved this in {formatClock(result.solveTimeMs)}.</p> : null}
     {result.allPassed && challenge && <div className="debrief"><h3>What happened?</h3><p>{challenge.debrief.rootCause}</p><h3>Why this matters</h3><p>{challenge.debrief.realWorldContext}</p><h3>Next time, watch for this</h3><p>{challenge.debrief.patternToWatch}</p><Link className="underlined" href="/progress">View your progress</Link></div>}
   </div>;
 }
@@ -69,9 +77,28 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetEpoch, setResetEpoch] = useState(0);
   const [previewVersion, setPreviewVersion] = useState(0);
+  const [stopwatch, setStopwatch] = useState<(StopwatchState & { at: number }) | null>(null);
   const filesRef = useRef(files);
 
   useEffect(() => { filesRef.current = files; }, [files]);
+
+  const [, tickStopwatch] = useState(0);
+  useEffect(() => {
+    if (!stopwatch?.running) return;
+    const interval = setInterval(() => tickStopwatch((n) => n + 1), 500);
+    return () => clearInterval(interval);
+  }, [stopwatch?.running]);
+
+  async function stopwatchAction(action: "start" | "pause" | "reset") {
+    if (!challenge) return;
+    try {
+      const next = await updateStopwatch(challenge.id, action);
+      setStopwatch({ ...next, at: Date.now() });
+    } catch {
+      // A self-tracking tool: if the update can't reach the server, keep the
+      // current display rather than interrupting the student.
+    }
+  }
   useEffect(() => {
     if (status !== "provisioning") return;
     const clock = setInterval(() => setProvisionElapsed((elapsed) => elapsed + 1), 1000);
@@ -112,6 +139,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
       const savedTab = window.localStorage.getItem(rightTabStorageKey) as RightTab | null;
       const defaultTab: RightTab = created.challenge.runtimeKind === "frontend" && created.challenge.previewEnabled ? "preview" : "logs";
       setActiveRightTab(savedTab && (savedTab !== "preview" || created.challenge.previewEnabled) ? savedTab : defaultTab);
+      setStopwatch(created.stopwatch ? { ...created.stopwatch, at: Date.now() } : null);
       const next = Object.fromEntries(created.challenge.files.map((file) => [file.path, file.content]));
       setFiles(next);
       setStarter({ ...next, ...Object.fromEntries(created.starterFiles.map((file) => [file.path, file.content])) });
@@ -242,7 +270,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     <div className="editor-toolbar tab-toolbar"><div className="tab-strip" aria-label="Open files">{openTabs.map((path) => { const name = path.split("/").pop(); const isDirty = dirtyFiles.has(path); return <div key={path} className={`editor-tab${path === active ? " active" : ""}`}><button className="tab-name" onClick={() => setActive(path)} title={path}><FileCode2 size={13} aria-hidden="true"/><span>{name}{isDirty ? " •" : ""}</span></button><button className="tab-close" aria-label={`Close ${name}${isDirty ? " (unsaved changes)" : ""}`} onClick={() => isDirty ? setClosingPath(path) : closeTab(path)}>×</button></div>; })}</div><div className="tab-toolbar-end"><label className="tab-file-picker"><span className="sr-only">Choose project file</span><select value={active} onChange={(event) => openFile(event.target.value)}>{challenge?.files.map((file) => <option key={file.path}>{file.path}</option>)}</select></label><span>{dirtyFiles.size ? `${dirtyFiles.size} unsaved ${dirtyFiles.size === 1 ? "change" : "changes"}` : current?.editable ? "Saved" : "Read only"}</span></div></div>
     {closingPath && <div className="reset-confirm" role="group" aria-label="Confirm close file"><p>“{closingPath.split("/").pop()}” has unsaved changes. Close it without saving?</p><button className="button small" onClick={() => closeTab(closingPath)}>Close without saving</button><button className="text-button" onClick={() => setClosingPath("")}>Keep editing</button></div>}
     {provisionPanel || (challenge && openTabs.length === 0 ? <div className="editor-loading">Select a file from the project tree to begin.</div> : challenge ? <CodeEditor path={active} syncKey={resetEpoch} value={files[active] || ""} editable={Boolean(current?.editable) && status !== "running"} onChange={(value) => { setFiles((previous) => ({ ...previous, [active]: value })); setDirtyFiles((previous) => new Set(previous).add(active)); setResult(null); }}/> : <div className="editor-loading">Your project files will appear here.</div>)}
-    <div className="lab-actions"><button className="button secondary small" disabled={!challenge || status === "running" || saving} onClick={() => setResetOpen(true)}><RotateCcw size={15}/>Reset code</button><button className="button secondary small" disabled={!sessionId || saving || status !== "ready"} onClick={save}><Save size={15}/>{saving ? challenge?.previewEnabled ? "Saving & rebuilding…" : "Saving…" : "Save code"}</button><button className="button small" disabled={status !== "ready" || saving} onClick={run}><Play size={15}/>{status === "running" ? "Running…" : "Run tests"}</button></div>
+    <div className="lab-actions"><button className="button secondary small" disabled={!challenge || status === "running" || saving} onClick={() => setResetOpen(true)}><RotateCcw size={15}/>Reset code</button><div className="stopwatch" role="timer" aria-label="Solve stopwatch"><span className="stopwatch-time">{formatClock(stopwatch ? stopwatch.elapsedMs + (stopwatch.running ? Date.now() - stopwatch.at : 0) : 0)}</span>{stopwatch?.running ? <button className="stopwatch-button" onClick={() => stopwatchAction("pause")}>Pause</button> : <button className="stopwatch-button" onClick={() => stopwatchAction("start")}>Start</button>}<button className="stopwatch-button" onClick={() => stopwatchAction("reset")}>Reset</button></div><button className="button secondary small" disabled={!sessionId || saving || status !== "ready"} onClick={save}><Save size={15}/>{saving ? challenge?.previewEnabled ? "Saving & rebuilding…" : "Saving…" : "Save code"}</button><button className="button small" disabled={status !== "ready" || saving} onClick={run}><Play size={15}/>{status === "running" ? "Running…" : "Run tests"}</button></div>
     {resetOpen && <div className="reset-confirm" role="group" aria-label="Confirm code reset"><p>Replace your edits with the starter code? Your solved progress will stay saved.</p><button className="button small" onClick={() => { const restored = Object.fromEntries((challenge?.files || []).filter((file) => file.editable).map((file) => [file.path, starter[file.path] ?? ""])); setFiles({ ...starter }); setResult(null); setDirtyFiles(new Set(challenge ? challenge.files.filter((file) => file.editable).map((file) => file.path) : [])); setHintCount(0); setResetOpen(false); setResetEpoch((epoch) => epoch + 1); void persist(restored, true); }}>Restore starter code</button><button className="text-button" onClick={() => setResetOpen(false)}>Keep my edits</button></div>}
   </section>;
 

@@ -59,7 +59,10 @@ export type TestRunResult = {
   tests: CriterionResult[];
   summary: { passed: number; failed: number; total: number };
   allPassed: boolean;
+  solveTimeMs?: number | null;
 };
+
+export type StopwatchState = { elapsedMs: number; running: boolean; started: boolean };
 
 export const apiBaseUrl = "/api/backend";
 
@@ -73,7 +76,7 @@ export async function jsonRequest<T>(path: string, init?: RequestInit): Promise<
 }
 
 export function createSession(challengeId: string) {
-  return jsonRequest<{ sessionId: string; status: SessionStatus; challenge: Challenge; starterFiles: ChallengeFile[] }>(
+  return jsonRequest<{ sessionId: string; status: SessionStatus; challenge: Challenge; starterFiles: ChallengeFile[]; stopwatch: StopwatchState | null }>(
     "/api/sessions",
     {
       method: "POST",
@@ -85,6 +88,14 @@ export function createSession(challengeId: string) {
 
 export function listChallenges() {
   return jsonRequest<{ challenges: ChallengeSummary[] }>("/api/challenges");
+}
+
+export function updateStopwatch(challengeId: string, action: "start" | "pause" | "reset") {
+  return jsonRequest<StopwatchState>("/progress/stopwatch", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ challengeId, action }),
+  });
 }
 
 export function getSession(sessionId: string) {
