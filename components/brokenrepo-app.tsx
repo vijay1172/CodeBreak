@@ -149,13 +149,12 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     window.localStorage.setItem(rightTabStorageKey, next);
   };
 
-  async function save() {
+  async function persist(snapshot: Record<string, string>, markClean = false) {
     if (!sessionId || status !== "ready") return;
-    const snapshot = editable();
     setSaving(true);
     try {
       const saved = await saveWorkspaceFiles(sessionId, snapshot);
-      if (JSON.stringify(snapshot) === JSON.stringify(editable())) setDirtyFiles(new Set());
+      if (markClean || JSON.stringify(snapshot) === JSON.stringify(editable())) setDirtyFiles(new Set());
       if (saved.previewUpdated) setPreviewVersion((version) => version + 1);
       toast.success(saved.message);
     } catch (reason) {
@@ -163,6 +162,10 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function save() {
+    persist(editable());
   }
 
   async function run() {
@@ -239,7 +242,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     {closingPath && <div className="reset-confirm" role="group" aria-label="Confirm close file"><p>“{closingPath.split("/").pop()}” has unsaved changes. Close it without saving?</p><button className="button small" onClick={() => closeTab(closingPath)}>Close without saving</button><button className="text-button" onClick={() => setClosingPath("")}>Keep editing</button></div>}
     {provisionPanel || (challenge && openTabs.length === 0 ? <div className="editor-loading">Select a file from the project tree to begin.</div> : challenge ? <CodeEditor path={active} value={files[active] || ""} editable={Boolean(current?.editable) && status !== "running"} onChange={(value) => { setFiles((previous) => ({ ...previous, [active]: value })); setDirtyFiles((previous) => new Set(previous).add(active)); setResult(null); }}/> : <div className="editor-loading">Your project files will appear here.</div>)}
     <div className="lab-actions"><button className="button secondary small" disabled={!challenge || status === "running" || saving} onClick={() => setResetOpen(true)}><RotateCcw size={15}/>Reset code</button><button className="button secondary small" disabled={!sessionId || saving || status !== "ready"} onClick={save}><Save size={15}/>{saving ? challenge?.previewEnabled ? "Saving & rebuilding…" : "Saving…" : "Save code"}</button><button className="button small" disabled={status !== "ready" || saving} onClick={run}><Play size={15}/>{status === "running" ? "Running…" : "Run tests"}</button></div>
-    {resetOpen && <div className="reset-confirm" role="group" aria-label="Confirm code reset"><p>Replace your edits with the starter code? Your solved progress will stay saved.</p><button className="button small" onClick={() => { setFiles({ ...starter }); setResult(null); setDirtyFiles(new Set(challenge ? challenge.files.filter((file) => file.editable).map((file) => file.path) : [])); setHintCount(0); setResetOpen(false); toast.success("Starter code restored. Save to keep this version."); }}>Restore starter code</button><button className="text-button" onClick={() => setResetOpen(false)}>Keep my edits</button></div>}
+    {resetOpen && <div className="reset-confirm" role="group" aria-label="Confirm code reset"><p>Replace your edits with the starter code? Your solved progress will stay saved.</p><button className="button small" onClick={() => { const restored = Object.fromEntries((challenge?.files || []).filter((file) => file.editable).map((file) => [file.path, starter[file.path] ?? ""])); setFiles({ ...starter }); setResult(null); setDirtyFiles(new Set(challenge ? challenge.files.filter((file) => file.editable).map((file) => file.path) : [])); setHintCount(0); setResetOpen(false); void persist(restored, true); }}>Restore starter code</button><button className="text-button" onClick={() => setResetOpen(false)}>Keep my edits</button></div>}
   </section>;
 
   const rightPanel = <section className="right-panel" aria-label="Runtime tools"><div className="right-panel-tabs" role="tablist" aria-label="Preview, runtime logs, and tests">{rightTabs.map(({ id, label, icon: Icon }, index) => <button key={id} id={`right-${id}-tab`} role="tab" aria-selected={activeRightTab === id} aria-controls={`right-${id}-panel`} tabIndex={activeRightTab === id ? 0 : -1} onClick={() => chooseRightTab(id)} onKeyDown={(event) => { if (!event.key.startsWith("Arrow")) return; event.preventDefault(); const offset = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1; const next = rightTabs[(index + offset + rightTabs.length) % rightTabs.length].id; chooseRightTab(next); document.getElementById(`right-${next}-tab`)?.focus(); }}><Icon size={14}/>{label}{id === "tests" && result && <span className={`tab-result-dot ${result.allPassed ? "passed" : "failed"}`}><span className="sr-only">{result.allPassed ? "passed" : "failed"}</span></span>}</button>)}</div><div className="right-panel-content">{challenge?.previewEnabled && <div id="right-preview-panel" role="tabpanel" aria-labelledby="right-preview-tab" hidden={activeRightTab !== "preview"}><LivePreviewPane sessionId={sessionId} status={status} refreshVersion={previewVersion}/></div>}<div id="right-logs-panel" role="tabpanel" aria-labelledby="right-logs-tab" hidden={activeRightTab !== "logs"}><RuntimeConsolePanel sessionId={sessionId} status={status}/></div><div id="right-tests-panel" role="tabpanel" aria-labelledby="right-tests-tab" hidden={activeRightTab !== "tests"}><TestsPanel status={status} result={result} challenge={challenge}/></div></div></section>;
