@@ -66,7 +66,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono)}
 .underlined:hover{color:var(--link-hover)}
 .hero{display:grid;grid-template-columns:1fr 1.08fr;gap:70px;padding-block:96px 100px;align-items:center}
 .hero h1 .hero-line{display:block;opacity:0;transform:translateY(12px);will-change:transform,opacity;animation:hero-line-rise .36s cubic-bezier(.25,1,.35,1) .18s forwards}
-.hero h1 .hero-line:nth-child(2){animation-delay:.41s}
+.hero h1 .hero-line:nth-child(2){animation-delay:.58s;animation-duration:.5s}
 .hero h1 .hero-line-accent{color:var(--primary)}
 @keyframes hero-line-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .hero-copy>p{font-size:18px;line-height:1.8;margin-top:26px;max-width:450px;color:var(--supporting-ink)}
