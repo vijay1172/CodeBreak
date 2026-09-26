@@ -48,6 +48,10 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono)}
 .site-header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 40px;border-bottom:1px solid var(--border)}
 .brand{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:21px;letter-spacing:-.04em;flex-shrink:0}
 .brand svg{color:var(--primary);width:30px;height:30px}
+.brand-mark .bm-body{fill:#1c2b45}
+.brand-mark .bm-tab{fill:#243352}
+.dark .brand-mark .bm-body{fill:#dbe6f5}
+.dark .brand-mark .bm-tab{fill:#c3d3e8}
 .site-header nav,.site-footer nav{display:flex;align-items:center;gap:25px;font-weight:600;font-size:14px}
 .site-header nav>a:not(.button),.site-header .text-button{color:var(--foreground);transition:color .15s ease}
 .site-header nav>a:not(.button):hover,.site-header .text-button:hover{color:var(--primary)}

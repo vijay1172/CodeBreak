@@ -9,10 +9,12 @@ import { jsonRequest } from "@/lib/brokenrepo-api";
 
 // Cracked-folder brand mark: navy folder (#1c2b45/#243352) split by a jagged
 // red crack (#ef4444) with a deep-red glow (#7f1d1d) and bend-point accents.
+// Folder fills flip to light steel in the site's dark theme (see .brand-mark
+// rules in globals.css) so the mark keeps contrast on the dark header.
 export function BrandMark() {
-  return <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-    <path d="M14 10h9a4 4 0 0 1 2.9 1.2l3.6 3.8H50a6 6 0 0 1 6 6v3H8v-8a6 6 0 0 1 6-6z" fill="#243352"/>
-    <rect x="8" y="18" width="48" height="38" rx="6" fill="#1c2b45"/>
+  return <svg viewBox="0 0 64 64" className="brand-mark" aria-hidden="true" focusable="false">
+    <path className="bm-tab" d="M14 10h9a4 4 0 0 1 2.9 1.2l3.6 3.8H50a6 6 0 0 1 6 6v3H8v-8a6 6 0 0 1 6-6z"/>
+    <rect className="bm-body" x="8" y="18" width="48" height="38" rx="6"/>
     <path d="M40 12 34 26l7 10-10 11 4 9" fill="none" stroke="#7f1d1d" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" opacity="0.35"/>
     <path d="M40 12 34 26l7 10-10 11 4 9" fill="none" stroke="#ef4444" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
     <circle cx="34" cy="26" r="2.4" fill="#ef4444"/>

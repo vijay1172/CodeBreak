@@ -1,6 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path d="M14 10h9a4 4 0 0 1 2.9 1.2l3.6 3.8H50a6 6 0 0 1 6 6v3H8v-8a6 6 0 0 1 6-6z" fill="#243352"/>
-  <rect x="8" y="18" width="48" height="38" rx="6" fill="#1c2b45"/>
+  <style>
+    .bm-tab{fill:#243352}.bm-body{fill:#1c2b45}
+    @media (prefers-color-scheme: dark){
+      .bm-tab{fill:#c3d3e8}.bm-body{fill:#dbe6f5}
+    }
+  </style>
+  <path class="bm-tab" d="M14 10h9a4 4 0 0 1 2.9 1.2l3.6 3.8H50a6 6 0 0 1 6 6v3H8v-8a6 6 0 0 1 6-6z"/>
+  <rect class="bm-body" x="8" y="18" width="48" height="38" rx="6"/>
   <path d="M40 12 34 26l7 10-10 11 4 9" fill="none" stroke="#7f1d1d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
   <path d="M40 12 34 26l7 10-10 11 4 9" fill="none" stroke="#ef4444" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="34" cy="26" r="2.4" fill="#ef4444"/>
