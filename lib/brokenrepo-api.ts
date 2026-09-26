@@ -92,7 +92,7 @@ export function getSession(sessionId: string) {
 }
 
 export function getSessionPreview(sessionId: string, signal?: AbortSignal) {
-  return jsonRequest<{ url: string; expiresAt: string }>(`/api/sessions/${sessionId}/preview`, { signal });
+  return jsonRequest<{ url: string; expiresAt: string; proxyUrl?: string }>(`/api/sessions/${sessionId}/preview`, { signal });
 }
 
 export function saveSessionFiles(sessionId: string, files: Record<string, string>) {

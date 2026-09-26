@@ -24,7 +24,7 @@ export function LivePreviewPane({ sessionId, status, refreshVersion }: {
     if (!canLoad) return;
     const controller = new AbortController();
     void getSessionPreview(sessionId, controller.signal)
-      .then((next) => setPreview({ requestKey, url: next.url, error: "" }))
+      .then((next) => setPreview({ requestKey, url: next.proxyUrl || next.url, error: "" }))
       .catch((reason) => {
         if (!controller.signal.aborted) setPreview({ requestKey, url: "", error: reason instanceof Error ? reason.message : "Dev server offline." });
       });

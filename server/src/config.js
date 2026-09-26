@@ -32,5 +32,10 @@ export const config = {
     .filter(Boolean),
   sessionIdleMinutes: positiveInteger("SESSION_IDLE_MINUTES", 25),
   sessionTtlMinutes: positiveInteger("SESSION_TTL_MINUTES", 30),
+  // When set (e.g. "preview.brokenrepo.tech"), student previews stream through
+  // {sessionId}.{suffix} on this service so Daytona's warning interstitial and
+  // proxy host never reach the browser. Requires PREVIEW_PROXY_SECRET.
+  previewProxyDomainSuffix: process.env.PREVIEW_PROXY_DOMAIN_SUFFIX?.trim() || "",
+  previewProxySecret: process.env.PREVIEW_PROXY_SECRET?.trim() || "",
   projectRoot: path.resolve(here, ".."),
 };

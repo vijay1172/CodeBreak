@@ -16,6 +16,7 @@ import {
 } from "./daytona.js";
 import { parseTestRun } from "./result-parser.js";
 import { RUNTIME_HTTP_PREFIX } from "./runtime-inspector.js";
+import { previewHostForSession, previewProxyConfigured, previewProxyHandler, signPreviewToken } from "./preview-proxy.js";
 import { accountRouter, requireAccount, requireAdmin, saveProgress, setupAccounts } from "./accounts.js";
 import { database, eventsCollection } from "./session-store.js";
 import {
@@ -53,6 +54,10 @@ app.set("trust proxy", 1);
 app.disable("x-powered-by");
 app.use(helmet());
 app.use(express.json({ limit: "2mb" }));
+// The preview host ({sessionId}.{suffix}) streams student sandboxes through
+// this service so the browser never touches Daytona's proxy domain; it must
+// win over every API route below.
+if (previewProxyConfigured()) app.use(previewProxyHandler);
 app.use(
   cors({
     origin(origin, callback) {
@@ -302,6 +307,12 @@ app.get("/api/sessions/:sessionId/preview", async (req, res) => {
       port: record.previewPort || 3000,
     });
     await touchSession(record._id);
+    if (previewProxyConfigured()) {
+      return res.json({
+        ...preview,
+        proxyUrl: `https://${previewHostForSession(record._id)}/${signPreviewToken(record._id)}/`,
+      });
+    }
     return res.json(preview);
   } catch (error) {
     return res.status(502).json({ error: `Dev server offline. ${safeError(error)}` });
