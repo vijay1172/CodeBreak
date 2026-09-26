@@ -484,3 +484,4 @@ input,textarea{caret-color:var(--primary)}
  .workspace-layout .file-explorer{height:auto;max-height:250px}.workspace-split{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}.workspace-resize-handle{display:none}.workspace-editor-column .workspace,.right-panel{height:580px}.right-panel{min-height:480px}
 }
 @media(max-width:520px){.challenge-context-copy{grid-template-columns:1fr}.right-panel-tabs{gap:18px}.console-line{grid-template-columns:58px minmax(0,1fr)}.console-channel{display:none}.network-stream th:nth-child(4),.network-stream td:nth-child(4){display:none}.lab-actions .button:first-child{margin-right:0}.lab-actions .button{flex:1}}
+.lab-actions .reset-armed{background:var(--error-surface);color:var(--error-ink);border-color:var(--error-border)}
