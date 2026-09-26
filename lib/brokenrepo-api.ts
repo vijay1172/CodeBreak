@@ -12,6 +12,8 @@ export type Challenge = {
   category: string;
   difficulty: string;
   stack: string;
+  previewEnabled: boolean;
+  runtimeKind: "frontend" | "backend";
   problemStatement: string;
   criteria: Criterion[];
   hints: { tier1: string; tier2: string; tier3: string };
@@ -87,6 +89,22 @@ export function listChallenges() {
 
 export function getSession(sessionId: string) {
   return jsonRequest<SessionRecord>(`/api/sessions/${sessionId}`);
+}
+
+export function getSessionPreview(sessionId: string, signal?: AbortSignal) {
+  return jsonRequest<{ url: string; expiresAt: string }>(`/api/sessions/${sessionId}/preview`, { signal });
+}
+
+export function saveSessionFiles(sessionId: string, files: Record<string, string>) {
+  return jsonRequest<{ message: string; previewUpdated: boolean }>(`/api/sessions/${sessionId}/files`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ files }),
+  });
+}
+
+export function sessionLogStreamUrl(sessionId: string) {
+  return `${apiBaseUrl}/sessions/${sessionId}/logs/stream`;
 }
 
 export async function runSessionTests(sessionId: string, files: Record<string, string>) {

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { Daytona, CodeLanguage } from "@daytona/sdk";
 import { config } from "./config.js";
 import { installSandboxMongo, sandboxMongoPath } from "./runtime-assets.js";
+import { runtimeInspectorSource } from "./runtime-inspector.js";
 
 const daytona = new Daytona({
   apiKey: config.daytonaApiKey,
@@ -42,6 +43,20 @@ function combinedCommandOutput(command) {
     .join("\n")
     .trim();
 }
+
+const vitePreviewConfig = `export default {
+  esbuild: {
+    jsx: "automatic",
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3000",
+        changeOrigin: true,
+      },
+    },
+  },
+};\n`;
 
 function reportHasExecutedAssertions(report) {
   return (report?.testResults || []).some((suite) =>
@@ -120,6 +135,17 @@ export async function provisionSandbox({ sessionId, challenge }) {
 
     await uploadFiles(sandbox, workspaceDirectory, challenge.files);
     await verifyUploadedFiles(sandbox, workspaceDirectory, challenge.files);
+    const runtimeSupportFile = {
+      path: ".brokenrepo/runtime-inspector.mjs",
+      content: runtimeInspectorSource,
+    };
+    const previewSupportFile = {
+      path: ".brokenrepo/vite-preview.config.mjs",
+      content: vitePreviewConfig,
+    };
+    const supportFiles = [runtimeSupportFile, previewSupportFile];
+    await uploadFiles(sandbox, workspaceDirectory, supportFiles);
+    await verifyUploadedFiles(sandbox, workspaceDirectory, supportFiles);
 
     const install = await runSessionCommand(
       sandbox,
@@ -136,7 +162,7 @@ export async function provisionSandbox({ sessionId, challenge }) {
     const appCommand = await sandbox.process.executeSessionCommand(
       appSessionId,
       {
-        command: `cd ${shellQuote(workspaceDirectory)} && ${challenge.startCommand}`,
+        command: `cd ${shellQuote(workspaceDirectory)} && NODE_OPTIONS=${shellQuote(`--import=${workspaceDirectory}/${runtimeSupportFile.path}`)} ${challenge.startCommand}`,
         runAsync: true,
         suppressInputEcho: true,
       },
@@ -155,15 +181,92 @@ export async function provisionSandbox({ sessionId, challenge }) {
       throw new Error(`Challenge application did not become healthy.\n${details || "No startup logs were available."}`);
     }
 
+    let previewPort = 3000;
+    if (challenge.previewMode === "dev-server") {
+      previewPort = 5173;
+      const previewSessionId = `preview-${sessionId}`;
+      await sandbox.process.createSession(previewSessionId);
+      const previewCommand = await sandbox.process.executeSessionCommand(
+        previewSessionId,
+        {
+          command: `cd ${shellQuote(workspaceDirectory)} && ./node_modules/.bin/vite --config ${shellQuote(previewSupportFile.path)} --host 0.0.0.0 --port ${previewPort} --strictPort`,
+          runAsync: true,
+          suppressInputEcho: true,
+        },
+        30,
+      );
+      const previewHealth = await sandbox.process.executeCommand(
+        `for i in $(seq 1 30); do curl -fsS http://127.0.0.1:${previewPort}/ >/dev/null && exit 0; sleep 1; done; exit 1`,
+        workspaceDirectory,
+        undefined,
+        45,
+      );
+      if (previewHealth.exitCode !== 0) {
+        const logs = await sandbox.process.getSessionCommandLogs(previewSessionId, previewCommand.cmdId).catch(() => null);
+        const details = cleanProcessOutput(logs ? (logs.stderr || logs.stdout || logs.output) : previewHealth.result);
+        throw new Error(`Browser preview did not become ready.\n${details || "No preview logs were available."}`);
+      }
+    }
+
     return {
       sandboxId: sandbox.id,
       workspaceDirectory,
+      appSessionId,
+      appCommandId: appCommand.cmdId,
+      previewPort,
       setupOutput: install.stdout || install.output,
     };
   } catch (error) {
     await daytona.delete(sandbox, 60, true).catch(() => {});
     throw error;
   }
+}
+
+export async function getSandboxPreviewUrl({ sandboxId, port = 3000 }) {
+  const sandbox = await daytona.get(sandboxId);
+  const expiresInSeconds = 3600;
+  const preview = await sandbox.getSignedPreviewUrl(port, expiresInSeconds);
+  return {
+    url: preview.url,
+    expiresAt: new Date(Date.now() + expiresInSeconds * 1000).toISOString(),
+  };
+}
+
+export async function getSandboxRuntimeLogs({ sandboxId, appSessionId, appCommandId }) {
+  const sandbox = await daytona.get(sandboxId);
+  const [logs, command] = await Promise.all([
+    sandbox.process.getSessionCommandLogs(appSessionId, appCommandId),
+    sandbox.process.getSessionCommand(appSessionId, appCommandId),
+  ]);
+  return {
+    stdout: cleanProcessOutput(logs.stdout),
+    stderr: cleanProcessOutput(logs.stderr),
+    running: command.exitCode === undefined || command.exitCode === null,
+    exitCode: command.exitCode ?? null,
+  };
+}
+
+export async function syncSandboxFiles({ sandboxId, workspaceDirectory, files, previewMode }) {
+  const sandbox = await daytona.get(sandboxId);
+  const submittedFiles = Object.entries(files).map(([filePath, content]) => ({
+    path: filePath,
+    content,
+  }));
+  await uploadFiles(sandbox, workspaceDirectory, submittedFiles);
+  await verifyUploadedFiles(sandbox, workspaceDirectory, submittedFiles);
+  if (!previewMode) return { previewUpdated: false };
+  if (previewMode === "dev-server") return { previewUpdated: true };
+
+  const rebuild = await runSessionCommand(
+    sandbox,
+    `preview-build-${Date.now()}`,
+    `cd ${shellQuote(workspaceDirectory)} && npm run build:client`,
+    180,
+  );
+  if (rebuild.exitCode !== 0) {
+    throw new Error(`Preview rebuild failed:\n${combinedCommandOutput(rebuild) || "No build output was available."}`);
+  }
+  return { previewUpdated: true };
 }
 
 export async function runSandboxTests({ sessionId, sandboxId, workspaceDirectory, challenge, files }) {

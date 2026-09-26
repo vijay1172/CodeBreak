@@ -38,6 +38,8 @@ test("new curriculum has distinct mechanisms, full projects, and two executable 
     assert.deepEqual(Object.keys(challenge.hints).sort(), ['tier1', 'tier2', 'tier3']);
     for (const field of ['rootCause', 'realWorldContext', 'patternToWatch']) assert.ok(challenge.debrief[field].length > 40);
     const visible = publicChallenge(challenge);
+    assert.equal(visible.previewEnabled, true, `${fixture.id}: built client should be previewable`);
+    assert.ok(["frontend", "backend"].includes(visible.runtimeKind));
     assert.ok(visible.files.length >= 30);
     for (const directory of ['client/src/components/', 'client/src/pages/', 'client/src/api/', 'client/src/hooks/', 'server/routes/', 'server/models/', 'server/middleware/', 'server/controllers/']) {
       assert.ok(visible.files.some(file => file.path.startsWith(directory)), `${fixture.id}: missing ${directory}`);
@@ -56,6 +58,22 @@ test("new curriculum has distinct mechanisms, full projects, and two executable 
       }
     }
   }
+});
+
+test("runtime metadata exposes preview for built and dev-server browser projects", async () => {
+  const legacyChallenge = await getChallenge("the-stubborn-counter");
+  const frontendChallenge = await getChallenge("a-day-too-early");
+  const legacy = publicChallenge(legacyChallenge);
+  const frontend = publicChallenge(frontendChallenge);
+  const backend = publicChallenge(await getChallenge("the-penny-gap"));
+  assert.equal(legacy.previewEnabled, true);
+  assert.equal(legacy.runtimeKind, "frontend");
+  assert.equal(legacyChallenge.previewMode, "dev-server");
+  assert.equal(frontend.previewEnabled, true);
+  assert.equal(frontend.runtimeKind, "frontend");
+  assert.equal(frontendChallenge.previewMode, "integrated");
+  assert.equal(backend.previewEnabled, true);
+  assert.equal(backend.runtimeKind, "backend");
 });
 
 test("each challenge exposes a realistic project without hidden tests", async () => {

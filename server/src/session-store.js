@@ -41,6 +41,9 @@ export async function createSessionRecord({ id, challengeId, files, userId }) {
     status: "provisioning",
     sandboxId: null,
     workspaceDirectory: null,
+    appSessionId: null,
+    appCommandId: null,
+    previewPort: null,
     setupOutput: "",
     error: null,
     lastRun: null,
@@ -54,7 +57,7 @@ export async function getSessionRecord(id) {
   return collection().findOne({ _id: id });
 }
 
-export async function markSessionReady(id, { sandboxId, workspaceDirectory, setupOutput }) {
+export async function markSessionReady(id, { sandboxId, workspaceDirectory, appSessionId, appCommandId, previewPort, setupOutput }) {
   const now = new Date();
   await collection().updateOne(
     { _id: id },
@@ -63,12 +66,23 @@ export async function markSessionReady(id, { sandboxId, workspaceDirectory, setu
         status: "ready",
         sandboxId,
         workspaceDirectory,
+        appSessionId,
+        appCommandId,
+        previewPort,
         setupOutput,
         error: null,
         updatedAt: now,
         lastActivityAt: now,
       },
     },
+  );
+}
+
+export async function saveSessionFiles(id, files) {
+  const now = new Date();
+  await collection().updateOne(
+    { _id: id },
+    { $set: { files, updatedAt: now, lastActivityAt: now } },
   );
 }
 
@@ -136,6 +150,9 @@ export async function markSessionDeleted(id) {
         status: "deleted",
         sandboxId: null,
         workspaceDirectory: null,
+        appSessionId: null,
+        appCommandId: null,
+        previewPort: null,
         updatedAt: new Date(),
         deletedAt: new Date(),
       },

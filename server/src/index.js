@@ -6,8 +6,16 @@ import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import { config } from "./config.js";
 import { assertEditableFiles, getChallenge, listChallenges, publicChallenge } from "./challenges.js";
-import { deleteSandbox, provisionSandbox, runSandboxTests } from "./daytona.js";
+import {
+  deleteSandbox,
+  getSandboxPreviewUrl,
+  getSandboxRuntimeLogs,
+  provisionSandbox,
+  runSandboxTests,
+  syncSandboxFiles,
+} from "./daytona.js";
 import { parseTestRun } from "./result-parser.js";
+import { RUNTIME_HTTP_PREFIX } from "./runtime-inspector.js";
 import { accountRouter, requireAccount, requireAdmin, saveProgress, setupAccounts } from "./accounts.js";
 import { database, eventsCollection } from "./session-store.js";
 import {
@@ -22,6 +30,7 @@ import {
   markSessionError,
   markSessionReady,
   markSessionRunning,
+  saveSessionFiles,
   saveSessionRun,
   touchSession,
 } from "./session-store.js";
@@ -62,6 +71,28 @@ function redactSecrets(value) {
 
 function safeError(error) {
   return redactSecrets(String(error?.message || error || "Unknown error")).slice(0, 20_000);
+}
+
+function writeServerEvent(response, event, data) {
+  response.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+function emitRuntimeLine(response, channel, rawLine) {
+  const line = redactSecrets(rawLine).slice(0, 20_000);
+  if (!line.trim()) return;
+  const markerAt = line.indexOf(RUNTIME_HTTP_PREFIX);
+  if (markerAt !== -1) {
+    try {
+      const event = JSON.parse(line.slice(markerAt + RUNTIME_HTTP_PREFIX.length));
+      writeServerEvent(response, "network", event);
+      return;
+    } catch {}
+  }
+  writeServerEvent(response, "log", {
+    channel,
+    message: line,
+    timestamp: new Date().toISOString(),
+  });
 }
 
 function tooManyRequests(message) {
@@ -255,6 +286,105 @@ app.get("/api/sessions/:sessionId", async (req, res) => {
   return res.json(serializeSession(record));
 });
 
+app.get("/api/sessions/:sessionId/preview", async (req, res) => {
+  const record = await getSessionRecord(req.params.sessionId);
+  if (!record) return res.status(404).json({ error: "Session not found" });
+  if (record.status !== "ready" && record.status !== "running") {
+    return res.status(409).json({ error: "The dev server is still starting.", status: record.status });
+  }
+  const challenge = await getChallenge(record.challengeId);
+  if (!challenge?.previewEnabled) {
+    return res.status(404).json({ error: "This exercise does not expose a browser preview." });
+  }
+  try {
+    const preview = await getSandboxPreviewUrl({
+      sandboxId: record.sandboxId,
+      port: record.previewPort || 3000,
+    });
+    await touchSession(record._id);
+    return res.json(preview);
+  } catch (error) {
+    return res.status(502).json({ error: `Dev server offline. ${safeError(error)}` });
+  }
+});
+
+app.get("/api/sessions/:sessionId/logs/stream", async (req, res) => {
+  const record = await getSessionRecord(req.params.sessionId);
+  if (!record) return res.status(404).json({ error: "Session not found" });
+  if (!record.sandboxId || !record.appSessionId || !record.appCommandId) {
+    return res.status(409).json({ error: "Runtime logs will connect when the server is ready." });
+  }
+
+  res.status(200).set({
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.flushHeaders();
+  writeServerEvent(res, "reset", {});
+
+  let closed = false;
+  let timer;
+  let lastRuntimeState = "";
+  const streams = {
+    stdout: { snapshot: "", remainder: "" },
+    stderr: { snapshot: "", remainder: "" },
+  };
+
+  const emitDelta = (channel, snapshot) => {
+    const state = streams[channel];
+    const delta = snapshot.slice(state.snapshot.length);
+    state.snapshot = snapshot;
+    if (!delta) return;
+    const lines = (state.remainder + delta).split(/\r?\n/);
+    state.remainder = lines.pop() || "";
+    for (const line of lines) emitRuntimeLine(res, channel, line);
+  };
+
+  const poll = async () => {
+    if (closed) return;
+    try {
+      const runtime = await getSandboxRuntimeLogs({
+        sandboxId: record.sandboxId,
+        appSessionId: record.appSessionId,
+        appCommandId: record.appCommandId,
+      });
+      if (
+        !runtime.stdout.startsWith(streams.stdout.snapshot)
+        || !runtime.stderr.startsWith(streams.stderr.snapshot)
+      ) {
+        writeServerEvent(res, "reset", {});
+        streams.stdout = { snapshot: "", remainder: "" };
+        streams.stderr = { snapshot: "", remainder: "" };
+      }
+      emitDelta("stdout", runtime.stdout);
+      emitDelta("stderr", runtime.stderr);
+      const runtimeState = runtime.running ? "running" : `stopped:${runtime.exitCode}`;
+      if (runtimeState !== lastRuntimeState) {
+        lastRuntimeState = runtimeState;
+        writeServerEvent(res, "runtime-status", {
+          running: runtime.running,
+          exitCode: runtime.exitCode,
+        });
+      }
+      timer = setTimeout(poll, 1200);
+    } catch (error) {
+      writeServerEvent(res, "runtime-error", { message: safeError(error) });
+      timer = setTimeout(poll, 3000);
+    }
+  };
+
+  const heartbeat = setInterval(() => res.write(": keep-alive\n\n"), 15_000);
+  req.on("close", () => {
+    closed = true;
+    clearTimeout(timer);
+    clearInterval(heartbeat);
+  });
+  await touchSession(record._id);
+  void poll();
+});
+
 app.post("/api/sessions/:sessionId/run", testRunLimiter, async (req, res) => {
   const parsed = runTestsSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "files must be a text-file map" });
@@ -327,12 +457,34 @@ app.put("/api/sessions/:sessionId/files", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: "We couldn’t read those files. Please try saving again." });
   const record = await getSessionRecord(req.params.sessionId);
   if (!record) return res.status(404).json({ error: "Session not found" });
+  if (record.status !== "ready") {
+    return res.status(409).json({ error: `The sandbox is ${record.status}. Wait until it is ready before saving.` });
+  }
   const challenge = await getChallenge(record.challengeId);
   if (!challenge) return res.status(410).json({ error: "Challenge content is unavailable" });
   try { assertEditableFiles(challenge, parsed.data.files); }
   catch { return res.status(400).json({ error: "Only editable project files can be saved." }); }
-  await saveProgress(req.userId, record.challengeId, parsed.data.files);
-  res.json({ message: "Your code is saved to your account." });
+  const files = { ...record.files, ...parsed.data.files };
+  try {
+    const sync = await syncSandboxFiles({
+      sandboxId: record.sandboxId,
+      workspaceDirectory: record.workspaceDirectory,
+      files: parsed.data.files,
+      previewMode: challenge.previewMode,
+    });
+    await Promise.all([
+      saveProgress(req.userId, record.challengeId, files),
+      saveSessionFiles(record._id, files),
+    ]);
+    return res.json({
+      message: sync.previewUpdated
+        ? "Your code is saved and the preview is refreshed."
+        : "Your code is saved to your account.",
+      previewUpdated: sync.previewUpdated,
+    });
+  } catch (error) {
+    return res.status(502).json({ error: safeError(error) });
+  }
 });
 
 app.post("/api/sessions/:sessionId/end", async (req, res) => {

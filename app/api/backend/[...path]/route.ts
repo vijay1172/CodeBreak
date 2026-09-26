@@ -34,7 +34,8 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
     const response = await fetch(`${backend.replace(/\/$/, "")}/api/${path.map(encodeURIComponent).join("/")}`, {
       method: request.method,
       headers: {
-        "content-type": "application/json",
+        "content-type": request.headers.get("content-type") || "application/json",
+        accept: request.headers.get("accept") || "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         // Server-set (client-supplied values are overwritten here): used only by
         // the anonymous /api/track beacon for visitor hashing, device, country.
@@ -45,6 +46,17 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
       body: request.method === "GET" ? undefined : await request.text(),
       cache: "no-store", signal: AbortSignal.timeout(240000),
     });
+    if (response.headers.get("content-type")?.includes("text/event-stream")) {
+      return new Response(response.body, {
+        status: response.status,
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+        },
+      });
+    }
     const body = response.status === 204 ? null : await response.json() as Record<string, unknown>;
     const sessionToken = body?.token;
     if (sessionToken) delete body.token;

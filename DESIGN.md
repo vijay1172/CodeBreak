@@ -180,7 +180,7 @@ The landing hero uses two columns at a 1:1.08 ratio. Workflow and curriculum sec
 
 Forms pair context with a white panel capped at 450px; mobile layouts stack both and let the form fill the container. Challenge listings use horizontal rules and aligned columns. Their action wraps below the descriptive content at 1100px, and compact rows reorganize at 760px.
 
-The lab is capped at 1800px. Its wide layout is a 210px file explorer, flexible editor, and 290px brief with 22px gaps. At 1100px the file explorer hides and the toolbar file selector remains available. At 760px the brief moves above the editor in one column. Criteria, hints, and reporting remain available.
+The lab is capped at 1800px. The bug report sits in a compact context band above the working surface, with criteria, hints, and reporting in an expandable section. The working surface pairs a collapsible 210px project tree with a resizable editor/runtime split. The runtime panel holds Preview, Logs, and Tests as stable tabs; frontend-capable exercises can lead with Preview, while backend exercises lead with Logs. Previewable exercises must render the behavior under investigation and include any deliberate reproduction control the bug needs, rather than showing an unrelated application screen. At 1050px the project tree, editor, and runtime panel stack so neither code nor diagnostics are squeezed into a narrow column. The toolbar file selector remains available at compact widths.
 
 Spacing follows observed component needs rather than a fabricated universal scale. Use the frontmatter's recurring steps for internal spacing; larger section gaps remain contextual.
 
@@ -230,11 +230,11 @@ The footer opens a first-party support page rather than invoking a device mail a
 
 ### Status and Diagnostics
 
-Solved status combines a check icon and text. Error panels use the diagnostic background, a warm border, and darker error text. Lab output tabs communicate selection through blue text and a bottom border. Result messages and assertion icons make meaning explicit.
+Solved status combines a check icon and text. Error panels use the diagnostic background, a warm border, and darker error text. Lab runtime tabs communicate selection through blue text and a bottom border. The Preview toolbar shows server readiness, Logs separates console output from structured HTTP requests, and Tests keeps result messages and assertion icons explicit. Success and failure never rely on color alone.
 
 ### Code Editor and Illustrated Bug
 
-The live editor is white, with cool gutters and an active-line wash. Its height is 460px, code wraps, and line numbers and folding remain visible. Syntax colors distinguish keywords, strings, numbers, functions, comments, types, and properties.
+The live editor is white, with cool gutters and an active-line wash. It fills the 606px desktop working surface, code wraps, and line numbers and folding remain visible. Syntax colors distinguish keywords, strings, numbers, functions, comments, types, and properties. The project tree collapses with its button or Cmd/Ctrl+B, and the editor/runtime separator supports pointer and keyboard resizing.
 
 The landing illustration juxtaposes client and server files. Its explicit “See the fix” control changes an incorrect authentication header to a matching one, then offers replay. The changed line uses a .6s reveal; the result uses a polite live region. This is a labeled example, not a claim that the illustration executed tests.
 

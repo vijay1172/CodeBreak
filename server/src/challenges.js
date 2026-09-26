@@ -288,7 +288,19 @@ export async function getChallenge(id) {
   const editablePaths = definition.discoverEditablePaths
     ? files.filter(file => /^(client\/src|server)\//.test(file.path) && /\.(js|jsx|css)$/.test(file.path)).map(file => file.path)
     : definition.editablePaths;
-  return { ...definition, editablePaths, files };
+  const packageFile = files.find((file) => file.path === "package.json");
+  let previewMode = null;
+  try {
+    const scripts = JSON.parse(packageFile?.content || "{}").scripts || {};
+    const hasBrowserEntry = files.some((file) => file.path === "index.html");
+    if (scripts["build:client"]) previewMode = "integrated";
+    else if (hasBrowserEntry && scripts["start:client"]) previewMode = "dev-server";
+  } catch {}
+  const previewEnabled = previewMode !== null;
+  const runtimeKind = /frontend state|async \/ race|timezone|listener cleanup/i.test(definition.category)
+    ? "frontend"
+    : "backend";
+  return { ...definition, editablePaths, files, previewEnabled, previewMode, runtimeKind };
 }
 
 export function publicChallenge(challenge) {
@@ -299,6 +311,8 @@ export function publicChallenge(challenge) {
     category: challenge.category,
     difficulty: challenge.difficulty,
     stack: challenge.stack,
+    previewEnabled: challenge.previewEnabled,
+    runtimeKind: challenge.runtimeKind,
     problemStatement: challenge.problemStatement,
     criteria: challenge.criteria,
     hints: challenge.hints,
