@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: "BrokenRepo — Code debugging practice on real repo bugs", template: "%s | BrokenRepo" },
   description: "Practice code debugging in full MERN repos — the repo-based pattern behind Amazon’s new OA and SDE-1 interviews. Find the bug, fix it, prove it with live tests.",
+  robots: { index: true, follow: true },
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",

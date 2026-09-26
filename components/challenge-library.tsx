@@ -5,17 +5,22 @@ import { CheckCircle2, Circle, Search } from "lucide-react";
 import { jsonRequest, listChallenges, type ChallengeSummary } from "@/lib/brokenrepo-api";
 import { SiteHeader, SiteFooter } from "./site-shell";
 type Progress = { challengeId: string; attempted?: boolean; solved?: boolean; attempts?: number };
-export function ChallengeLibrary({ progressOnly = false }: { progressOnly?: boolean }) {
-  const [items, setItems] = useState<ChallengeSummary[]>([]);
+export function ChallengeLibrary({ progressOnly = false, initialItems }: { progressOnly?: boolean; initialItems?: ChallengeSummary[] }) {
+  const [items, setItems] = useState<ChallengeSummary[]>(initialItems ?? []);
   const [progress, setProgress] = useState<Progress[]>([]);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(Boolean(initialItems?.length));
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [category, setCategory] = useState("");
   useEffect(() => {
-    void Promise.all([listChallenges(), jsonRequest<{ progress: Progress[] }>("/progress").catch(() => null)]).then(([data, saved]) => {
+    // Static pages seed the list server-side (crawlable initial HTML) and only
+    // fetch per-account progress here; dynamic pages fetch the live catalog.
+    void Promise.all([
+      initialItems?.length ? Promise.resolve({ challenges: initialItems }) : listChallenges(),
+      jsonRequest<{ progress: Progress[] }>("/progress").catch(() => null),
+    ]).then(([data, saved]) => {
       setItems(data.challenges); setLoggedIn(Boolean(saved)); setProgress(saved?.progress || []);
     }).catch(error => setError(error.message)).finally(() => setLoaded(true));
   }, []);
