@@ -83,7 +83,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono)}
 .demo-change{background:var(--error-surface);color:var(--error-ink);display:inline-block;width:100%;animation:demo-scan .6s ease-out .4s both}
 .demo-fixed .demo-change{background:var(--success-surface);color:var(--success)}
 @keyframes demo-scan{from{background-color:transparent}to{background-color:var(--error-surface)}}
-.demo:not(.demo-fixed) .demo-result{animation:demo-pulse 2s ease-in-out infinite}
+.bug-demo:not(.demo-fixed) .demo-result{animation:demo-pulse 2s ease-in-out infinite}
 @keyframes demo-pulse{0%,100%{opacity:1}50%{opacity:.85}}
 .demo-result{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--error-surface);color:var(--error-ink);font-size:12px}
 .demo-result svg{width:17px;height:17px}
