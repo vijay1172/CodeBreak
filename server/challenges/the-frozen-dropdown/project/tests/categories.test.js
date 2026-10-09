@@ -45,6 +45,8 @@ it('resolves the final shop when switches come quickly', async () => {
     .mockImplementationOnce(() => new Promise((ok) => { resolveShopB = ok; }));
   await page.render('shopA', fetchImpl);
   await page.render('shopB', fetchImpl);
+  expect(fetchImpl).toHaveBeenCalledTimes(2);
+  expect(typeof resolveShopB).toBe('function');
   await act(async () => resolveShopB({ json: async () => ({ categories: [{ name: 'Controllers' }] }) }));
   expect(document.body.textContent).toContain('Controllers');
   await page.cleanup();
