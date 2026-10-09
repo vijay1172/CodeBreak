@@ -6,3 +6,4 @@ export function ProfileForm({ displayName, onSave }) {
     <label>Name<input value={value} onChange={(event) => setValue(event.target.value)} /></label>
     <button onClick={async () => { setStatus('Saving…'); const result = await onSave(value); setStatus(result.ok ? 'Saved' : 'Could not save — showing the stored name.'); }}>Save changes</button>
     <p role='status'>{status}</p></section>;
+}
