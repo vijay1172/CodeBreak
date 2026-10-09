@@ -19,9 +19,19 @@ const expectedIds = [
   "the-borrowed-language",
   "the-search-that-guesses",
   "one-click-two-bookings",
+  "the-invisible-update",
+  "the-duplicate-order",
+  "the-leaked-password",
+  "the-frozen-dropdown",
+  "the-ghost-cart",
+  "the-runaway-query",
+  "the-confused-timezone",
+  "the-missing-notification",
+  "the-public-secret",
+  "the-slow-search",
 ];
 
-test("publishes all fifteen challenges in curriculum order", () => {
+test("publishes all twenty-five challenges in curriculum order", () => {
   assert.deepEqual(listChallenges().map((challenge) => challenge.id), expectedIds);
 });
 

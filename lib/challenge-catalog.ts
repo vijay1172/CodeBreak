@@ -222,6 +222,155 @@ export const challengeCatalog: CatalogEntry[] = [
       "does not retry a rejected booking request",
     ],
   },
+  {
+    "id": "the-invisible-update",
+    "title": "The Invisible Update",
+    "category": "State management / API sync",
+    "shortTag": "Optimistic UI",
+    "difficulty": "intermediate",
+    "symptom": "A user edits their profile name and hits Save. The page immediately shows the updated name",
+    "criteria": [
+      "updates the stored name through the current profile endpoint",
+      "answers the retired profile path with a 404",
+      "sends profile saves to the current endpoint",
+      "reverts the shown name when a save fails",
+      "rejects blank or oversized profile names"
+    ]
+  },
+  {
+    "id": "the-duplicate-order",
+    "title": "The Duplicate Order",
+    "category": "Request deduplication / idempotency",
+    "shortTag": "Idempotency",
+    "difficulty": "intermediate",
+    "symptom": "Clicking the Place Order button quickly two times in a row creates two identical orders and processes payment twice. A single click always works correctly.",
+    "criteria": [
+      "creates exactly one order for a single submission",
+      "returns the existing order when the same operation key is replayed",
+      "keeps two identical rapid submissions to a single order",
+      "prices the order from the seeded catalogue",
+      "rejects an order without purchasable items"
+    ]
+  },
+  {
+    "id": "the-leaked-password",
+    "title": "The Leaked Password",
+    "category": "Sensitive data exposure",
+    "shortTag": "Data exposure",
+    "difficulty": "beginner",
+    "symptom": "The user profile page loads correctly and shows the right information",
+    "criteria": [
+      "hides the password hash from the profile response",
+      "hides the admin flag from the profile response",
+      "still returns the public profile fields",
+      "never loads the password hash without an explicit request"
+    ]
+  },
+  {
+    "id": "the-frozen-dropdown",
+    "title": "The Frozen Dropdown",
+    "category": "useEffect dependency array bug",
+    "shortTag": "Effect dependencies",
+    "difficulty": "beginner",
+    "symptom": "The category filter dropdown loads correctly the first time you visit the products page",
+    "criteria": [
+      "loads the category list for the first shop",
+      "reloads categories when the shop changes",
+      "resolves the final shop when switches come quickly",
+      "serves a distinct catalogue per shop",
+      "answers an empty list for a shop without categories"
+    ]
+  },
+  {
+    "id": "the-ghost-cart",
+    "title": "The Ghost Cart",
+    "category": "JWT stale payload",
+    "shortTag": "JWT claims",
+    "difficulty": "intermediate",
+    "symptom": "A user upgrades their account to premium. They log out and log back in. The app still shows them the free tier interface and blocks premium features — even though their account is definitely upgraded in the database.",
+    "criteria": [
+      "issues a login token carrying the stored plan",
+      "reflects an upgrade in the next login token",
+      "accepts the upgraded token on premium routes",
+      "rejects a pre-upgrade token on premium routes",
+      "rejects a login for an unknown account"
+    ]
+  },
+  {
+    "id": "the-runaway-query",
+    "title": "The Runaway Query",
+    "category": "Unbounded database fetch",
+    "shortTag": "Pagination",
+    "difficulty": "beginner",
+    "symptom": "The admin users page works perfectly with a small dataset",
+    "criteria": [
+      "caps the default directory page at fifty users",
+      "serves the requested page at the requested size",
+      "includes paging metadata for the table",
+      "requires the admin key for the directory",
+      "honors a larger request without lifting the cap"
+    ]
+  },
+  {
+    "id": "the-confused-timezone",
+    "title": "The Confused Timezone",
+    "category": "Date handling / timezone bug",
+    "shortTag": "UTC storage",
+    "difficulty": "intermediate",
+    "symptom": "Events show the correct date to the person who created them, but other users in different timezones see the same event listed one day earlier or one day later.",
+    "criteria": [
+      "stores the chosen day as a UTC timestamp",
+      "renders the same calendar day in every timezone",
+      "returns the submitted day on read-back",
+      "rejects impossible calendar days",
+      "lists events in calendar order"
+    ]
+  },
+  {
+    "id": "the-missing-notification",
+    "title": "The Missing Notification",
+    "category": "Promise.all failure mode / swallowed rejection",
+    "shortTag": "Promise errors",
+    "difficulty": "intermediate",
+    "symptom": "When a new order is placed, users should receive a confirmation email and the product inventory should update simultaneously. Sometimes only one happens. Sometimes neither does. The order itself always saves correctly.",
+    "criteria": [
+      "confirms the order and completes both side effects",
+      "fails the request when the inventory update throws",
+      "does not confirm the order when the notification fails",
+      "decrements stock by the ordered quantity",
+      "leaves stock untouched when the inventory update fails"
+    ]
+  },
+  {
+    "id": "the-public-secret",
+    "title": "The Public Secret",
+    "category": "Environment variable exposure",
+    "shortTag": "Secret config",
+    "difficulty": "beginner",
+    "symptom": "The app works correctly in all environments",
+    "criteria": [
+      "keeps the processor secret out of the browser config",
+      "reads the payment secret from the server environment",
+      "keeps the database connection string off the client",
+      "rejects payment intents outside the allowed range",
+      "stops sourcing browser configuration from import.meta.env"
+    ]
+  },
+  {
+    "id": "the-slow-search",
+    "title": "The Slow Search",
+    "category": "Missing index / N+1 query",
+    "shortTag": "Indexes and N+1",
+    "difficulty": "intermediate",
+    "symptom": "The product search works correctly and returns accurate results",
+    "criteria": [
+      "indexes the product name for search",
+      "resolves sellers without one query per result",
+      "answers a full catalog search quickly",
+      "matches products by name accurately",
+      "keeps archived products out of search results"
+    ]
+  }
 ];
 
 export function getCatalogEntry(id: string) {

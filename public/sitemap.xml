@@ -25,4 +25,14 @@
   <url><loc>https://brokenrepo.tech/contact</loc><lastmod>2026-09-20</lastmod><priority>0.3</priority></url>
   <url><loc>https://brokenrepo.tech/login</loc><lastmod>2026-09-20</lastmod><priority>0.3</priority></url>
   <url><loc>https://brokenrepo.tech/signup</loc><lastmod>2026-09-20</lastmod><priority>0.5</priority></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-invisible-update</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-duplicate-order</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-leaked-password</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-frozen-dropdown</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-ghost-cart</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-runaway-query</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-confused-timezone</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-missing-notification</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-public-secret</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://brokenrepo.tech/challenges/the-slow-search</loc><lastmod>2026-10-10</lastmod></url>
 </urlset>

@@ -1,0 +1,12 @@
+body { margin: 0; color: #1c3046; background: #f3f5f8; font: 16px/1.6 system-ui, sans-serif; }
+main, header { max-width: 960px; margin: auto; padding: 24px; }
+header { border-bottom: 1px solid #cbd4e0; display: flex; justify-content: space-between; }
+section { background: white; padding: 24px; margin: 20px 0; }
+label { display: block; margin: 12px 0; }
+input, select, button { font: inherit; padding: 8px 12px; max-width: 100%; }
+button { cursor: pointer; background: #2459bd; color: white; border: 0; border-radius: 4px; }
+button:disabled { opacity: .5; cursor: wait; }
+table { width: 100%; border-collapse: collapse; }
+td, th { text-align: left; padding: 10px; border-bottom: 1px solid #cbd4e0; }
+[role=alert] { color: #993a28; }
+nav { display: flex; gap: 12px; }

@@ -10,6 +10,7 @@ const titles: Record<string, string> = {
   "the-split-import": "The Split Import", "the-room-that-wont-leave": "The Room That Won’t Leave",
   "the-borrowed-language": "The Borrowed Language", "the-search-that-guesses": "The Search That Guesses",
   "one-click-two-bookings": "One Click, Two Bookings",
+  "the-invisible-update": "The Invisible Update", "the-duplicate-order": "The Duplicate Order", "the-leaked-password": "The Leaked Password", "the-frozen-dropdown": "The Frozen Dropdown", "the-ghost-cart": "The Ghost Cart", "the-runaway-query": "The Runaway Query", "the-confused-timezone": "The Confused Timezone", "the-missing-notification": "The Missing Notification", "the-public-secret": "The Public Secret", "the-slow-search": "The Slow Search",
 };
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
