@@ -49,3 +49,6 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+# challenge build artifacts
+server/challenges/*/project/dist/
