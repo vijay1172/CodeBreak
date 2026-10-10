@@ -62,6 +62,16 @@ async function resolveUpstream(sessionId) {
   return entry;
 }
 
+// A "page navigation" is a request that should fall back to the app document
+// when the challenge app has no route for it: HTML-accepting requests whose
+// final path segment carries no file extension. Scripts, fetches, and assets
+// keep their real responses.
+function isPageNavigation(pathname, acceptHeader) {
+  const lastSegment = pathname.split("?")[0].split("/").pop() || "";
+  if (lastSegment.includes(".")) return false;
+  return String(acceptHeader || "").includes("text/html");
+}
+
 function proxyResponseHeaders(upstreamResponse) {
   const headers = {};
   for (const name of ["content-type", "content-length", "cache-control", "etag", "last-modified", "accept-ranges", "content-range"]) {
@@ -76,12 +86,11 @@ function proxyResponseHeaders(upstreamResponse) {
 const STRIPPED_HEADERS = ["x-frame-options", "content-security-policy", "cross-origin-opener-policy", "cross-origin-embedder-policy", "cross-origin-resource-policy", "origin-agent-cluster"];
 
 async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
-  const upstream = new URL(upstreamEntry.url);
-  const target = new URL(pathAndQuery.startsWith("/") ? pathAndQuery : `/${pathAndQuery}`, upstream.origin);
+  const target = pathAndQuery.startsWith("/") ? pathAndQuery : "/" + pathAndQuery;
 
-  const attempt = async (signedUrl) => {
-    const upstreamUrl = new URL(signedUrl);
-    return fetch(new URL(target.pathname + target.search, upstreamUrl.origin), {
+  const attempt = async (entry, pathname) => {
+    const upstreamUrl = new URL(entry.url);
+    return fetch(new URL(pathname + target.search, upstreamUrl.origin), {
       method: req.method === "HEAD" ? "HEAD" : "GET",
       headers: {
         accept: req.headers.accept || "*/*",
@@ -95,13 +104,20 @@ async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
 
   let upstreamResponse;
   try {
-    upstreamResponse = await attempt(upstreamEntry.url);
+    upstreamResponse = await attempt(upstreamEntry, target);
     if (upstreamResponse.status === 401 || upstreamResponse.status === 403) {
       // The signed preview URL expired mid-flight — re-sign once and retry.
       upstreamCache.delete(upstreamEntry.sessionId);
       const fresh = await resolveUpstream(upstreamEntry.sessionId);
       if (!fresh) return res.status(502).json({ error: "The lab preview is no longer running. Reopen the exercise to start a new sandbox." });
-      upstreamResponse = await attempt(fresh.url);
+      upstreamResponse = await attempt(fresh, target);
+    }
+    // SPA fallback: a page navigation the challenge app does not route (a deep
+    // link to an unknown client route) gets the app document instead of a 404,
+    // so client-routed apps can be deep-linked. Assets, API calls, and other
+    // non-page requests keep their real 404.
+    if (upstreamResponse.status === 404 && isPageNavigation(target, req.headers.accept)) {
+      upstreamResponse = await attempt(upstreamEntry, "/");
     }
   } catch (error) {
     if (!res.headersSent) res.status(502).json({ error: `The lab preview is not responding. ${String(error?.cause?.code || error?.message || error).slice(0, 120)}` });
@@ -167,4 +183,4 @@ export function resetPreviewProxyCacheForTests() {
   upstreamCache.clear();
 }
 
-export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost };
+export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost, isPageNavigation };

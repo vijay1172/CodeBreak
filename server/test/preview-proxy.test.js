@@ -25,3 +25,12 @@ test("preview host detection and session extraction", () => {
   assert.equal(__testables.sessionIdFromHost("preview.brokenrepo.tech"), null);
   assert.equal(__testables.sessionIdFromHost(`../etc.preview.brokenrepo.tech`), null);
 });
+
+test("page navigation detection drives the SPA fallback", () => {
+  const { isPageNavigation } = __testables;
+  assert.equal(isPageNavigation("/dashboard", "text/html,application/xhtml+xml"), true);
+  assert.equal(isPageNavigation("/", "*/*"), false);
+  assert.equal(isPageNavigation("/assets/index-abc.js", "text/html"), false);
+  assert.equal(isPageNavigation("/api/orders", "application/json"), false);
+  assert.equal(isPageNavigation("/logo.png", "image/png"), false);
+});
