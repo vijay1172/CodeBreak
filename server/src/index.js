@@ -53,11 +53,12 @@ const app = express();
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
 app.use(helmet());
-app.use(express.json({ limit: "2mb" }));
 // The preview host ({sessionId}.{suffix}) streams student sandboxes through
-// this service so the browser never touches Daytona's proxy domain; it must
-// win over every API route below.
+// this service so the browser never touches Daytona's proxy domain. It must
+// mount before express.json: the proxy buffers write bodies itself, and a
+// body parser that consumes the stream first would hang every write.
 if (previewProxyConfigured()) app.use(previewProxyHandler);
+app.use(express.json({ limit: "2mb" }));
 app.use(
   cors({
     origin(origin, callback) {
