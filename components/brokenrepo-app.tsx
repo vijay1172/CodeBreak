@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, FileCode2, ListChecks, Monitor, Play, RotateCcw, Save, ScrollText, XCircle } from "lucide-react";
+import { Activity, CheckCircle2, Circle, ListChecks, Monitor, Play, RotateCcw, Save, ScrollText, SquareTerminal, XCircle } from "lucide-react";
 import {
   createSession,
   deleteSession,
@@ -19,6 +19,8 @@ import {
   type StopwatchState,
   type TestRunResult,
 } from "@/lib/brokenrepo-api";
+import { countConsoleLevel, ingestConsoleBatch, type BrowserConsoleEntry } from "@/lib/browser-console-logic";
+import { BrowserConsolePanel } from "./browser-console-panel";
 import { FileTree } from "./file-tree";
 import { LivePreviewPane } from "./live-preview-pane";
 import { RuntimeConsolePanel } from "./runtime-console-panel";
@@ -30,7 +32,7 @@ const CodeEditor = dynamic(() => import("./code-editor").then((module) => module
   loading: () => <p className="editor-loading">Loading code editor…</p>,
 });
 
-type RightTab = "preview" | "logs" | "tests";
+type RightTab = "preview" | "console" | "logs" | "network" | "tests";
 const rightTabStorageKey = "brokenrepo-active-runtime-tab";
 
 function formatClock(elapsedMs: number) {
@@ -78,6 +80,13 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
   const [resetEpoch, setResetEpoch] = useState(0);
   const [previewVersion, setPreviewVersion] = useState(0);
   const [stopwatch, setStopwatch] = useState<(StopwatchState & { at: number }) | null>(null);
+  const [browserEntries, setBrowserEntries] = useState<BrowserConsoleEntry[]>([]);
+  const [browserTruncated, setBrowserTruncated] = useState(false);
+  const consoleErrors = countConsoleLevel(browserEntries, "error");
+  const browserEntriesRef = useRef<BrowserConsoleEntry[]>([]);
+  useEffect(() => { browserEntriesRef.current = browserEntries; }, [browserEntries]);
+  // Session isolation: a fresh sandbox session starts with an empty console.
+  useEffect(() => { setBrowserEntries([]); setBrowserTruncated(false); }, [sessionId]);
   const filesRef = useRef(files);
 
   useEffect(() => { filesRef.current = files; }, [files]);
@@ -154,8 +163,9 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
       setSessionId(id);
       setChallenge(created.challenge);
       const savedTab = window.localStorage.getItem(rightTabStorageKey) as RightTab | null;
+      const savedTabAllowed = savedTab && ["console", "logs", "network", "tests"].includes(savedTab);
       const defaultTab: RightTab = created.challenge.runtimeKind === "frontend" && created.challenge.previewEnabled ? "preview" : "logs";
-      setActiveRightTab(savedTab && (savedTab !== "preview" || created.challenge.previewEnabled) ? savedTab : defaultTab);
+      setActiveRightTab(savedTab && (savedTab === "preview" ? created.challenge.previewEnabled : savedTabAllowed || savedTab === "preview") ? savedTab : defaultTab);
       setStopwatch(created.stopwatch ? { ...created.stopwatch, at: Date.now() } : null);
       const next = Object.fromEntries(created.challenge.files.map((file) => [file.path, file.content]));
       setFiles(next);
@@ -279,7 +289,9 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
   const hints = challenge ? Object.values(challenge.hints) : [];
   const rightTabs: { id: RightTab; label: string; icon: typeof Monitor }[] = [
     ...(challenge?.previewEnabled ? [{ id: "preview" as const, label: "Preview", icon: Monitor }] : []),
-    { id: "logs", label: "Logs", icon: ScrollText },
+    { id: "console", label: "Console", icon: SquareTerminal },
+    { id: "logs", label: "Runtime Logs", icon: ScrollText },
+    { id: "network", label: "Network", icon: Activity },
     { id: "tests", label: "Tests", icon: ListChecks },
   ];
 
@@ -290,7 +302,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
     <div className="lab-actions"><button className={"button secondary small" + (resetArmed ? " reset-armed" : "")} disabled={!challenge || status === "running" || saving} title={resetArmed ? "Click again to replace your edits" : ""} onClick={() => resetArmed ? confirmReset() : setResetArmed(true)}><RotateCcw size={15}/>{resetArmed ? "Confirm reset" : "Reset code"}</button><div className="stopwatch" role="timer" aria-label="Solve stopwatch"><span className="stopwatch-time">{formatClock(stopwatch ? stopwatch.elapsedMs + (stopwatch.running ? Date.now() - stopwatch.at : 0) : 0)}</span>{stopwatch?.running ? <button className="stopwatch-button" onClick={() => stopwatchAction("pause")}>Pause</button> : <button className="stopwatch-button" onClick={() => stopwatchAction("start")}>Start</button>}<button className="stopwatch-button" onClick={() => stopwatchAction("reset")}>Reset</button></div><button className="button secondary small" disabled={!sessionId || saving || status !== "ready"} onClick={save}><Save size={15}/>{saving ? challenge?.previewEnabled ? "Saving & rebuilding…" : "Saving…" : "Save code"}</button><button className="button small" disabled={status !== "ready" || saving} onClick={run}><Play size={15}/>{status === "running" ? "Running…" : "Run tests"}</button></div>
   </section>;
 
-  const rightPanel = <section className="right-panel" aria-label="Runtime tools"><div className="right-panel-tabs" role="tablist" aria-label="Preview, runtime logs, and tests">{rightTabs.map(({ id, label, icon: Icon }, index) => <button key={id} id={`right-${id}-tab`} role="tab" aria-selected={activeRightTab === id} aria-controls={`right-${id}-panel`} tabIndex={activeRightTab === id ? 0 : -1} onClick={() => chooseRightTab(id)} onKeyDown={(event) => { if (!event.key.startsWith("Arrow")) return; event.preventDefault(); const offset = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1; const next = rightTabs[(index + offset + rightTabs.length) % rightTabs.length].id; chooseRightTab(next); document.getElementById(`right-${next}-tab`)?.focus(); }}><Icon size={14}/>{label}{id === "tests" && result && <span className={`tab-result-dot ${result.allPassed ? "passed" : "failed"}`}><span className="sr-only">{result.allPassed ? "passed" : "failed"}</span></span>}</button>)}</div><div className="right-panel-content">{challenge?.previewEnabled && <div id="right-preview-panel" role="tabpanel" aria-labelledby="right-preview-tab" hidden={activeRightTab !== "preview"}><LivePreviewPane sessionId={sessionId} challengeId={challengeId} status={status} refreshVersion={previewVersion}/></div>}<div id="right-logs-panel" role="tabpanel" aria-labelledby="right-logs-tab" hidden={activeRightTab !== "logs"}><RuntimeConsolePanel sessionId={sessionId} status={status}/></div><div id="right-tests-panel" role="tabpanel" aria-labelledby="right-tests-tab" hidden={activeRightTab !== "tests"}><TestsPanel status={status} result={result} challenge={challenge}/></div></div></section>;
+  const rightPanel = <section className="right-panel" aria-label="Runtime tools"><div className="right-panel-tabs" role="tablist" aria-label="Preview, runtime logs, and tests">{rightTabs.map(({ id, label, icon: Icon }, index) => <button key={id} id={`right-${id}-tab`} role="tab" aria-selected={activeRightTab === id} aria-controls={`right-${id}-panel`} tabIndex={activeRightTab === id ? 0 : -1} onClick={() => chooseRightTab(id)} onKeyDown={(event) => { if (!event.key.startsWith("Arrow")) return; event.preventDefault(); const offset = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1; const next = rightTabs[(index + offset + rightTabs.length) % rightTabs.length].id; chooseRightTab(next); document.getElementById(`right-${next}-tab`)?.focus(); }}><Icon size={14}/>{label}{id === "console" && consoleErrors > 0 && <span className="tab-error-badge">{consoleErrors > 99 ? "99+" : consoleErrors}</span>}{id === "tests" && result && <span className={`tab-result-dot ${result.allPassed ? "passed" : "failed"}`}><span className="sr-only">{result.allPassed ? "passed" : "failed"}</span></span>}</button>)}</div><div className="right-panel-content">{challenge?.previewEnabled && <div id="right-preview-panel" role="tabpanel" aria-labelledby="right-preview-tab" hidden={activeRightTab !== "preview"}><LivePreviewPane sessionId={sessionId} challengeId={challengeId} status={status} refreshVersion={previewVersion} onConsoleBatch={(batch) => { const result = ingestConsoleBatch(browserEntriesRef.current, batch, sessionId); setBrowserEntries(result.entries); setBrowserTruncated(result.truncated); }}/></div>}<div id="right-console-panel" role="tabpanel" aria-labelledby="right-console-tab" hidden={activeRightTab !== "console"}><BrowserConsolePanel entries={browserEntries} truncated={browserTruncated} onClear={() => { setBrowserEntries([]); setBrowserTruncated(false); }}/></div><div id="right-runtime-logs-panel" role="tabpanel" aria-labelledby="right-logs-tab" hidden={activeRightTab !== "logs"}><RuntimeConsolePanel sessionId={sessionId} status={status} view="logs"/></div><div id="right-network-panel" role="tabpanel" aria-labelledby="right-network-tab" hidden={activeRightTab !== "network"}><RuntimeConsolePanel sessionId={sessionId} status={status} view="network"/></div><div id="right-tests-panel" role="tabpanel" aria-labelledby="right-tests-tab" hidden={activeRightTab !== "tests"}><TestsPanel status={status} result={result} challenge={challenge}/></div></div></section>;
 
   return <><SiteHeader/><main id="main-content" tabIndex={-1} className="lab"><div className="lab-heading"><div><Link className="underlined" href="/challenges">All challenges</Link><h1>{challenge?.title || "Opening your challenge…"}</h1></div><span className={`lab-status ${status}`} role="status">{status === "ready" ? "Sandbox ready" : status === "provisioning" ? "Preparing sandbox…" : status === "running" ? "Running your code…" : "Session unavailable"}</span></div>{error && <div className="error-message" role="alert"><p>{error}</p><div className="hero-actions"><Link className="underlined" href="/login">Log in</Link><button className="button small" onClick={() => { setError(""); setStatus("provisioning"); setProvisionElapsed(0); setResult(null); setRetry((value) => value + 1); }}>Restart session</button></div></div>}
     <section className="challenge-context" aria-label="Challenge brief"><div className="challenge-context-copy"><span className="level">{challenge?.difficulty}</span><div><h2>The bug report</h2><p>{challenge?.problemStatement || "Loading the brief…"}</p></div></div><details><summary>Criteria, hints, and report</summary><div className="challenge-context-details"><div><h3>Success criteria</h3><ul className="criteria">{challenge?.criteria.map((criterion) => { const test = result?.tests.find((item) => item.id === criterion.id); return <li key={criterion.id}>{test?.status === "passed" ? <CheckCircle2 className="success-text"/> : <Circle/>}<span>{criterion.title}</span></li>; })}</ul></div><div><h3>Need a clue?</h3><p>Three hints, one at a time.</p>{hints.slice(0, hintCount).map((hint, index) => <p className="hint" key={hint}><strong>Hint {index + 1}</strong><br/>{hint}</p>)}<button className="button secondary small" disabled={!challenge || hintCount >= 3} onClick={() => setHintCount((value) => value + 1)}>{hintCount >= 3 ? "All hints revealed" : `Reveal hint ${hintCount + 1}`}</button><button className="report-button" disabled={reported || reporting || !sessionId} onClick={report}>{reported ? "Report received" : reporting ? "Sending…" : "Report a challenge problem"}</button></div></div></details></section>

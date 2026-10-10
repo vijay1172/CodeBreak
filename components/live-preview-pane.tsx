@@ -21,11 +21,12 @@ function isPreviewOrigin(origin: string) {
   }
 }
 
-export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion }: {
+export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion, onConsoleBatch }: {
   sessionId: string;
   challengeId: string;
   status: SessionStatus;
   refreshVersion: number;
+  onConsoleBatch?: (batch: unknown) => void;
 }) {
   const [manualRefresh, setManualRefresh] = useState(0);
   const [preview, setPreview] = useState({ requestKey: "", url: "", error: "" });
@@ -68,13 +69,21 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
   }, [pathStorageKey, activePath]);
 
   // The proxied document carries a small companion script that reports every
-  // route change (loads, pushes, hash changes) back to this pane.
+  // route change (loads, pushes, hash changes) and every batch of captured
+  // console output back to this pane. Only messages from *.preview.brokenrepo.tech
+  // origins are trusted; batch contents are re-validated by the ingest layer.
+  const onConsoleBatchRef = useRef(onConsoleBatch);
+  useEffect(() => { onConsoleBatchRef.current = onConsoleBatch; }, [onConsoleBatch]);
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       let host = "";
       try { host = new URL(event.origin).hostname; } catch { return; }
       if (!host.endsWith(PREVIEW_HOST_SUFFIX)) return;
       const data = event.data as { type?: string; path?: string } | null;
+      if (data?.type === "brokenrepo:console") {
+        onConsoleBatchRef.current?.(data);
+        return;
+      }
       if (data?.type === "brokenrepo:location" && typeof data.path === "string") {
         setActivePath(normalizePath(data.path));
         setPathDraft(normalizePath(data.path));

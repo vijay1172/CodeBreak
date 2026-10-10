@@ -16,10 +16,9 @@ function prettyBody(body: string) {
   }
 }
 
-export function RuntimeConsolePanel({ sessionId, status }: { sessionId: string; status: SessionStatus }) {
+export function RuntimeConsolePanel({ sessionId, status, view }: { sessionId: string; status: SessionStatus; view: "logs" | "network" }) {
   const [logs, setLogs] = useState<RuntimeLog[]>([]);
   const [requests, setRequests] = useState<NetworkEvent[]>([]);
-  const [view, setView] = useState<"console" | "network">("console");
   const [connection, setConnection] = useState<"waiting" | "connected" | "reconnecting" | "stopped">("waiting");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const consoleRef = useRef<HTMLDivElement>(null);
@@ -52,7 +51,7 @@ export function RuntimeConsolePanel({ sessionId, status }: { sessionId: string; 
   }, [canConnect, sessionId]);
 
   useEffect(() => {
-    const container = view === "console" ? consoleRef.current : networkRef.current;
+    const container = view === "logs" ? consoleRef.current : networkRef.current;
     if (container) container.scrollTop = container.scrollHeight;
   }, [logs, requests, view]);
 
@@ -62,9 +61,11 @@ export function RuntimeConsolePanel({ sessionId, status }: { sessionId: string; 
     if (next.has(key)) next.delete(key); else next.add(key);
     return next;
   });
+
   return <div className="runtime-console">
-    <div className="runtime-toolbar"><div className="runtime-subtabs" role="tablist" aria-label="Runtime inspector view"><button role="tab" aria-selected={view === "console"} onClick={() => setView("console")}>Console <span>{logs.length}</span></button><button role="tab" aria-selected={view === "network"} onClick={() => setView("network")}>Network <span>{requests.length}</span></button></div><div className="runtime-tools"><span className={`stream-state ${connection}`}>{connection === "stopped" ? <CircleStop size={12}/> : <Radio size={12}/>} {connection}</span><button onClick={clear} aria-label={`Clear ${view}`}><Trash2 size={14}/></button></div></div>
-    {view === "console" ? <div ref={consoleRef} className="console-stream" role="log" aria-live="polite" aria-label="Server and terminal output">{logs.length ? logs.map((log, index) => <div className={`console-line ${log.channel}`} key={`${log.timestamp}-${index}`}><time>{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</time><span className="console-channel">{log.channel}</span><pre>{log.message}</pre></div>) : <div className="runtime-empty"><strong>{status === "provisioning" ? "Starting server…" : "Waiting for output"}</strong><p>Server stdout, stderr, and error stacks will appear here.</p></div>}</div> : <div ref={networkRef} className="network-stream" role="log" aria-live="polite" aria-label="HTTP requests and responses">{requests.length ? <table><thead><tr><th>Method</th><th>Endpoint</th><th>Status</th><th>Time</th></tr></thead><tbody>{requests.map((request, index) => {
+    <div className="runtime-toolbar"><div className="runtime-tools"><span className={`stream-state ${connection}`}>{connection === "stopped" ? <CircleStop size={12}/> : <Radio size={12}/>} {connection}</span><button onClick={clear} aria-label={`Clear ${view === "network" ? "network requests" : "runtime logs"}`}><Trash2 size={14}/></button></div></div>
+    <div id="runtime-logs-stream" hidden={view !== "logs"} ref={consoleRef} className="console-stream" role="log" aria-live="polite" aria-label="Server and terminal output">{logs.length ? logs.map((log, index) => <div className={`console-line ${log.channel}`} key={`${log.timestamp}-${index}`}><time>{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</time><span className="console-channel">{log.channel}</span><pre>{log.message}</pre></div>) : <div className="runtime-empty"><strong>{status === "provisioning" ? "Starting server…" : "Waiting for output"}</strong><p>Server stdout, stderr, and error stacks will appear here.</p></div>}</div>
+    <div id="runtime-network-stream" hidden={view !== "network"} ref={networkRef} className="network-stream" role="log" aria-live="polite" aria-label="HTTP requests and responses">{requests.length ? <table><thead><tr><th>Method</th><th>Endpoint</th><th>Status</th><th>Time</th></tr></thead><tbody>{requests.map((request, index) => {
       const key = `${request.timestamp}-${index}`;
       const hasPayload = Boolean(request.requestBody || request.responseBody);
       const open = expanded.has(key);
@@ -82,6 +83,6 @@ export function RuntimeConsolePanel({ sessionId, status }: { sessionId: string; 
           {request.responseBody && <div className="payload-block"><span className="payload-label">Response body</span><pre>{prettyBody(request.responseBody)}</pre></div>}
         </td></tr>] : []),
       ];
-    })}</tbody></table> : <div className="runtime-empty"><strong>No requests yet</strong><p>Open the preview or call an API route to inspect method, endpoint, payloads, response status, and duration.</p></div>}</div>}
+    })}</tbody></table> : <div className="runtime-empty"><strong>No requests yet</strong><p>Open the preview or call an API route to inspect method, endpoint, payloads, response status, and duration.</p></div>}</div>
   </div>;
 }

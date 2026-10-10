@@ -7,27 +7,95 @@ const SKIP_WARNING_HEADERS = { "x-daytona-skip-preview-warning": "true" };
 const REQUEST_TIMEOUT_MS = 60_000;
 const MAX_HTML_BUFFER = 1_000_000;
 
-// Injected into every proxied HTML page. It reports route changes to the lab
-// pane (postMessage) and executes back/forward/navigate commands from it —
-// the iframe is cross-origin, so this cooperation is the only way for the
-// pane to mirror and steer client-side navigation.
+// Injected into every proxied HTML page. It (a) reports route changes to the
+// lab pane, (b) captures the page's console output and runtime errors and
+// batches them back to the pane, and (c) executes back/forward/navigate
+// commands from it — the iframe is cross-origin, so this cooperation is the
+// only way for the pane to mirror and steer client-side navigation.
 const previewCompanionSource = `
 (function () {
-  var send = function () {
-    try { parent.postMessage({ type: "brokenrepo:location", path: location.pathname + location.search }, "*"); } catch (e) {}
+  var SESSION = ${JSON.stringify("__SESSION_ID__")};
+  var MAX_QUEUE = 200;
+  var queue = [];
+  var truncated = false;
+  var sendLocation = function () {
+    try { parent.postMessage({ type: "brokenrepo:location", path: location.pathname + location.search, session: SESSION }, "*"); } catch (e) {}
   };
+  function formatValue(value) {
+    if (typeof value === "string") return value;
+    if (value instanceof Error) return value.name + ": " + value.message;
+    if (value === null) return "null";
+    if (value === undefined) return "undefined";
+    if (typeof value === "object") { try { return JSON.stringify(value); } catch (e) { return String(value); } }
+    return String(value);
+  }
+  function slimValue(value, depth) {
+    if (value === null || value === undefined) return value;
+    if (typeof value === "bigint") return String(value);
+    if (value instanceof Error) return { name: value.name, message: value.message, stack: String(value.stack || "") };
+    if (typeof value !== "object") return value;
+    if (depth > 2) return "[depth limit]";
+    var out = {};
+    var keys = Object.keys(value).slice(0, 50);
+    for (var i = 0; i < keys.length; i++) out[keys[i]] = slimValue(value[keys[i]], depth + 1);
+    return out;
+  }
+  function capture(level, args) {
+    if (queue.length >= MAX_QUEUE) {
+      if (!truncated) { truncated = true; queue.push({ level: "warn", text: "Console output truncated — too many messages were generated.", timestamp: Date.now() }); }
+      return;
+    }
+    var entry = { level: level, text: args.map(formatValue).join(" "), timestamp: Date.now(), route: location.pathname };
+    var objects = [];
+    for (var i = 0; i < args.length; i++) {
+      if (args[i] !== null && typeof args[i] === "object") objects.push(slimValue(args[i], 0));
+    }
+    if (objects.length) entry.data = objects.length === 1 ? objects[0] : objects;
+    for (var j = 0; j < args.length; j++) {
+      if (args[j] instanceof Error) { entry.stack = String(args[j].stack || ""); break; }
+    }
+    queue.push(entry);
+  }
+  ["log", "info", "warn", "error", "debug"].forEach(function (level) {
+    var original = console[level];
+    if (typeof original !== "function") return;
+    console[level] = function () {
+      var args = Array.prototype.slice.call(arguments);
+      try { capture(level, args); } catch (e) {}
+      return original.apply(console, args);
+    };
+  });
+  window.addEventListener("error", function (event) {
+    try { capture("error", [event.message || "Script error"]); var entry = queue[queue.length - 1]; if (entry && event.error && event.error.stack) entry.stack = String(event.error.stack); } catch (e) {}
+  });
+  window.addEventListener("unhandledrejection", function (event) {
+    try {
+      var reason = event.reason;
+      capture("error", ["Unhandled rejection: " + (reason && reason.message ? reason.message : String(reason))]);
+      var entry = queue[queue.length - 1];
+      if (entry && reason && reason.stack) entry.stack = String(reason.stack);
+    } catch (e) {}
+  });
+  var flush = function () {
+    if (!queue.length) return;
+    var payload = { type: "brokenrepo:console", session: SESSION, entries: queue, truncated: truncated };
+    queue = [];
+    truncated = false;
+    try { parent.postMessage(payload, "*"); } catch (e) {}
+  };
+  setInterval(flush, 200);
   var push = history.pushState;
   var replace = history.replaceState;
-  history.pushState = function () { var r = push.apply(history, arguments); send(); return r; };
-  history.replaceState = function () { var r = replace.apply(history, arguments); send(); return r; };
-  window.addEventListener("popstate", send);
-  window.addEventListener("hashchange", send);
+  history.pushState = function () { var r = push.apply(history, arguments); sendLocation(); return r; };
+  history.replaceState = function () { var r = replace.apply(history, arguments); sendLocation(); return r; };
+  window.addEventListener("popstate", sendLocation);
+  window.addEventListener("hashchange", sendLocation);
   window.addEventListener("message", function (event) {
     var data = event.data || {};
     if (data.type === "brokenrepo:navigate" && typeof data.path === "string") { location.assign(data.path); }
     else if (data.type === "brokenrepo:history" && typeof data.delta === "number") { history.go(data.delta); }
   });
-  send();
+  sendLocation();
 })();
 `;
 const UPSTREAM_GRACE_MS = 120_000;
@@ -163,7 +231,7 @@ async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
     const raw = Buffer.from(await upstreamResponse.arrayBuffer());
     if (raw.length <= MAX_HTML_BUFFER) {
       let bodyText = raw.toString("utf8");
-      const injection = "<script>" + previewCompanionSource + "</script>";
+      const injection = "<script>" + previewCompanionSource.replaceAll("__SESSION_ID__", upstreamEntry.sessionId) + "</script>";
       const closeAt = bodyText.toLowerCase().lastIndexOf("</body>");
       if (closeAt >= 0) bodyText = bodyText.slice(0, closeAt) + injection + bodyText.slice(closeAt);
       else bodyText += injection;
