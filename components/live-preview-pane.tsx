@@ -116,8 +116,15 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
     setMountedSrc(proxyOrigin ? proxyOrigin + activePathRef.current : previewUrl);
   }, [previewUrl, proxyOrigin]);
 
+  // Enter reaches this twice (input keydown + implicit form submit in some
+  // browsers, only one of them in others), so a repeat of the same target
+  // within a beat is dropped instead of reloading the iframe twice.
+  const lastNavRef = useRef({ path: "", at: 0 });
   function navigateTo(next: string) {
     const target = normalizePath(next);
+    const now = Date.now();
+    if (lastNavRef.current.path === target && now - lastNavRef.current.at < 600) return;
+    lastNavRef.current = { path: target, at: now };
     setActivePath(target);
     setPathDraft(target);
     try { window.sessionStorage.setItem(pathStorageKey, target); } catch {}
@@ -140,7 +147,10 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
         <input value={pathDraft} aria-label="Preview route" spellCheck={false} autoCapitalize="off" autoComplete="off"
           disabled={!proxyOrigin}
           onChange={(event) => setPathDraft(event.target.value)}
-          onKeyDown={(event) => { if (event.key === "Escape") setPathDraft(activePath); }}/>
+          onKeyDown={(event) => {
+            if (event.key === "Enter") { event.preventDefault(); navigateTo(pathDraft); }
+            else if (event.key === "Escape") setPathDraft(activePath);
+          }}/>
         <button type="submit" className="sr-only" tabIndex={-1}>Go</button>
       </form>
       <button className="preview-tool-button" aria-label="Refresh preview" title="Refresh preview" disabled={!canLoad || loading} onClick={refresh}><RefreshCw size={13} className={loading ? "is-spinning" : ""}/></button>
