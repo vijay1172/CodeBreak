@@ -5,6 +5,31 @@ import { getSessionRecord } from "./session-store.js";
 
 const SKIP_WARNING_HEADERS = { "x-daytona-skip-preview-warning": "true" };
 const REQUEST_TIMEOUT_MS = 60_000;
+const MAX_HTML_BUFFER = 1_000_000;
+
+// Injected into every proxied HTML page. It reports route changes to the lab
+// pane (postMessage) and executes back/forward/navigate commands from it —
+// the iframe is cross-origin, so this cooperation is the only way for the
+// pane to mirror and steer client-side navigation.
+const previewCompanionSource = `
+(function () {
+  var send = function () {
+    try { parent.postMessage({ type: "brokenrepo:location", path: location.pathname + location.search }, "*"); } catch (e) {}
+  };
+  var push = history.pushState;
+  var replace = history.replaceState;
+  history.pushState = function () { var r = push.apply(history, arguments); send(); return r; };
+  history.replaceState = function () { var r = replace.apply(history, arguments); send(); return r; };
+  window.addEventListener("popstate", send);
+  window.addEventListener("hashchange", send);
+  window.addEventListener("message", function (event) {
+    var data = event.data || {};
+    if (data.type === "brokenrepo:navigate" && typeof data.path === "string") { location.assign(data.path); }
+    else if (data.type === "brokenrepo:history" && typeof data.delta === "number") { history.go(data.delta); }
+  });
+  send();
+})();
+`;
 const UPSTREAM_GRACE_MS = 120_000;
 
 // Session id -> signed upstream URL cache. Signing hits the Daytona API, and
@@ -127,8 +152,26 @@ async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
     return;
   }
 
-  res.status(upstreamResponse.status).set(proxyResponseHeaders(upstreamResponse));
+  const headers = proxyResponseHeaders(upstreamResponse);
   for (const name of STRIPPED_HEADERS) res.removeHeader(name);
+
+  const contentType = upstreamResponse.headers.get("content-type") || "";
+  if (/text\/html/i.test(contentType) && req.method === "GET") {
+    const raw = Buffer.from(await upstreamResponse.arrayBuffer());
+    if (raw.length <= MAX_HTML_BUFFER) {
+      let bodyText = raw.toString("utf8");
+      const injection = "<script>" + previewCompanionSource + "</script>";
+      const closeAt = bodyText.toLowerCase().lastIndexOf("</body>");
+      if (closeAt >= 0) bodyText = bodyText.slice(0, closeAt) + injection + bodyText.slice(closeAt);
+      else bodyText += injection;
+      delete headers["content-length"];
+      delete headers.etag;
+      res.status(upstreamResponse.status).set(headers);
+      return res.send(bodyText);
+    }
+  }
+
+  res.status(upstreamResponse.status).set(headers);
   if (!upstreamResponse.body) return res.end();
   const reader = upstreamResponse.body.getReader();
   req.on("close", () => reader.cancel().catch(() => {}));
