@@ -42,6 +42,8 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
   const loading = status === "provisioning" || (canLoad && (!currentPreview || Boolean(frameKey && loadedFrameKey !== frameKey)));
   const error = currentPreview?.error || "";
   const previewUrl = currentPreview?.url || "";
+  const offline = status === "provisioning" || Boolean(error);
+  const statusLabel = status === "provisioning" ? "Starting server…" : error ? "Dev server offline" : "Live app";
 
   // The proxied preview lives on its own origin ({session}.preview.brokenrepo.tech),
   // so students can move across the challenge app's routes like in a real browser.
@@ -120,20 +122,19 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
   const frameSrc = mountedSrc;
 
   return <div className="live-preview">
-    <div className="runtime-toolbar">
-      <div><span className={`runtime-dot ${canLoad ? "online" : ""}`}/><span>{status === "provisioning" ? "Starting server…" : error ? "Dev server offline" : "Live app"}</span></div>
-      <button onClick={refresh} disabled={!canLoad || loading}><RefreshCw size={14} className={loading ? "is-spinning" : ""}/>Refresh preview</button>
-    </div>
-    {proxyOrigin ? <div className="preview-nav">
-      <button className="preview-nav-button" aria-label="Back" title="Back" onClick={() => historyStep(-1)}><ArrowLeft size={14}/></button>
-      <button className="preview-nav-button" aria-label="Forward" title="Forward" onClick={() => historyStep(1)}><ArrowRight size={14}/></button>
+    <div className="preview-toolbar">
+      <span className={`runtime-dot ${canLoad && !offline ? "online" : ""}`} title={statusLabel}/>
+      <button className="preview-tool-button" aria-label="Back" title="Back" disabled={!proxyOrigin} onClick={() => historyStep(-1)}><ArrowLeft size={14}/></button>
+      <button className="preview-tool-button" aria-label="Forward" title="Forward" disabled={!proxyOrigin} onClick={() => historyStep(1)}><ArrowRight size={14}/></button>
       <form className="preview-url" onSubmit={(event) => { event.preventDefault(); navigateTo(pathDraft); }}>
-        <Globe size={12} aria-hidden="true"/>
-        <input value={pathDraft} aria-label="Preview route" spellCheck={false} autoCapitalize="off"
+        <Globe size={11} aria-hidden="true"/>
+        <input value={pathDraft} aria-label="Preview route" spellCheck={false} autoCapitalize="off" autoComplete="off"
+          disabled={!proxyOrigin}
           onChange={(event) => setPathDraft(event.target.value)}
           onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); navigateTo(pathDraft); } if (event.key === "Escape") setPathDraft(activePath); }}/>
       </form>
-    </div> : null}
+      <button className="preview-tool-button" aria-label="Refresh preview" title="Refresh preview" disabled={!canLoad || loading} onClick={refresh}><RefreshCw size={13} className={loading ? "is-spinning" : ""}/></button>
+    </div>
     <div className="preview-frame-shell">
       {(status === "provisioning" || loading) && <div className="runtime-empty" role="status"><span className="loading-spinner"/><strong>Starting server…</strong><p>The preview will appear when the dev server is listening.</p></div>}
       {!loading && error && <div className="runtime-empty" role="alert"><MonitorX size={26}/><strong>Dev server offline</strong><p>{error}</p><button className="button secondary small" onClick={refresh}>Try again</button></div>}
