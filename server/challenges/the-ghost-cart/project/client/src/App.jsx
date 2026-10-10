@@ -4,7 +4,7 @@ import { PremiumBanner } from './components/PremiumBanner.jsx';
 import { login, upgradeAccount } from './api/authApi.js';
 function decodeClaims(token) {
   try {
-    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    let payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     while (payload.length % 4) payload += '=';
     return JSON.parse(atob(payload));
   } catch { return {}; }
