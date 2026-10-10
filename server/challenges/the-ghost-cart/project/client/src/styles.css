@@ -1,12 +1,24 @@
 body { margin: 0; color: #1c3046; background: #f3f5f8; font: 16px/1.6 system-ui, sans-serif; }
 main, header { max-width: 960px; margin: auto; padding: 24px; }
-header { border-bottom: 1px solid #cbd4e0; display: flex; justify-content: space-between; }
-section { background: white; padding: 24px; margin: 20px 0; }
+header { border-bottom: 1px solid #cbd4e0; display: flex; justify-content: space-between; align-items: center; }
+section { background: white; padding: 24px; margin: 20px 0; border: 1px solid #dbe2ec; border-radius: 12px; }
 label { display: block; margin: 12px 0; }
-input, select, button { font: inherit; padding: 8px 12px; max-width: 100%; }
-button { cursor: pointer; background: #2459bd; color: white; border: 0; border-radius: 4px; }
-button:disabled { opacity: .5; cursor: wait; }
+input, select { font: inherit; padding: 10px 12px; max-width: 100%; border: 1px solid #a9b8cb; border-radius: 8px; background: #fff; }
+button { cursor: pointer; padding: 10px 20px; border: 1px solid transparent; border-radius: 8px; background: #2459bd; color: white; font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1.2; }
+button:hover:not(:disabled) { background: #194897; }
+button.secondary { background: #fff; color: #2459bd; border-color: #2459bd; }
+button.secondary:hover:not(:disabled) { background: #eef3fb; }
+button:disabled { opacity: .55; cursor: wait; }
+button + button { margin-left: 10px; }
 table { width: 100%; border-collapse: collapse; }
 td, th { text-align: left; padding: 10px; border-bottom: 1px solid #cbd4e0; }
 [role=alert] { color: #993a28; }
 nav { display: flex; gap: 12px; }
+
+
+.plan-card { max-width: 460px; }
+.plan-card label input { width: 100%; }
+.account-line { color: #53657a; font-size: 14px; }
+.actions { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+.plan-note { color: #1c3046; background: #eef3fb; border: 1px solid #cbd4e0; border-radius: 8px; padding: 10px 14px; font-size: 14px; }
+.perks ul { margin: 8px 0 0; padding-left: 20px; }

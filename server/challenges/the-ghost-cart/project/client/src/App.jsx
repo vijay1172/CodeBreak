@@ -21,33 +21,40 @@ export function App() {
       const claims = decodeClaims(result.token);
       setSession({ email: claims.email || email, plan: claims.plan || 'free' });
       setNotice('');
-    } catch { setNotice('No account for that email.'); }
+    } catch { setNotice("We couldn't sign you in with that email."); }
     setBusy(false);
   }
   async function upgrade() {
     setBusy(true);
     try {
-      const result = await upgradeAccount(email);
-      setNotice('The account is now ' + result.plan + ' in the database. Log in again to refresh your access.');
-    } catch { setNotice('The upgrade could not be completed.'); }
+      await upgradeAccount(email);
+      setNotice('Upgrade complete. Sign in again to refresh your plan.');
+    } catch { setNotice('The upgrade could not be completed. Please try again.'); }
     setBusy(false);
   }
   const plan = session?.plan || 'guest';
   return <>
     <AppHeader name='Membership' description='Plans and premium access' />
     <main>
-      <h1>Membership</h1>
-      {!session ? <section>
-        <label>Email<input value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-        <button disabled={busy} onClick={signIn}>Log in</button>
-      </section> : <section>
+      <section className='plan-card'>
+        <h1>Membership</h1>
         <PremiumBanner isPremium={plan === 'premium'} />
-        <p>Signed in as {session.email} · current plan: <strong>{plan}</strong></p>
-        <button disabled={busy} onClick={upgrade}>Upgrade to premium</button>
-        <button disabled={busy} onClick={signIn}>Log in again</button>
-        {plan === 'premium' && <ul><li>Priority support</li><li>Advanced analytics</li></ul>}
+        {!session ? <>
+          <label>Email<input value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+          <button disabled={busy} onClick={signIn}>Log in</button>
+        </> : <>
+          <p className='account-line'>Signed in as <strong>{session.email}</strong></p>
+          <div className='actions'>
+            {plan !== 'premium' && <button disabled={busy} onClick={upgrade}>Upgrade to premium</button>}
+            <button className='secondary' disabled={busy} onClick={signIn}>Log in again</button>
+          </div>
+        </>}
+        {notice && <p role='status' className='plan-note'>{notice}</p>}
+      </section>
+      {plan === 'premium' && <section className='perks'>
+        <h2>Your premium perks</h2>
+        <ul><li>Priority support</li><li>Advanced analytics</li></ul>
       </section>}
-      {notice && <p role='status'>{notice}</p>}
     </main>
   </>;
 }

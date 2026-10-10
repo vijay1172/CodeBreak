@@ -16,7 +16,7 @@ export function ProductsPage() {
   const activeShop = shops.find((shop) => shop.shopId === shopId);
   return <section>
     <h1>Products</h1>
-    <div role='tablist' aria-label='Shops'>
+    <div role='tablist' aria-label='Shops' className='shop-switch'>
       {shops.map((shop) => (
         <button key={shop.shopId} aria-pressed={shop.shopId === shopId} onClick={() => setShopId(shop.shopId)}>{shop.name}</button>
       ))}
