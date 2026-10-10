@@ -140,7 +140,8 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
         <input value={pathDraft} aria-label="Preview route" spellCheck={false} autoCapitalize="off" autoComplete="off"
           disabled={!proxyOrigin}
           onChange={(event) => setPathDraft(event.target.value)}
-          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); navigateTo(pathDraft); } if (event.key === "Escape") setPathDraft(activePath); }}/>
+          onKeyDown={(event) => { if (event.key === "Escape") setPathDraft(activePath); }}/>
+        <button type="submit" className="sr-only" tabIndex={-1}>Go</button>
       </form>
       <button className="preview-tool-button" aria-label="Refresh preview" title="Refresh preview" disabled={!canLoad || loading} onClick={refresh}><RefreshCw size={13} className={loading ? "is-spinning" : ""}/></button>
     </div>

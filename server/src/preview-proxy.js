@@ -178,16 +178,20 @@ function proxyResponseHeaders(upstreamResponse) {
 // streamed document is a different origin's app and must be frameable there.
 const STRIPPED_HEADERS = ["x-frame-options", "content-security-policy", "cross-origin-opener-policy", "cross-origin-embedder-policy", "cross-origin-resource-policy", "origin-agent-cluster"];
 
+// pathWithQuery must already carry its own query string ("/route?x=1"); the
+// URL constructor resolves it against the upstream origin exactly once, so a
+// query never gets appended twice.
+function buildUpstreamUrl(upstreamUrl, pathWithQuery) {
+  return new URL(pathWithQuery, upstreamUrl.origin);
+}
+
 async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
   const target = pathAndQuery.startsWith("/") ? pathAndQuery : "/" + pathAndQuery;
-  const queryIndex = target.indexOf("?");
-  const pathname = queryIndex >= 0 ? target.slice(0, queryIndex) : target;
-  const search = queryIndex >= 0 ? target.slice(queryIndex) : "";
 
-  const attempt = async (entry, pathname) => {
+  const attempt = async (entry, pathWithQuery) => {
     const upstreamUrl = new URL(entry.url);
     const body = req.rawBody && req.rawBody.length ? req.rawBody : undefined;
-    return fetch(new URL(pathname + search, upstreamUrl.origin), {
+    return fetch(buildUpstreamUrl(upstreamUrl, pathWithQuery), {
       method: req.method,
       headers: {
         accept: req.headers.accept || "*/*",
@@ -314,4 +318,4 @@ export function resetPreviewProxyCacheForTests() {
   upstreamCache.clear();
 }
 
-export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost, isPageNavigation };
+export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost, isPageNavigation, buildUpstreamUrl };

@@ -34,3 +34,11 @@ test("page navigation detection drives the SPA fallback", () => {
   assert.equal(isPageNavigation("/api/orders", "application/json"), false);
   assert.equal(isPageNavigation("/logo.png", "image/png"), false);
 });
+test("upstream URL building never doubles the query string", () => {
+  const { buildUpstreamUrl } = __testables;
+  const upstream = new URL("https://upstream.example:3000");
+  assert.equal(buildUpstreamUrl(upstream, "/?probe=1").href, "https://upstream.example:3000/?probe=1");
+  assert.equal(buildUpstreamUrl(upstream, "/cart?x=1&y=2").href, "https://upstream.example:3000/cart?x=1&y=2");
+  assert.equal(buildUpstreamUrl(upstream, "/").href, "https://upstream.example:3000/");
+  assert.equal(buildUpstreamUrl(upstream, "/no-query").href, "https://upstream.example:3000/no-query");
+});
