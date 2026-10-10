@@ -118,13 +118,16 @@ async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
 
   const attempt = async (entry, pathname) => {
     const upstreamUrl = new URL(entry.url);
+    const body = req.rawBody && req.rawBody.length ? req.rawBody : undefined;
     return fetch(new URL(pathname + search, upstreamUrl.origin), {
-      method: req.method === "HEAD" ? "HEAD" : "GET",
+      method: req.method,
       headers: {
         accept: req.headers.accept || "*/*",
-        ...(req.headers.range ? { range: req.headers.range } : {}),
+        ...(req.headers["content-type"] ? { "content-type": req.headers["content-type"] } : {}),
+        ...(body ? { "content-length": String(body.length) } : {}),
         ...SKIP_WARNING_HEADERS,
       },
+      body: req.method === "HEAD" ? undefined : body,
       redirect: "manual",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
@@ -189,8 +192,22 @@ export function previewProxyHandler(req, res, next) {
   if (!sessionId) return res.status(404).json({ error: "Unknown preview host." });
 
   if (req.method !== "GET" && req.method !== "HEAD") {
-    return res.status(405).json({ error: "Preview proxying supports GET requests only." });
+    // Buffer the request body up front; the fetch happens later in the
+    // async continuation once the session and upstream are resolved.
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(chunk));
+    req.on("end", () => {
+      req.rawBody = Buffer.concat(chunks);
+      handlePreviewRequest(req, res);
+    });
+    return;
   }
+  handlePreviewRequest(req, res);
+}
+
+function handlePreviewRequest(req, res) {
+  const sessionId = sessionIdFromHost(req.hostname);
+  if (!sessionId) return res.status(404).json({ error: "Unknown preview host." });
 
   const pathAndQuery = req.originalUrl || req.url;
   const tokenMatch = pathAndQuery.match(/^\/([A-Za-z0-9_-]+\.\d{10})(?:\/index\.html)?\/?$/);
