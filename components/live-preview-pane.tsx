@@ -5,7 +5,6 @@ import { ArrowLeft, ArrowRight, Globe, MonitorX, RefreshCw } from "lucide-react"
 import { getSessionPreview, type SessionStatus } from "@/lib/brokenrepo-api";
 
 const PREVIEW_HOST_SUFFIX = ".preview.brokenrepo.tech";
-const COMPANION_ORIGIN_PREFIX = "https://";
 
 function normalizePath(value: string) {
   const trimmed = value.trim();
@@ -93,38 +92,42 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
   }, [canLoad, requestKey, sessionId]);
 
   const refresh = () => setManualRefresh((value) => value + 1);
-  const frameSrc = previewUrl ? (proxyOrigin ? proxyOrigin + activePath : previewUrl) : "";
 
   function navigateTo(next: string) {
     const target = normalizePath(next);
     setActivePath(target);
     setPathDraft(target);
     try { window.sessionStorage.setItem(pathStorageKey, target); } catch {}
+    // Steer the living iframe through the companion instead of remounting it,
+    // so the browsing context (and its session history) survives the move.
+    frameRef.current?.contentWindow?.postMessage({ type: "brokenrepo:navigate", path: target }, proxyOrigin || "*");
   }
 
   function historyStep(delta: number) {
     frameRef.current?.contentWindow?.postMessage({ type: "brokenrepo:history", delta }, proxyOrigin || "*");
   }
 
+  const frameSrc = previewUrl ? (proxyOrigin ? proxyOrigin + activePath : previewUrl) : "";
+
   return <div className="live-preview">
     <div className="runtime-toolbar">
       <div><span className={`runtime-dot ${canLoad ? "online" : ""}`}/><span>{status === "provisioning" ? "Starting server…" : error ? "Dev server offline" : "Live app"}</span></div>
-      {proxyOrigin ? <div className="preview-nav">
-        <button className="preview-nav-button" aria-label="Back" title="Back" onClick={() => historyStep(-1)}><ArrowLeft size={14}/></button>
-        <button className="preview-nav-button" aria-label="Forward" title="Forward" onClick={() => historyStep(1)}><ArrowRight size={14}/></button>
-        <form className="preview-url" onSubmit={(event) => { event.preventDefault(); navigateTo(pathDraft); }}>
-          <Globe size={12} aria-hidden="true"/>
-          <input value={pathDraft} aria-label="Preview route" spellCheck={false} autoCapitalize="off"
-            onChange={(event) => setPathDraft(event.target.value)}
-            onKeyDown={(event) => { if (event.key === "Escape") setPathDraft(activePath); }}/>
-        </form>
-      </div> : null}
       <button onClick={refresh} disabled={!canLoad || loading}><RefreshCw size={14} className={loading ? "is-spinning" : ""}/>Refresh preview</button>
     </div>
+    {proxyOrigin ? <div className="preview-nav">
+      <button className="preview-nav-button" aria-label="Back" title="Back" onClick={() => historyStep(-1)}><ArrowLeft size={14}/></button>
+      <button className="preview-nav-button" aria-label="Forward" title="Forward" onClick={() => historyStep(1)}><ArrowRight size={14}/></button>
+      <form className="preview-url" onSubmit={(event) => { event.preventDefault(); navigateTo(pathDraft); }}>
+        <Globe size={12} aria-hidden="true"/>
+        <input value={pathDraft} aria-label="Preview route" spellCheck={false} autoCapitalize="off"
+          onChange={(event) => setPathDraft(event.target.value)}
+          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); navigateTo(pathDraft); } if (event.key === "Escape") setPathDraft(activePath); }}/>
+      </form>
+    </div> : null}
     <div className="preview-frame-shell">
       {(status === "provisioning" || loading) && <div className="runtime-empty" role="status"><span className="loading-spinner"/><strong>Starting server…</strong><p>The preview will appear when the dev server is listening.</p></div>}
       {!loading && error && <div className="runtime-empty" role="alert"><MonitorX size={26}/><strong>Dev server offline</strong><p>{error}</p><button className="button secondary small" onClick={refresh}>Try again</button></div>}
-      {frameSrc && !error && <iframe key={frameKey + ":" + activePath} ref={frameRef} src={frameSrc} sandbox="allow-scripts allow-same-origin allow-forms allow-modals" referrerPolicy="no-referrer" title="App Live Preview" onLoad={() => setLoadedFrameKey(frameKey)}/>}
+      {frameSrc && !error && <iframe key={frameKey} ref={frameRef} src={frameSrc} sandbox="allow-scripts allow-same-origin allow-forms allow-modals" referrerPolicy="no-referrer" title="App Live Preview" onLoad={() => setLoadedFrameKey(frameKey)}/>}
     </div>
   </div>;
 }
