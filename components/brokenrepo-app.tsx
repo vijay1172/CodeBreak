@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { Activity, CheckCircle2, Circle, ListChecks, Monitor, Play, RotateCcw, Save, ScrollText, SquareTerminal, XCircle } from "lucide-react";
+import { Activity, CheckCircle2, Circle, FileCode2, ListChecks, Monitor, Play, RotateCcw, Save, ScrollText, SquareTerminal, XCircle } from "lucide-react";
 import {
   createSession,
   deleteSession,
@@ -165,7 +165,7 @@ export function BrokenRepoApp({ challengeId }: { challengeId: string }) {
       const savedTab = window.localStorage.getItem(rightTabStorageKey) as RightTab | null;
       const savedTabAllowed = savedTab && ["console", "logs", "network", "tests"].includes(savedTab);
       const defaultTab: RightTab = created.challenge.runtimeKind === "frontend" && created.challenge.previewEnabled ? "preview" : "logs";
-      setActiveRightTab(savedTab && (savedTab === "preview" ? created.challenge.previewEnabled : savedTabAllowed || savedTab === "preview") ? savedTab : defaultTab);
+      setActiveRightTab(savedTab && (savedTab === "preview" ? created.challenge.previewEnabled : savedTabAllowed) ? savedTab : defaultTab);
       setStopwatch(created.stopwatch ? { ...created.stopwatch, at: Date.now() } : null);
       const next = Object.fromEntries(created.challenge.files.map((file) => [file.path, file.content]));
       setFiles(next);
