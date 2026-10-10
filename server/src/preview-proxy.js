@@ -87,10 +87,13 @@ const STRIPPED_HEADERS = ["x-frame-options", "content-security-policy", "cross-o
 
 async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
   const target = pathAndQuery.startsWith("/") ? pathAndQuery : "/" + pathAndQuery;
+  const queryIndex = target.indexOf("?");
+  const pathname = queryIndex >= 0 ? target.slice(0, queryIndex) : target;
+  const search = queryIndex >= 0 ? target.slice(queryIndex) : "";
 
   const attempt = async (entry, pathname) => {
     const upstreamUrl = new URL(entry.url);
-    return fetch(new URL(pathname + target.search, upstreamUrl.origin), {
+    return fetch(new URL(pathname + search, upstreamUrl.origin), {
       method: req.method === "HEAD" ? "HEAD" : "GET",
       headers: {
         accept: req.headers.accept || "*/*",
