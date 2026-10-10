@@ -560,7 +560,7 @@ app.post("/api/sessions/:sessionId/end", async (req, res) => {
 });
 
 
-async function collectAdminMetrics() {
+app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) => {
   const db = database();
   const since30 = new Date(Date.now() - 30 * 864e5);
   const since12w = new Date(Date.now() - 12 * 7 * 864e5);
@@ -640,16 +640,12 @@ async function collectAdminMetrics() {
       reports: reportsBy.get(id) || 0,
     };
   });
-  return {
+  return res.set("Cache-Control", "no-store").json({
     generatedAt: new Date().toISOString(),
     growth: { totalUsers, dailySignups, weeklySignups },
     challenges,
     traffic: { dailyTraffic, topPages, devices, countries },
-  };
-}
-
-app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) => {
-  return res.set("Cache-Control", "no-store").json(await collectAdminMetrics());
+  });
 });
 
 app.use((error, _req, res, _next) => {
@@ -660,12 +656,6 @@ app.use((error, _req, res, _next) => {
 
 await connectSessionStore();
 await setupAccounts();
-
-collectAdminMetrics().then((m) => {
-  const traffic30 = m.traffic.dailyTraffic.reduce((acc, d) => ({ pageviews: acc.pageviews + d.pageviews, visitors: Math.max(acc.visitors, 0) + d.visitors }), { pageviews: 0, visitors: 0 });
-  console.log("BR_METRICS_A " + JSON.stringify({ generatedAt: m.generatedAt, growth: m.growth, topPages: m.traffic.topPages, devices: m.traffic.devices, countries: m.traffic.countries }));
-  console.log("BR_METRICS_B " + JSON.stringify(m.challenges));
-}).catch((error) => console.error("BR_METRICS failed", error));
 
 const cleanupInterval = setInterval(async () => {
   const cutoff = new Date(Date.now() - config.sessionIdleMinutes * 60_000);
