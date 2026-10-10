@@ -43,10 +43,9 @@ export function App() {
           <label>Email<input value={email} onChange={(event) => setEmail(event.target.value)} /></label>
           <button disabled={busy} onClick={signIn}>Log in</button>
         </> : <>
-          <p className='account-line'>Signed in as <strong>{session.email}</strong></p>
           <div className='actions'>
             {plan !== 'premium' && <button disabled={busy} onClick={upgrade}>Upgrade to premium</button>}
-            <button className='secondary' disabled={busy} onClick={signIn}>Log in again</button>
+            <button className='secondary' disabled={busy} onClick={signIn}>Log in as {session.email}</button>
           </div>
         </>}
         {notice && <p role='status' className='plan-note'>{notice}</p>}
