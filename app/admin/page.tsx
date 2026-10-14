@@ -5,7 +5,7 @@ import { AdminDashboard } from "@/components/admin-dashboard";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin", robots: { index: false } };
 
-const backend = process.env.BROKENREPO_BACKEND_URL || process.env.NEXT_PUBLIC_BROKENREPO_API_URL || "https://api.brokenrepo.tech";
+const backend = process.env.BROKENREPO_BACKEND_URL || process.env.NEXT_PUBLIC_BROKENREPO_API_URL || "https://codebreak-api.onrender.com";
 
 // Server-side gate: the page renders only for role:"admin" sessions. Non-admins
 // (and anonymous visitors) get a plain 404 — no hint the dashboard exists. The
