@@ -211,7 +211,13 @@ async function destroySession(record) {
 }
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "brokenrepo-orchestrator" });
+  res.set("Cache-Control", "no-store").json({
+    status: "ok",
+    ok: true,
+    service: "brokenrepo-orchestrator",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "production",
+  });
 });
 
 app.get("/api/challenges", (_req, res) => {

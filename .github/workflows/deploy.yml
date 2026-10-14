@@ -1,0 +1,28 @@
+name: Deploy backend to Oracle VM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Skips cleanly until the VM secrets exist, so pushes made before the
+    # Oracle VM is provisioned do not produce failed runs.
+    if: ${{ secrets.ORACLE_VM_IP != '' && secrets.ORACLE_SSH_KEY != '' }}
+    steps:
+      - name: Deploy to Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_VM_IP }}
+          username: ubuntu
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ubuntu/brokenrepo-backend
+            git pull origin main
+            cd server
+            npm ci --omit=dev
+            pm2 restart brokenrepo-backend || pm2 start src/index.js --name brokenrepo-backend --time
+            echo "Deployment complete at $(date)"

@@ -3,7 +3,11 @@ import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+// Local dev keeps secrets in the repo root .env.local; production VMs and PaaS
+// instances use server/.env next to the package. dotenv never overwrites
+// variables that are already set in the environment, so both loads are safe.
 dotenv.config({ path: path.resolve(here, "../../.env.local") });
+dotenv.config({ path: path.resolve(here, "../.env") });
 
 function required(name) {
   const value = process.env[name]?.trim();
