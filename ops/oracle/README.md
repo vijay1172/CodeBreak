@@ -65,8 +65,11 @@ itself until both repo secrets exist:
 
 | Secret           | Value                                          |
 |------------------|------------------------------------------------|
-| `ORACLE_VM_IP`   | the VM's public IP                             |
-| `ORACLE_SSH_KEY` | full contents of the private key file (not the path) |
+| `DEPLOY_VM_HOST` | the VM's public IP                             |
+| `DEPLOY_SSH_KEY` | full contents of the private key file (not the path) |
+
+(The workflow was renamed to host-agnostic secrets when the AWS EC2 plan
+became the active target; it drives whichever VM hosts the backend.)
 
 ## Self-healing cron
 
