@@ -7,12 +7,16 @@
 # Create tunnel -> "brokenrepo-api" -> choose the systemd install option and
 # copy the token from the displayed command.
 #
-# After this script, add the public hostname mapping IN THE DASHBOARD:
+# After this script, add BOTH public hostname mappings IN THE DASHBOARD:
 #   Networks -> Tunnels -> brokenrepo-api -> Public Hostname -> Add:
 #     hostname:  api.brokenrepo.tech
 #     service:   HTTP://localhost:3000
-# Cloudflare creates/updates the api CNAME automatically - do NOT create an
-# A record for api yourself.
+#   ...and again for the preview wildcard:
+#     hostname:  *.brokenrepo.tech
+#     service:   HTTP://localhost:3000
+# Cloudflare creates/updates the CNAMEs automatically (exact records for
+# apex/www/api are unaffected - exact DNS beats wildcards). Do NOT create
+# A records yourself.
 #
 # The tunnel service auto-starts on boot (systemd). TLS for
 # api.brokenrepo.tech terminates at Cloudflare's edge; cloudflared reaches
@@ -52,6 +56,7 @@ say "3/3 Verify"
 echo "Dashboard step still needed (one time):"
 echo "  Zero Trust -> Networks -> Tunnels -> brokenrepo-api -> Public Hostname"
 echo "    hostname: api.brokenrepo.tech   service: HTTP://localhost:3000"
+echo "    hostname: *.brokenrepo.tech     service: HTTP://localhost:3000"
 if curl -sf -m 10 https://api.brokenrepo.tech/health >/dev/null 2>&1; then
   ok "https://api.brokenrepo.tech/health is answering"
 else
