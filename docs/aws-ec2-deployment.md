@@ -1,143 +1,159 @@
-# BrokenRepo backend on AWS EC2 (Ubuntu 24.04 ARM64, t4g.small)
+# BrokenRepo backend on AWS EC2 (Ubuntu 24.04 ARM64, t4g.small) via Cloudflare Tunnel
 
-Target architecture:
+Target architecture (no Elastic IP, no A record for the API):
 
 ```text
 brokenrepo.tech (Vercel frontend)
         |
         v  /api/backend proxy route
-api.brokenrepo.tech  (Cloudflare DNS, DNS-only A record)
+api.brokenrepo.tech  (Cloudflare edge TLS, CNAME managed by the tunnel)
         |
-        v
-EC2 t4g.small - Nginx :80/:443 -> Node/Express + PM2 on localhost:3000
+Cloudflare Tunnel (outbound-only from the VM, survives IP changes)
         |
-        +-- MongoDB Atlas   (unchanged)
-        +-- Daytona API     (unchanged, sandboxes still run remotely)
-        +-- *.preview.brokenrepo.tech -> same Nginx (live previews)
+cloudflared -> http://localhost:3000 (Node/Express + PM2)
+
+{sessionId}.preview.brokenrepo.tech (live previews)
+        |
+A record *.preview -> VM public IP (DNS only / grey)
+        |
+Nginx :443 (Let's Encrypt wildcard, DNS-01 via Cloudflare token)
+        |
+http://localhost:3000
 ```
+
+Why the split: Cloudflare's free Universal SSL certificate covers
+`brokenrepo.tech` and `*.brokenrepo.tech` - ONE label deep. Preview hosts are
+two labels deep (`abc.preview.brokenrepo.tech`), so routing them through the
+tunnel would require Advanced Certificate Manager ($10/month). Keeping
+previews on a DNS-only A record with a free Let's Encrypt wildcard (issued by
+DNS-01, which never depends on the IP) costs nothing. The Express preview
+proxy routes on the Host header, so both paths land on the same process.
+
+Cost honesty: AWS bills ALL public IPv4 addresses (~$0.005/hr) - the
+auto-assigned public IP costs the same as an Elastic IP would. The tunnel
+removes the *dependence* on a stable IP (and every A record except
+`*.preview`), not that charge; SSH and the preview path still need the public
+interface. Credits absorb roughly $3.6/month.
 
 ## Migration audit (verified against the repository)
 
 | Item | Finding |
 |------|---------|
 | Entrypoint / start | `server/src/index.js` (`npm start`); monorepo - backend is `server/` |
-| Node version | 22 (Node 20 is EOL; Render ran `NODE_VERSION=22`; engines allows >=20) |
+| Node version | 22 (Node 20 is EOL; Render ran `NODE_VERSION=22`) |
 | Env vars | All in `server/.env.example`; secrets: MONGODB_URI, DAYTONA_API_KEY, PREVIEW_PROXY_SECRET |
-| Render-specific code | None. No RENDER_* variables or URLs in backend code; env file via dotenv (`server/.env`) |
-| Hardcoded Render URLs | Only the two frontend fallbacks (API proxy route + admin page) - flipped at cutover |
-| CORS | `CLIENT_ORIGINS` env (comma list). Auth is Bearer-token, no cookies, so no cross-subdomain cookie work |
-| Streaming | SSE (runtime logs) + streaming reverse proxy. Nginx needs `proxy_buffering off` + long read timeouts (in setup.sh) |
-| Port / bind | `PORT` env (default 4000); binds `0.0.0.0` - AWS setup uses 3000, localhost-only behind Nginx |
+| Render-specific code | None. No RENDER_* variables or URLs in backend code |
+| Hardcoded Render URLs | Only the two frontend fallbacks - flipped at cutover |
+| CORS | `CLIENT_ORIGINS` env. Auth is Bearer-token; no cookies, so no cross-subdomain cookie work |
+| Streaming | SSE (runtime logs) + streaming preview proxy. Cloudflare supports both through tunnels; nginx keeps `proxy_buffering off` + long timeouts for the preview path |
+| Port / bind | `PORT` env (3000 here); binds `0.0.0.0`, reached on loopback by cloudflared and nginx |
 | ARM64 | All dependencies pure JS (express, mongodb, zod, @daytona/sdk; transitive @grpc/grpc-js is the pure-JS implementation). No native builds |
 | Health check | `GET /health` -> `{status:"ok", ok:true, service, timestamp, environment}` |
-| Filesystem | Read-only challenge fixtures under `server/challenges/`; no local persistence |
-| Background jobs | 60s idle-session reaper + TTL indexes; unref'd, SIGTERM-safe |
+| Filesystem | Read-only challenge fixtures under `server/challenges/` |
+| Background jobs | 60s idle-session reaper + Mongo TTL indexes; unref'd, SIGTERM-safe |
 
-## One-time setup (in this order)
+## One-time setup, in order
 
-1. **EC2 instance** (AWS console):
-   - Region `ap-south-1` (Mumbai), Launch instance
-   - OS: Ubuntu Server 24.04 LTS, 64-bit (Arm)
-   - Type: `t4g.small` (750 free hrs/month through 2026 for new accounts)
-   - Key pair: create + download `.pem` (keep it; never share it)
-   - Storage: 12 GB gp3
-   - Security group: SSH 22 = My IP; HTTP 80 = Anywhere; HTTPS 443 = Anywhere
-   - After launch: **Elastic IPs -> Allocate -> Associate** with the instance
-     (free while attached; avoids the public IP changing on stop/start)
-2. **Budgets** (AWS Billing -> Budgets): alerts at $1 / $5 actual spend.
-   Credits cover charges, but alerts catch accidents (e.g. a second T4g).
-3. **Cloudflare DNS** (grey cloud / DNS only, both records):
-
-   | Type | Name      | Content          | Proxy    | TTL  |
-   |------|-----------|------------------|----------|------|
-   | A    | `api`     | `<EC2 Elastic IP>` | DNS only | Auto |
-   | A    | `*.preview` | `<EC2 Elastic IP>` | DNS only | Auto |
-
-4. **Run the setup script**:
+1. **EC2 instance** (already done): ap-south-1, Ubuntu 24.04 ARM64,
+   `t4g.small`, 12 GB gp3, key pair saved, auto-assign public IP enabled.
+   Security group: SSH 22 = My IP; HTTP 80 + HTTPS 443 = Anywhere
+   (80/443 only for the preview path + issuance; tightened in step 9).
+2. **SSH in** using the temporary public IP:
+   `ssh -i brokenrepo.pem ubuntu@<EC2_PUBLIC_IP>`
+3. **Deploy the backend**:
    ```bash
-   chmod 400 brokenrepo.pem
    scp -i brokenrepo.pem ops/aws/setup.sh ubuntu@<EC2_IP>:~
+   scp -i brokenrepo.pem ~/Desktop/Debunkker/aws-ec2-env.txt ubuntu@<EC2_IP>:~/env.txt
    ssh -i brokenrepo.pem ubuntu@<EC2_IP>
-   bash setup.sh
+   bash setup.sh          # prints a GitHub deploy key to add
+   cp ~/env.txt ~/brokenrepo-backend/server/.env && rm ~/env.txt
+   pm2 restart brokenrepo-api
    ```
-   Idempotent - re-run after fixing anything it warns about. Installs Node 22,
-   PM2, Nginx, Certbot, clones this repo via a read-only GitHub deploy key
-   (prints the public key to add), and registers the self-healing cron.
-5. **Add the GitHub deploy key** it prints (Repo Settings -> Deploy keys).
-6. **Environment**: either edit `nano ~/brokenrepo-backend/server/.env`
-   (placeholders from `.env.example`), or scp the prepared file:
+4. **Verify locally**:
    ```bash
-   scp -i brokenrepo.pem ~/Desktop/Debunkker/aws-ec2-env.txt ubuntu@<EC2_IP>:~/brokenrepo-backend/server/.env
-   ssh -i brokenrepo.pem ubuntu@<EC2_IP> "pm2 restart brokenrepo-api"
+   curl http://localhost:3000/health     # {"status":"ok",...}
+   pm2 logs brokenrepo-api --lines 30
    ```
-7. **Atlas Network Access**: allow the Elastic IP `/32`.
-8. **Wildcard certificate for previews** (Live Preview tab depends on it):
-   Cloudflare -> My Profile -> API Tokens -> Create Token
+5. **Cloudflare token for the preview wildcard** (also used later for IP
+   updates): My Profile -> API Tokens -> Create Token
    (`Zone / DNS / Edit`, zone = brokenrepo.tech), then on the VM:
    ```bash
    sudo tee /etc/letsencrypt/cloudflare.ini <<< 'dns_cloudflare_api_token = <TOKEN>'
    sudo chmod 600 /etc/letsencrypt/cloudflare.ini
-   bash ~/setup.sh   # re-run: issues the DNS-01 cert + adds the preview vhost
+   bash ~/setup.sh        # re-run: issues *.preview cert + adds the nginx vhost
    ```
-   Let's Encrypt cannot issue `*.preview.brokenrepo.tech` over HTTP; DNS-01
-   via the token is the supported path. Renewals are automatic.
+6. **Preview DNS**: one record, Cloudflare dashboard, **DNS only (grey)**:
+   `A  *.preview  ->  <current EC2 public IP>`.
+   There must be NO A record for `api` - the tunnel creates its own CNAME.
+7. **Cloudflare Tunnel for the API**:
+   - Zero Trust dashboard -> Networks -> Tunnels -> Create tunnel ->
+     name `brokenrepo-api` -> copy the token.
+   - On the VM: `bash setup-tunnel.sh <TUNNEL_TOKEN>`
+   - Back in the tunnel's Public Hostname tab, add:
+     hostname `api.brokenrepo.tech`, service `HTTP://localhost:3000`.
+   - `cloudflared` runs as a systemd service and auto-starts on reboot.
+8. **Verify externally**:
+   ```bash
+   curl https://api.brokenrepo.tech/health
+   ```
+   Then exercise the real flows (see Verification below).
+9. **Tighten the security group** (only after the tunnel + preview both
+   verify): remove the HTTP 80 rule. HTTPS 443 must STAY - preview traffic
+   terminates directly on nginx. SSH 22 stays restricted to your IP.
 
-## Verify (before cutover)
+## Atlas
 
-```bash
-curl https://api.brokenrepo.tech/health
-pm2 status && pm2 logs brokenrepo-api --lines 50
-sudo nginx -t && sudo systemctl status nginx
-```
+Network Access: allow the current EC2 public IP `/32`. If the instance is
+ever stopped/started (IP changes), also run
+`bash ~/update-preview-ip.sh` and update the Atlas entry.
 
-Then exercise the flows through the API/browser: signup/login, challenge list,
-sandbox creation + save + run tests, live preview navigation, runtime logs
-streaming, network inspector, console capture, stopwatch persistence, admin
-gate (404 for non-admins). Render stays untouched throughout.
+## Verification (before cutover)
+
+Through the API/browser: signup/login, challenge list, sandbox creation,
+editor save, run tests (passing + failing), live preview load + route
+navigation, runtime logs streaming (SSE), network inspector, browser console
+capture, stopwatch persistence, admin gate (404 for non-admins).
+Specifically confirm SSE stays connected through the tunnel during idle
+periods: Cloudflare's edge drops idle proxied connections (~100s); the
+browser's EventSource reconnects automatically, but if reconnect flashes
+bother users, a 30s keepalive comment on the SSE channel is the follow-up.
 
 ## Cutover (after verification)
 
-1. Vercel: `NEXT_PUBLIC_BROKENREPO_API_URL` = `https://api.brokenrepo.tech`, redeploy.
-2. Repo: the two fallback URLs (`app/api/backend/[...path]/route.ts`,
-   `app/admin/page.tsx`) flip to `https://api.brokenrepo.tech`.
-3. Watch production 24-48h (health cron + logs), then retire Render.
+1. Vercel: `NEXT_PUBLIC_BROKENREPO_API_URL` = `https://api.brokenrepo.tech`,
+   redeploy.
+2. Repo: flip the two fallback URLs (`app/api/backend/[...path]/route.ts`,
+   `app/admin/page.tsx`) to `https://api.brokenrepo.tech`.
+3. Watch production 24-48h, then retire Render.
 
 Rollback (any time): set the Vercel var back to
-`https://codebreak-api.onrender.com`, redeploy, `git revert` the fallback
-commit. Render keeps running its last deployed code.
+`https://codebreak-api.onrender.com`, redeploy, revert the fallback commit.
 
 ## Auto-deploy
 
-`.github/workflows/deploy.yml` SSHes into the VM on every push to `main`,
-pulls, runs `npm ci --omit=dev` in `server/`, and restarts PM2
-(`brokenrepo-api`). It skips itself until both secrets exist:
+`.github/workflows/deploy.yml` SSHes in on every push to `main`, pulls,
+`npm ci --omit=dev`, restarts PM2 (`brokenrepo-api`). Skips until:
 
 | Secret           | Value                                            |
 |------------------|--------------------------------------------------|
-| `DEPLOY_VM_HOST` | the EC2 Elastic IP                               |
+| `DEPLOY_VM_HOST` | the EC2 public IP (SSH only; traffic does not depend on it) |
 | `DEPLOY_SSH_KEY` | full contents of the `.pem` private key (not the path) |
 
 ## Day-2 operations
 
 ```bash
-pm2 status                          # is the API up
-pm2 logs brokenrepo-api --lines 100 # application logs
-pm2 monit                           # live CPU/memory (t4g.small: 2 vCPU / 2 GiB)
-sudo tail -f /var/log/nginx/error.log
-curl -s localhost:3000/health       # bypass nginx
+pm2 status && pm2 logs brokenrepo-api --lines 100
+systemctl status cloudflared                  # the tunnel
+sudo tail -f /var/log/nginx/error.log         # preview path only
+curl -s localhost:3000/health                 # bypass tunnel + nginx
+bash ~/update-preview-ip.sh                   # after a stop/start changed the IP
 ```
 
-Update procedure: push to `main` (workflow does it), or by hand:
-```bash
-cd ~/brokenrepo-backend && git pull && cd server && npm ci --omit=dev && pm2 restart brokenrepo-api
-```
-Rollback procedure: `git log` for the last good commit, then
-`git checkout <sha> && npm ci --omit=dev && pm2 restart brokenrepo-api`.
+Update procedure: push to `main` (the workflow does it), or by hand:
+`cd ~/brokenrepo-backend && git pull && cd server && npm ci --omit=dev && pm2 restart brokenrepo-api`.
+Rollback: `git checkout <last-good-sha> && npm ci --omit=dev && pm2 restart brokenrepo-api`.
 
-Self-healing cron (installed by setup.sh, exact line):
+Self-healing cron (installed by setup.sh; local, so DNS/certs cannot break it):
 ```cron
-*/5 * * * * curl -sf -m 10 https://api.brokenrepo.tech/health >/dev/null 2>&1 || (/usr/bin/pm2 restart brokenrepo-api) >> /home/ubuntu/health-check.log 2>&1
+*/5 * * * * curl -sf -m 10 http://localhost:3000/health >/dev/null 2>&1 || (/usr/bin/pm2 restart brokenrepo-api) >> /home/ubuntu/health-check.log 2>&1
 ```
-
-Optional external uptime monitoring: point UptimeRobot (free) at
-`https://api.brokenrepo.tech/health`.
