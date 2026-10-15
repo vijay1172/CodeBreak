@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Globe, MonitorX, RefreshCw } from "lucide-react";
 import { getSessionPreview, type SessionStatus } from "@/lib/brokenrepo-api";
 
-const PREVIEW_HOST_SUFFIX = ".preview.brokenrepo.tech";
+const PREVIEW_HOST_SUFFIX = ".brokenrepo.tech";
 
 function normalizePath(value: string) {
   const trimmed = value.trim();
@@ -46,7 +46,7 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
   const offline = status === "provisioning" || Boolean(error);
   const statusLabel = status === "provisioning" ? "Starting server…" : error ? "Dev server offline" : "Live app";
 
-  // The proxied preview lives on its own origin ({session}.preview.brokenrepo.tech),
+  // The proxied preview lives on its own origin ({session}.brokenrepo.tech),
   // so students can move across the challenge app's routes like in a real browser.
   const proxyOrigin = useMemo(() => {
     if (!previewUrl || !isPreviewOrigin(new URL(previewUrl).origin)) return "";
@@ -70,7 +70,7 @@ export function LivePreviewPane({ sessionId, challengeId, status, refreshVersion
 
   // The proxied document carries a small companion script that reports every
   // route change (loads, pushes, hash changes) and every batch of captured
-  // console output back to this pane. Only messages from *.preview.brokenrepo.tech
+  // console output back to this pane. Only messages from *.brokenrepo.tech
   // origins are trusted; batch contents are re-validated by the ingest layer.
   const onConsoleBatchRef = useRef(onConsoleBatch);
   useEffect(() => { onConsoleBatchRef.current = onConsoleBatch; }, [onConsoleBatch]);
