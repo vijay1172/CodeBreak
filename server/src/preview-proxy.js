@@ -261,7 +261,10 @@ async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
 export function previewProxyHandler(req, res, next) {
   if (!isPreviewHost(req.hostname)) return next();
   const sessionId = sessionIdFromHost(req.hostname);
-  if (!sessionId) return res.status(404).json({ error: "Unknown preview host." });
+  // A host under the preview suffix whose label is not a valid session id
+  // (api, www, or any reserved subdomain once the suffix is the zone apex)
+  // falls through to normal API routing instead of 404-ing.
+  if (!sessionId) return next();
 
   if (req.method !== "GET" && req.method !== "HEAD") {
     // Buffer the request body up front; the fetch happens later in the
@@ -318,4 +321,4 @@ export function resetPreviewProxyCacheForTests() {
   upstreamCache.clear();
 }
 
-export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost, isPageNavigation, buildUpstreamUrl };
+export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost, isPageNavigation, buildUpstreamUrl, previewProxyHandler };
