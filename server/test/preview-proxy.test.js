@@ -77,3 +77,23 @@ test("reserved subdomains and the apex can never be session labels", () => {
   const sessionId = "4fa91101-6bf0-4e86-965b-a5f47c327c3a";
   assert.equal(sessionIdFromHost(`${sessionId}.preview.brokenrepo.tech`), sessionId);
 });
+
+test("preview host responses are stamped noindex for crawlers", () => {
+  const { previewProxyHandler } = __testables;
+  const headers = {};
+  // /healthz short-circuits before any session or upstream lookup, so the
+  // handler runs fully offline while still exercising the stamping path.
+  const req = { hostname: "probe-session-01.preview.brokenrepo.tech", method: "GET", headers: {}, originalUrl: "/healthz" };
+  const res = { setHeader(name, value) { headers[name] = value; }, json() {} };
+  previewProxyHandler(req, res, () => {});
+  assert.equal(headers["X-Robots-Tag"], "noindex, nofollow");
+});
+
+test("fall-through hosts are never stamped with the crawler directive", () => {
+  const { previewProxyHandler } = __testables;
+  const headers = {};
+  const req = { hostname: "api.preview.brokenrepo.tech", method: "GET", headers: {} };
+  const res = { setHeader(name, value) { headers[name] = value; } };
+  previewProxyHandler(req, res, () => {});
+  assert.equal("X-Robots-Tag" in headers, false);
+});

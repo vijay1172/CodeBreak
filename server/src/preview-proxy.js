@@ -266,6 +266,12 @@ export function previewProxyHandler(req, res, next) {
   // falls through to normal API routing instead of 404-ing.
   if (!sessionId) return next();
 
+  // Everything served on a preview host is per-user sandbox content, and the
+  // wildcard DNS makes every session label a publicly reachable hostname.
+  // Stamp the crawler directive before any handler writes so search engines
+  // can never index session subdomains as site content.
+  res.setHeader("X-Robots-Tag", "noindex, nofollow");
+
   if (req.method !== "GET" && req.method !== "HEAD") {
     // Buffer the request body up front; the fetch happens later in the
     // async continuation once the session and upstream are resolved.
