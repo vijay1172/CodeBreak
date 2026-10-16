@@ -8,9 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Skips cleanly until the VM secrets exist, so pushes made before the
-    # host is provisioned do not produce failed runs.
-    if: ${{ secrets.DEPLOY_VM_HOST != '' && secrets.DEPLOY_SSH_KEY != '' }}
+    # No secrets-based job guard: the `secrets` context is not available in
+    # job-level `if` expressions, and referencing it there errored every run
+    # out before a job was created (zero jobs, red run). The VM is provisioned
+    # now, so every push to main should deploy — if the secrets ever go
+    # missing, the ssh step fails loudly instead of skipping silently.
     steps:
       - name: Deploy to VM
         uses: appleboy/ssh-action@v1.0.3
