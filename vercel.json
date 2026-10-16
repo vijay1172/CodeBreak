@@ -1,5 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build:vercel",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.brokenrepo.tech" }],
+      "destination": "https://brokenrepo.tech/$1",
+      "permanent": true
+    }
+  ]
 }

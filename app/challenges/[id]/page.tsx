@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { TrackVisit } from "@/components/track-visit";
-import { challengeCatalog, getCatalogEntry } from "@/lib/challenge-catalog";
+import { challengeCatalog, getCatalogEntry, relatedChallenges } from "@/lib/challenge-catalog";
 import { SITE_URL } from "@/lib/site-config";
 
 export const dynamicParams = false;
@@ -39,7 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     title: { absolute: detailTitle(entry) },
     description: detailDescription(entry),
     alternates: { canonical: `/challenges/${entry.id}` },
-    openGraph: { title: detailTitle(entry), description: detailDescription(entry), url: `/challenges/${entry.id}` },
+    openGraph: {
+      title: detailTitle(entry),
+      description: detailDescription(entry),
+      url: `/challenges/${entry.id}`,
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${entry.title} — BrokenRepo debugging challenge` }],
+    },
   };
 }
 
@@ -47,6 +52,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const { id } = await params;
   const entry = getCatalogEntry(id);
   if (!entry) notFound();
+  const related = relatedChallenges(entry.id, 3);
   const breadcrumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -69,6 +75,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <li key={criterion}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{criterion}</span></li>
       ))}</ul>
     </section>
+    {related.length > 0 && (
+      <section className="detail-section"><h2>Related challenges</h2>
+        <ul className="criteria-list">{related.map((other, index) => (
+          <li key={other.id}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span><Link href={"/challenges/" + other.id}>{other.title}</Link> — {other.category.toLowerCase()}, {other.difficulty}</span></li>
+        ))}</ul>
+      </section>
+    )}
     <div className="hero-actions"><Link className="button" href="/login">Log in to open this challenge</Link><Link className="underlined" href="/signup">Create an account</Link></div>
   </main><SiteFooter/></>;
 }

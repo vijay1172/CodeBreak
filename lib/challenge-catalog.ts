@@ -376,3 +376,21 @@ export const challengeCatalog: CatalogEntry[] = [
 export function getCatalogEntry(id: string) {
   return challengeCatalog.find((entry) => entry.id === id);
 }
+
+// Same-category challenges first (the closest practice neighbours), then
+// catalog order fills the remainder, so every detail page links out to a few
+// siblings and no challenge is an orphan for crawlers or readers.
+export function relatedChallenges(id: string, count = 3): CatalogEntry[] {
+  const self = getCatalogEntry(id);
+  if (!self) return [];
+  const chosen: CatalogEntry[] = [];
+  for (const entry of challengeCatalog) {
+    if (chosen.length >= count) break;
+    if (entry.id !== id && entry.category === self.category) chosen.push(entry);
+  }
+  for (const entry of challengeCatalog) {
+    if (chosen.length >= count) break;
+    if (entry.id !== id && !chosen.includes(entry)) chosen.push(entry);
+  }
+  return chosen;
+}
