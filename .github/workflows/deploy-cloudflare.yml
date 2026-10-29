@@ -14,13 +14,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.13.0
 
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install
+
+      - name: Run Framework CI Setup
+        run: npm run install:ci
 
       - name: Build Project
-        run: npx next build --webpack
+        run: npm run build
         env:
           BROKENREPO_BACKEND_URL: http://3.26.29.7:3000
 
