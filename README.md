@@ -57,12 +57,29 @@ cd server && npm install
 
 The frontend is available at `http://localhost:3000` and the backend health check at `http://localhost:4000/health`. Allow the backend's outbound IP in MongoDB Atlas. Create an account in the app before opening a lab.
 
+## Optional AI Debugging Coach
+
+Set `GEMINI_API_KEY=<your-api-key>` and `GEMINI_MODEL=gemini-3.5-flash-lite` on the **backend only**: use `server/.env` locally/on a VM, or your backend host's secret environment settings. The existing backend loader also supports the ignored root `.env.local` for local development. Never use `NEXT_PUBLIC_`/`VITE_` prefixes, pass the key to a sandbox, or set it on the frontend host. A missing key leaves the editor and existing tools operational; the Coach shows a configuration message when asked. Configure another Gemini text model supporting structured output if needed; a consumer Pro subscription alone does not establish API access or quota.
+
+The pinned **AI Coach** button sits outside the runtime tab strip, so it remains accessible without scrolling the tabs. It opens a right-side overlay without changing the editor's size or unmounting the existing tools. Drag its left edge (320–720 px on desktop), use the focused separator's arrow keys/Home/End, or double-click to reset its width; Escape or the close button dismisses it. Only the width is stored locally, never the conversation. The panel shares the existing file tree for explicit `@file` selections. This MVP uses **saved session contents**, with read-only files resolved from the challenge manifest; it does not read the live sandbox or include unsaved edits. Save selected files first. No automatic save, local upload, drag-and-drop, tool execution, or database-backed chat is added. Chat resets with the session/reload. The latest 12 learner and coach turns (24,000 UTF-8 bytes maximum), the canonical learner-facing brief, and the files selected for the current request go to Gemini. Prior attachment contents are not replayed.
+
+Attachment limits and eligibility are in `lib/coach-files.js`: 5 files, 50,000 UTF-8 bytes per file, and 150,000 bytes total. The selected brief sections have a separate 20,000-byte limit. Server validation uses the challenge's visible-file manifest, rejects traversal/encoded paths, hidden files, tests, fixtures, solutions, reference fixes, evaluator files, dependencies, build artifacts, binaries, and recognizable credentials. Existing saved workspace storage is reused; coach requests, chat, and attachment copies are never persisted or logged by the application. The selected content is sent to Google's Gemini API for processing; provider retention/billing follows your Gemini account settings.
+
+Gemini generates contextual debugging guidance from the learner-facing brief, explicitly selected files, the current session's conversation, and the latest question. The server-side policy prohibits naming the buggy file, line, function, root cause, or fix. Direct requests for those answers receive an acknowledgement and a broad investigation step. The server validates and bounds generated text before returning it, and the UI renders it as plain text. These checks reduce answer leakage but cannot prove that every possible paraphrase is safe; do not paste secrets into questions or selected code. Workspace content and client-supplied history are treated as untrusted data.
+
+`server/src/coach-router.js` uses existing account/session ownership checks plus active-session validation, 10 requests/minute/user, and one in-flight request/user/process. Like the existing in-memory rate limiters, this limit is per backend process and resets on restart. `server/src/gemini-coach.js` imposes a 20-second timeout and validates a bounded structured response; provider failures are handled without logging raw exceptions or returning provider details. Automated coach tests mock Gemini.
+
 ## Verification
 
 ```bash
 # Frontend
 npm run lint
 npm run build:vercel
+npm run test:frontend
+
+# Optional browser regression check: start the frontend at localhost:5174 first.
+# Uses the existing Playwright dependency and installed Chrome; all backend calls are mocked.
+node tests-frontend/coach-workspace.browser.mjs
 
 # Orchestrator
 cd server

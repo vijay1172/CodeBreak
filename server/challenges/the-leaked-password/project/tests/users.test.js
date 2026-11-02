@@ -1,25 +1,61 @@
-import { beforeAll, beforeEach, it, expect } from 'vitest';
+/*
+ * Challenge: The Leaked Password
+ * Bug category: Sensitive data exposure
+ * Scenarios: 4
+ * Behavioral symptom: Public profile responses disclose private account data.
+ */
+import { beforeAll, beforeEach, afterAll, it, expect } from 'vitest';
 import { workspace } from './helpers.js';
 let w;
 beforeAll(async () => { w = await workspace(); });
 beforeEach(async () => { await w.reset(); });
-it('hides the password hash from the profile response', async () => {
-  const response = await w.request.get('/api/users/student-id');
+afterAll(async () => { await w?.close(); });
+const people = [
+  { id: 'student-id', name: 'Sam Student', email: 'student@example.com' },
+  { id: 'admin-id', name: 'Riya Admin', email: 'admin@example.com' },
+];
+function publicProfile(response, person) {
   expect(response.status).toBe(200);
-  expect(response.body.password).toBeUndefined();
-  expect(response.body.passwordHash).toBeUndefined();
+  expect(response.headers['content-type']).toContain('application/json');
+  expect(response.body).toEqual(expect.objectContaining({ name: person.name, email: person.email }));
+  expect(response.body.id ?? response.body._id).toBe(person.id);
+}
+function privateValuesAbsent(value, forbiddenKeys, forbiddenValues = []) {
+  if (!value || typeof value !== 'object') return;
+  for (const [key, child] of Object.entries(value)) {
+    expect(forbiddenKeys).not.toContain(key);
+    expect(forbiddenValues).not.toContain(child);
+    privateValuesAbsent(child, forbiddenKeys, forbiddenValues);
+  }
+}
+it('hides the password hash from the profile response', async () => {
+  for (const person of people) {
+    const response = await w.request.get('/api/users/' + person.id);
+    publicProfile(response, person);
+    privateValuesAbsent(response.body, ['password', 'passwordHash'], ['sha256:91d2f0aa', 'sha256:77ba91cc']);
+  }
 });
 it('hides the admin flag from the profile response', async () => {
-  const response = await w.request.get('/api/users/admin-id');
-  expect(response.status).toBe(200);
-  expect(response.body.isAdmin).toBeUndefined();
+  for (const person of people) {
+    const response = await w.request.get('/api/users/' + person.id);
+    publicProfile(response, person);
+    privateValuesAbsent(response.body, ['isAdmin']);
+  }
 });
 it('still returns the public profile fields', async () => {
-  const response = await w.request.get('/api/users/student-id');
-  expect(response.body.name).toBe('Sam Student');
-  expect(response.body.email).toBe('student@example.com');
+  for (const person of people) {
+    const response = await w.request.get('/api/users/' + person.id);
+    publicProfile(response, person);
+  }
 });
-it('never loads the password hash without an explicit request', async () => {
-  const user = await w.models.User.findOne({ email: 'student@example.com' });
-  expect(user.passwordHash).toBeUndefined();
+it('returns a controlled error for an unknown public profile', async () => {
+  for (const id of ['missing-account', 'invalid-but-safe-identifier']) {
+    const response = await w.request.get('/api/users/' + id);
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'No such account.' });
+    privateValuesAbsent(response.body, ['password', 'passwordHash', 'isAdmin']);
+    expect(response.text).not.toMatch(/sha256:|stack|mongoose/i);
+  }
+  // A failed lookup does not replace or corrupt the next public profile.
+  for (const person of people) publicProfile(await w.request.get('/api/users/' + person.id), person);
 });

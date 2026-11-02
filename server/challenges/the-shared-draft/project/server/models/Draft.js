@@ -1,0 +1,2 @@
+import mongoose from 'mongoose';
+export function defineDraft(connection) { const revision = new mongoose.Schema({ version: Number, content: String, editorId: String }, { _id: false }); const schema = new mongoose.Schema({ teamId: { type: String, required: true }, title: { type: String, required: true }, content: { type: String, required: true }, version: { type: Number, default: 1 }, revisions: { type: [revision], default: [] } }, { timestamps: true }); return connection.model('SharedDraft', schema); }

@@ -1,0 +1,1 @@
+export const shape = (draft) => ({ id: String(draft._id), title: draft.title, content: draft.content, version: draft.version, teamId: draft.teamId, revisions: draft.revisions.map((revision) => ({ version: revision.version, content: revision.content, editorId: revision.editorId })), updatedAt: draft.updatedAt.toISOString() });

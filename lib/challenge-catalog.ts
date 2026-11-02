@@ -370,6 +370,92 @@ export const challengeCatalog: CatalogEntry[] = [
       "matches products by name accurately",
       "keeps archived products out of search results"
     ]
+  },
+  {
+    "id": "the-reopened-loan",
+    "title": "The Reopened Loan",
+    "category": "Workflow invariants / resource ownership",
+    "shortTag": "workflow safety",
+    "difficulty": "intermediate",
+    "symptom": "An equipment request can appear approved after its borrower has cancelled it. Borrowers have also reported seeing or changing requests that belong to someone else, even though the account switcher shows their own identity.",
+    "criteria": [
+      "creates a borrower-owned request and reads back its saved fields",
+      "cancels a pending owned request and persists cancellation",
+      "approves a pending request using the reviewer identity",
+      "rejects stale approval of a cancelled request without changing stored state",
+      "rejects another borrower's reads and mutations",
+      "rejects invalid creation input without inserting records",
+      "rejects unauthenticated requests without changing records",
+      "rejects borrower attempts to invoke reviewer-only actions"
+    ]
+  },
+  {
+    id: "the-split-shipment",
+    title: "The Split Shipment",
+    category: "Workflow state / partial fulfillment",
+    shortTag: "fulfillment state",
+    difficulty: "intermediate",
+    symptom: "An order can remain partially shipped even after every requested item has been fulfilled across two parcels.",
+    criteria: [
+      "creates a customer order with its requested quantities and reads it back",
+      "records a partial shipment without changing unshipped line quantities",
+      "marks an order shipped after two shipments complete every line",
+      "rejects shipping more than remains and preserves the saved order",
+      "rejects malformed order and shipment quantities without inserting changes",
+      "keeps another customer from reading or shipping the order",
+      "requires a signed demo session for all order reads and changes",
+    ],
+  },
+  {
+    id: "the-shared-draft",
+    title: "The Shared Draft",
+    category: "Collaborative editing / optimistic concurrency",
+    shortTag: "lost updates",
+    difficulty: "intermediate",
+    symptom: "A stale editor tab can silently overwrite a teammate's newer announcement draft.",
+    criteria: [
+      "creates a team draft and reads back its first saved revision",
+      "lets a teammate save a revision based on the latest version",
+      "rejects an older editor view without overwriting the newer saved text",
+      "keeps a readable revision sequence after two current-version saves",
+      "rejects blank content and missing version without adding a revision",
+      "keeps a guest team from reading or editing the editorial draft",
+      "requires a signed demo session to read or save a draft",
+    ],
+  },
+  {
+    id: "the-quiet-archive",
+    title: "The Quiet Archive",
+    category: "Soft deletion / read-path consistency",
+    shortTag: "archive visibility",
+    difficulty: "intermediate",
+    symptom: "Archived notes disappear from the active list but remain visible through search and direct links.",
+    criteria: [
+      "creates a private note and reads back its saved fields",
+      "hides an archived note from active list, title search, and direct read",
+      "restores an archived note to all active read paths",
+      "keeps another editor out of lists, links, and transitions",
+      "rejects invalid note and search input without creating a record",
+      "requires authentication and leaves notes unchanged after rejected requests",
+      "rejects repeated archive or restore while preserving the saved state",
+    ],
+  },
+  {
+    id: "the-vanishing-credit",
+    title: "The Vanishing Credit",
+    category: "Multi-write consistency / account credit",
+    shortTag: "credit consistency",
+    difficulty: "intermediate",
+    symptom: "A declined return can appear in history without crediting the balance, blocking a later eligible return.",
+    criteria: [
+      "creates an order and reads back its saved fields",
+      "credits a successful return exactly once and records its history",
+      "rejects a second return for the same order without changing credit",
+      "declines an over-limit return without recording it and permits a later eligible return",
+      "rejects invalid order and return input without changing records",
+      "prevents another customer from reading or returning an order",
+      "requires authentication without changing balances or returns",
+    ],
   }
 ];
 

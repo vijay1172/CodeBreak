@@ -41,5 +41,8 @@ export const config = {
   // proxy host never reach the browser. Requires PREVIEW_PROXY_SECRET.
   previewProxyDomainSuffix: process.env.PREVIEW_PROXY_DOMAIN_SUFFIX?.trim() || "",
   previewProxySecret: process.env.PREVIEW_PROXY_SECRET?.trim() || "",
+  // Optional, server-only. Never forward this configuration into a sandbox or browser.
+  geminiApiKey: process.env.GEMINI_API_KEY?.trim() || "",
+  geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash-lite",
   projectRoot: path.resolve(here, ".."),
 };

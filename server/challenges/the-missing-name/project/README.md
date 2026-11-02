@@ -1,15 +1,33 @@
 # The Missing Name
 
-The profile endpoint returns a user, but the student's name is blank in the React UI.
+## Product context
 
-## Where to look
+A student portal displays profile information for the signed-in demo account. The profile endpoint returns a user, but the student's name is blank in the React UI.
 
-Routes, controllers, repositories, and Mongoose models live under `server/`. React pages, hooks, components, and API clients live under `client/src/`.
+## How to reproduce
+
+1. Open Live Preview and wait for the student profile to finish loading.
+2. Observe that its name heading is blank rather than showing **Priya Sharma**.
+3. Inspect the profile request in the Network Inspector and compare the returned profile with the visible heading.
 
 ## Expected behavior
 
-- returns the requested user from the API.
-- shows the user's name from the live API response.
-- returns 404 for an unknown user.
+The profile displays the name supplied by the API, including when a different valid profile is returned.
 
-Investigate the symptom across the project. The hidden tests run inside the practice workspace when you use Run Tests — they check behavior rather than requiring one particular implementation.
+- Endpoint: `GET /api/users/:id`.
+- Authentication: the supplied demo session; missing or invalid credentials return `401` with a string `message`.
+- Success: `200` with `id: string` and `fullName: string`.
+- Supplied profile: `user-1`, whose name is `Priya Sharma`.
+- Unknown identifier: `404` with `{ "message": "User not found" }`.
+
+## Constraints
+
+- Preserve the documented API fields and authentication behavior.
+- Display the returned name rather than a hardcoded substitute.
+- Keep unrelated dashboard behavior unchanged and do not add dependencies.
+
+## Success criteria
+
+1. A valid profile request returns the requested student with the documented fields and rejects invalid authentication.
+2. The rendered profile displays the name received from that request.
+3. An unknown student produces a controlled `404`, not an empty successful response.

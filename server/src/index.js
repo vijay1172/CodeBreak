@@ -5,6 +5,8 @@ import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import { config } from "./config.js";
+import { createCoachRouter, coachErrorHandler } from "./coach-router.js";
+import { selectCoachGuidance } from "./gemini-coach.js";
 import { assertEditableFiles, getChallenge, listChallenges, publicChallenge } from "./challenges.js";
 import {
   deleteSandbox,
@@ -265,6 +267,19 @@ app.use("/api/sessions/:sessionId", async (req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
+
+app.use("/api/sessions/:sessionId/coach", createCoachRouter({
+  getSessionRecord,
+  getChallenge,
+  touchSession,
+  selectGuidance: (context, options) => selectCoachGuidance(context, {
+    ...options,
+    apiKey: config.geminiApiKey,
+    model: config.geminiModel,
+  }),
+  idleMinutes: config.sessionIdleMinutes,
+  ttlMinutes: config.sessionTtlMinutes,
+}));
 
 app.get("/api/challenges/:challengeId", async (req, res) => {
   const challenge = await getChallenge(req.params.challengeId);
@@ -654,6 +669,7 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
   });
 });
 
+app.use("/api/sessions/:sessionId/coach", coachErrorHandler);
 app.use((error, _req, res, _next) => {
   void _next;
   console.error(error);

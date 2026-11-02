@@ -1,0 +1,188 @@
+[
+  {
+    "id": "the-penny-gap",
+    "criterionIds": [
+      "whole-prices",
+      "decimal-prices",
+      "invoice-snapshot",
+      "quantity-validation",
+      "unknown-product"
+    ],
+    "problemStatement": "A shop’s invoice preview is occasionally a few cents lower than the prices on its product cards. Increasing the quantity makes the difference grow. Other products total correctly, and the same discrepancy appears in saved invoices."
+  },
+  {
+    "id": "a-day-too-early",
+    "criterionIds": [
+      "date-storage",
+      "date-display",
+      "date-order",
+      "invalid-date",
+      "missing-assignment"
+    ],
+    "problemStatement": "A student schedules an assignment for March 12, but classmates in some locations see March 11 on the course calendar. The edit form still shows the date the student chose, and not everyone can reproduce the problem."
+  },
+  {
+    "id": "the-split-import",
+    "criterionIds": [
+      "ordinary-csv",
+      "multiline-csv",
+      "repeat-import",
+      "invalid-import",
+      "empty-import"
+    ],
+    "problemStatement": "The supplier directory imports small spreadsheets correctly, but some larger exports are rejected even though they open normally in a spreadsheet app. Retrying the same file does not help. The team needs every contact and its notes preserved, not skipped."
+  },
+  {
+    "id": "the-room-that-wont-leave",
+    "criterionIds": [
+      "member-directory",
+      "status-update",
+      "invalid-status",
+      "live-delivery",
+      "subscription-lifecycle"
+    ],
+    "problemStatement": "The team room works normally when first opened. After users visit other screens and return a few times, each teammate update produces several notifications. People also receive room notifications after they have left the room."
+  },
+  {
+    "id": "the-borrowed-language",
+    "criterionIds": [
+      "localized-product",
+      "cache-reuse",
+      "locale-isolation",
+      "locale-validation",
+      "missing-product"
+    ],
+    "problemStatement": "Shoppers switch the catalogue from English to French, but some product pages keep the English title and description. A different product may appear in the correct language. The problem also seems to depend on which language was used first after the service restarted."
+  },
+  {
+    "id": "the-search-that-guesses",
+    "criterionIds": [
+      "word-search",
+      "literal-search",
+      "archived-items",
+      "empty-search",
+      "query-length"
+    ],
+    "problemStatement": "The internal library search works for ordinary words, but searching for exact tool names such as “Node.js” returns unrelated titles. Some names containing punctuation do not produce results at all. Users expect the search box to find the text they typed."
+  },
+  {
+    "id": "one-click-two-bookings",
+    "criterionIds": [
+      "normal-booking",
+      "server-replay",
+      "lost-response",
+      "separate-operations",
+      "invalid-booking"
+    ],
+    "problemStatement": "A workshop booking sometimes appears twice after a brief connection interruption. The attendee clicked once and saw one confirmation. Normal bookings work, and refreshing the bookings list confirms that both entries were saved."
+  },
+  {
+    "id": "the-invisible-update",
+    "criterionIds": [
+      "tiu-1",
+      "tiu-2",
+      "tiu-3",
+      "tiu-4",
+      "tiu-5"
+    ],
+    "problemStatement": "A user edits their profile name and hits Save. The page immediately shows the updated name. But refreshing the page shows the old name — the change never actually saved."
+  },
+  {
+    "id": "the-duplicate-order",
+    "criterionIds": [
+      "tdo-1",
+      "tdo-2",
+      "tdo-3",
+      "tdo-4",
+      "tdo-5"
+    ],
+    "problemStatement": "Clicking the Place Order button quickly two times in a row creates two identical orders and processes payment twice. A single click always works correctly."
+  },
+  {
+    "id": "the-leaked-password",
+    "criterionIds": [
+      "tlp-1",
+      "tlp-2",
+      "tlp-3",
+      "tlp-4"
+    ],
+    "problemStatement": "The user profile page loads correctly and shows the right information. But a security reviewer flagged that something sensitive is being returned from the API that should never reach the frontend."
+  },
+  {
+    "id": "the-frozen-dropdown",
+    "criterionIds": [
+      "tfd-1",
+      "tfd-2",
+      "tfd-3",
+      "tfd-4",
+      "tfd-5"
+    ],
+    "problemStatement": "The category filter dropdown loads correctly the first time you visit the products page. But navigating to another shop and coming back leaves the dropdown permanently empty or stuck in a loading state."
+  },
+  {
+    "id": "the-ghost-cart",
+    "criterionIds": [
+      "tgc-1",
+      "tgc-2",
+      "tgc-3",
+      "tgc-4",
+      "tgc-5"
+    ],
+    "problemStatement": "A user upgrades their account to premium. They log out and log back in. The app still shows them the free tier interface and blocks premium features — even though their account is definitely upgraded in the database."
+  },
+  {
+    "id": "the-runaway-query",
+    "criterionIds": [
+      "trq-1",
+      "trq-2",
+      "trq-3",
+      "trq-4",
+      "trq-5"
+    ],
+    "problemStatement": "The admin users page works perfectly with a small dataset. But when tested with a realistic data volume it becomes extremely slow, unresponsive, or crashes entirely."
+  },
+  {
+    "id": "the-confused-timezone",
+    "criterionIds": [
+      "tct-1",
+      "tct-2",
+      "tct-3",
+      "tct-4",
+      "tct-5"
+    ],
+    "problemStatement": "Events show the correct date to the person who created them, but other users in different timezones see the same event listed one day earlier or one day later."
+  },
+  {
+    "id": "the-missing-notification",
+    "criterionIds": [
+      "tmn-1",
+      "tmn-2",
+      "tmn-3",
+      "tmn-4",
+      "tmn-5"
+    ],
+    "problemStatement": "When a new order is placed, users should receive a confirmation email and the product inventory should update simultaneously. Sometimes only one happens. Sometimes neither does. The order itself always saves correctly."
+  },
+  {
+    "id": "the-public-secret",
+    "criterionIds": [
+      "tps-1",
+      "tps-2",
+      "tps-3",
+      "tps-4",
+      "tps-5"
+    ],
+    "problemStatement": "The app works correctly in all environments. But a routine security check found that sensitive backend credentials are visible inside the compiled JavaScript bundle served to the browser."
+  },
+  {
+    "id": "the-slow-search",
+    "criterionIds": [
+      "tss-1",
+      "tss-2",
+      "tss-3",
+      "tss-4",
+      "tss-5"
+    ],
+    "problemStatement": "The product search works correctly and returns accurate results. But every search takes several seconds to respond, even with a relatively small product catalog. Users are abandoning the search before results load."
+  }
+]

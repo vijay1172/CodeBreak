@@ -1,0 +1,29 @@
+/*
+ * Challenge: The Shared Draft
+ * Bug category: Collaborative editing / optimistic concurrency
+ * Scenarios: 7
+ * Behavioral symptom: Saving an older editor view can silently replace a teammate's newer draft.
+ */
+import { beforeAll, beforeEach, afterAll, it, expect } from 'vitest';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from 'mongoose';
+import request from 'supertest';
+import { createApp, defineDraft } from '../server/app.js';
+
+let memory, connection, Draft, api;
+beforeAll(async () => { memory = await MongoMemoryServer.create({ binary: { version: '8.2.6' } }); connection = await mongoose.createConnection(memory.getUri(), { dbName: 'shared-draft-test' }).asPromise(); Draft = defineDraft(connection); await Draft.init(); api = request(createApp({ Draft })); });
+beforeEach(async () => { await Draft.deleteMany({}); });
+afterAll(async () => { await connection?.close(); await memory?.stop(); });
+async function auth(accountId = 'alice') { const result = await api.post('/api/demo/session').send({ accountId }); expect(result.status).toBe(200); return `Bearer ${result.body.token}`; }
+const make = (authorization, body = { title: 'Launch note', content: 'First draft' }) => api.post('/api/drafts').set('Authorization', authorization).send(body);
+const read = (authorization, id) => api.get(`/api/drafts/${id}`).set('Authorization', authorization);
+const save = (authorization, id, content, expectedVersion) => api.put(`/api/drafts/${id}`).set('Authorization', authorization).send({ content, expectedVersion });
+function assertDraft(response, { content = 'First draft', version = 1, editorIds = ['alice'] } = {}) { expect(response.body).toEqual({ draft: { id: expect.stringMatching(/^[0-9a-f]{24}$/), title: 'Launch note', content, version, teamId: 'editorial', revisions: editorIds.map((editorId, index) => ({ version: index + 1, content: ['First draft', 'Alice update', 'Bob update'][index], editorId })), updatedAt: expect.any(String) } }); }
+
+it('creates a team draft and reads back its first saved revision', async () => { const alice = await auth(); const created = await make(alice); expect(created.status).toBe(201); assertDraft(created); const saved = await read(alice, created.body.draft.id); expect(saved.status).toBe(200); expect(saved.body).toEqual(created.body); });
+it('lets a teammate save a revision based on the latest version', async () => { const alice = await auth(), bob = await auth('bob'); const made = await make(alice); expect(made.status).toBe(201); const changed = await save(bob, made.body.draft.id, 'Alice update', 1); expect(changed.status).toBe(200); assertDraft(changed, { content: 'Alice update', version: 2, editorIds: ['alice', 'bob'] }); const saved = await read(alice, made.body.draft.id); expect(saved.body).toEqual(changed.body); });
+it('rejects an older editor view without overwriting the newer saved text', async () => { const alice = await auth(), bob = await auth('bob'); const made = await make(alice); expect(made.status).toBe(201); const oldView = await read(bob, made.body.draft.id); expect(oldView.body.draft.version).toBe(1); const first = await save(alice, made.body.draft.id, 'Alice update', 1); expect(first.status).toBe(200); const stale = await save(bob, made.body.draft.id, 'Bob update', oldView.body.draft.version); expect(stale.status).toBe(409); expect(stale.body).toEqual({ error: expect.any(String) }); const saved = await read(alice, made.body.draft.id); expect(saved.body).toEqual(first.body); });
+it('keeps a readable revision sequence after two current-version saves', async () => { const alice = await auth(), bob = await auth('bob'); const made = await make(alice); expect(made.status).toBe(201); const first = await save(alice, made.body.draft.id, 'Alice update', 1); expect(first.status).toBe(200); const second = await save(bob, made.body.draft.id, 'Bob update', 2); expect(second.status).toBe(200); assertDraft(second, { content: 'Bob update', version: 3, editorIds: ['alice', 'alice', 'bob'] }); const saved = await read(alice, made.body.draft.id); expect(saved.body).toEqual(second.body); });
+it('rejects blank content and missing version without adding a revision', async () => { const alice = await auth(); const made = await make(alice); expect(made.status).toBe(201); for (const body of [{ content: ' ', expectedVersion: 1 }, { content: 'Changed' }]) { const bad = await api.put(`/api/drafts/${made.body.draft.id}`).set('Authorization', alice).send(body); expect(bad.status).toBe(400); expect(bad.body).toEqual({ error: expect.any(String) }); } const saved = await read(alice, made.body.draft.id); expect(saved.body).toEqual(made.body); });
+it('keeps a guest team from reading or editing the editorial draft', async () => { const alice = await auth(), cara = await auth('cara'); const made = await make(alice); expect(made.status).toBe(201); const list = await api.get('/api/drafts').set('Authorization', cara); expect(list.status).toBe(200); expect(list.body).toEqual({ drafts: [] }); const foreignRead = await read(cara, made.body.draft.id); expect(foreignRead.status).toBe(404); expect(foreignRead.body).toEqual({ error: expect.any(String) }); const foreignSave = await save(cara, made.body.draft.id, 'Changed', 1); expect(foreignSave.status).toBe(404); const saved = await read(alice, made.body.draft.id); expect(saved.body).toEqual(made.body); });
+it('requires a signed demo session to read or save a draft', async () => { const alice = await auth(); const made = await make(alice); expect(made.status).toBe(201); const noAuth = await api.get(`/api/drafts/${made.body.draft.id}`); expect(noAuth.status).toBe(401); expect(noAuth.body).toEqual({ error: expect.any(String) }); const invalid = await save('Bearer invalid', made.body.draft.id, 'Changed', 1); expect(invalid.status).toBe(401); const saved = await read(alice, made.body.draft.id); expect(saved.body).toEqual(made.body); });

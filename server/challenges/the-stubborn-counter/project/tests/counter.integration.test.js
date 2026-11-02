@@ -1,27 +1,47 @@
+/*
+ * Challenge: The Stubborn Counter
+ * Bug category: Frontend state
+ * Scenarios: 3
+ * Behavioral symptom: A grouped interaction loses requested increments.
+ */
+import { createElement, act } from "react";
 import { describe, expect, it } from "vitest";
-import { createLikeHandler } from "../client/src/components/LikeButton.jsx";
+import { App } from "../client/src/App.jsx";
+import { mount } from "./helpers.js";
 
-function applyQueuedUpdates(queue, initial = 0) {
-  return queue.reduce((state, update) => typeof update === "function" ? update(state) : update, initial);
+async function click(view, label) {
+  const button = [...view.container.querySelectorAll("button")].find((item) => item.textContent === label);
+  if (!button) throw new Error("The expected interaction is unavailable.");
+  await act(async () => button.click());
 }
+const count = (view) => Number(view.container.querySelector("output strong").textContent);
 
-describe("like counter state updates", () => {
-  it("increments once for one click", () => {
-    const queue = [];
-    createLikeHandler({ count: 0, setCount: (update) => queue.push(update) })();
-    expect(applyQueuedUpdates(queue)).toBe(1);
+describe("rendered like counter behavior", () => {
+  it("increments once for one click", async () => {
+    const view = await mount(createElement(App));
+    try {
+      expect(count(view)).toBe(0);
+      await click(view, "Add one");
+      expect(count(view)).toBe(1);
+    } finally { await view.close(); }
   });
 
-  it("counts every rapid click in one render batch", () => {
-    const queue = [];
-    const click = createLikeHandler({ count: 0, setCount: (update) => queue.push(update) });
-    click(); click(); click();
-    expect(applyQueuedUpdates(queue)).toBe(3);
+  it("counts every rapid click in one render batch", async () => {
+    const view = await mount(createElement(App));
+    try {
+      await click(view, "Rapid +3");
+      expect(count(view)).toBe(3);
+    } finally { await view.close(); }
   });
 
-  it("does not mutate the captured count value", () => {
-    const state = { count: 4 };
-    createLikeHandler({ count: state.count, setCount() {} })();
-    expect(state.count).toBe(4);
+  it("keeps successive click actions cumulative", async () => {
+    const view = await mount(createElement(App));
+    try {
+      await click(view, "Add one");
+      await click(view, "Rapid +3");
+      await click(view, "Add one");
+      await click(view, "Rapid +3");
+      expect(count(view)).toBe(8);
+    } finally { await view.close(); }
   });
 });

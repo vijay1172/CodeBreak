@@ -19,6 +19,7 @@ export async function workspace() {
       await seed(models);
     },
     async close() {
+      server.closeAllConnections();
       await new Promise(resolve => server.close(resolve));
       await database.close();
     },

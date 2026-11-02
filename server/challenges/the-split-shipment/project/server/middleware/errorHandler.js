@@ -1,0 +1,4 @@
+export function errorHandler(error, _req, res, _next) {
+  console.error('Request failed:', error?.message || 'Unknown error');
+  if (!res.headersSent) res.status(500).json({ error: 'The request could not be completed.' });
+}

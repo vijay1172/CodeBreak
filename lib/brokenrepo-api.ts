@@ -102,6 +102,17 @@ export function getSession(sessionId: string) {
   return jsonRequest<SessionRecord>(`/api/sessions/${sessionId}`);
 }
 
+export async function askDebuggingCoach(sessionId: string, request: import("./coach-chat-logic").CoachRequest, signal?: AbortSignal) {
+  const result = await jsonRequest<{ reply: string }>(`/api/sessions/${sessionId}/coach`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(request),
+    signal,
+  });
+  if (typeof result?.reply !== "string" || !result.reply.trim() || result.reply.length > 2_000) throw new Error("The coach couldn’t respond. Please try again.");
+  return result;
+}
+
 export function getSessionPreview(sessionId: string, signal?: AbortSignal) {
   return jsonRequest<{ url: string; expiresAt: string; proxyUrl?: string }>(`/api/sessions/${sessionId}/preview`, { signal });
 }

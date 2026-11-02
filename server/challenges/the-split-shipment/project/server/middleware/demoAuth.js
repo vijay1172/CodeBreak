@@ -1,0 +1,5 @@
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { people } from '../data/people.js';
+const secret = randomBytes(32);
+export function token(id) { const body = Buffer.from(JSON.stringify({ id, exp: Date.now() + 3600000 })).toString('base64url'); return `${body}.${createHmac('sha256', secret).update(body).digest('base64url')}`; }
+export function identity(value) { const match = /^Bearer\s+([^\s]+)$/i.exec(value || ''); if (!match) return null; const [body, signature, extra] = match[1].split('.'); if (!body || !signature || extra) return null; const expected = createHmac('sha256', secret).update(body).digest(); let supplied; try { supplied = Buffer.from(signature, 'base64url'); } catch { return null; } if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return null; try { const parsed = JSON.parse(Buffer.from(body, 'base64url').toString()); return parsed.exp > Date.now() ? people[parsed.id] || null : null; } catch { return null; } }

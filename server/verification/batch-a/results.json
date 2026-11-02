@@ -1,0 +1,143 @@
+{
+  "verifiedAt": "2026-11-01T14:06:36.760Z",
+  "scope": "Batch A only; no Batch B, contextual-coach or pilot implementation",
+  "verified": true,
+  "results": {
+    "localMatrix": {
+      "passed": 40,
+      "total": 40
+    },
+    "daytonaMatrix": {
+      "passed": 40,
+      "total": 40
+    },
+    "browserMatrix": {
+      "passed": 24,
+      "total": 24
+    },
+    "backendTests": {
+      "passed": 58,
+      "total": 58
+    },
+    "frontendTests": {
+      "passed": 21,
+      "total": 21
+    },
+    "platformBrowserRegression": "passed after document-coordinate assertion correction",
+    "productionBuild": "passed with existing configuration/chunk-size warnings",
+    "scopedLint": "passed",
+    "syntaxChecks": "passed",
+    "diffWhitespace": "passed"
+  },
+  "initialDaytonaInstallTimeouts": [
+    {
+      "id": "locked-out-sometimes",
+      "error": "Dependency installation exceeded the existing 300-second deadline; a fresh sandbox subsequently passed."
+    },
+    {
+      "id": "works-on-my-machine",
+      "error": "Dependency installation exceeded the existing 300-second deadline; a fresh sandbox subsequently passed."
+    },
+    {
+      "id": "the-silent-crash",
+      "error": "Dependency installation exceeded the existing 300-second deadline; a fresh sandbox subsequently passed."
+    }
+  ],
+  "remainingVerificationSandboxes": 0,
+  "limitations": [
+    "Task records persist for one process run only, not across restarts.",
+    "Profile UI coverage uses one fixture student.",
+    "Platform-auth HTTP regression uses real middleware plus production-registration checks, not a booted Atlas-backed production app.",
+    "Daytona install/network reliability is external; this verification does not change infrastructure or promise no future timeouts."
+  ],
+  "challenges": [
+    {
+      "id": "the-missing-name",
+      "sourceHash": "2dbf8db265a4068ff0c4435ffa0ea2f00e87077b5707fb16e5d89fd20e3c9fe4",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 2,
+      "starterFailedCriteria": 1,
+      "verified": true
+    },
+    {
+      "id": "the-ghost-update",
+      "sourceHash": "8305739ce649f1b517309f247580e3c583b076a31bc5f67b991d52f6fae533e7",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 2,
+      "starterFailedCriteria": 1,
+      "verified": true
+    },
+    {
+      "id": "the-silent-field",
+      "sourceHash": "1fb600eee0a746163885e1e0a3db22ccadb085d6fd12cd91a47fe5f21b7f7fff",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 2,
+      "starterFailedCriteria": 1,
+      "verified": true
+    },
+    {
+      "id": "locked-out-sometimes",
+      "sourceHash": "55a1bb18f1298e13d224e11b01798a732b0663faf13db6ce8029b5a2ef997495",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 2,
+      "starterFailedCriteria": 1,
+      "verified": true
+    },
+    {
+      "id": "the-stubborn-counter",
+      "sourceHash": "99c6723b8fdf79108ac6bb3fdbe16af159fb51282ebd2159545b58ab29ba088f",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 1,
+      "starterFailedCriteria": 2,
+      "verified": true
+    },
+    {
+      "id": "works-on-my-machine",
+      "sourceHash": "42e0d941b174cf93a5258853a4fe7413f84eeec0b9820ed896d6bd895bff438f",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 0,
+      "starterFailedCriteria": 3,
+      "verified": true
+    },
+    {
+      "id": "the-vanishing-last-item",
+      "sourceHash": "e0efac07e561676186d5ea2181ea38b83894d8e1109cb1736f5984a3f74a17b2",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 1,
+      "starterFailedCriteria": 2,
+      "verified": true
+    },
+    {
+      "id": "the-silent-crash",
+      "sourceHash": "3004d59f88b6debb4c38ba789ebf74de15c974eeda1a97b0a444fbe95f12011c",
+      "localCases": 5,
+      "daytonaCases": 5,
+      "browserCases": 3,
+      "correctedImplementations": 2,
+      "starterPassedCriteria": 1,
+      "starterFailedCriteria": 2,
+      "verified": true
+    }
+  ]
+}

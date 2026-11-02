@@ -29,9 +29,14 @@ const expectedIds = [
   "the-missing-notification",
   "the-public-secret",
   "the-slow-search",
+  "the-reopened-loan",
+  "the-split-shipment",
+  "the-shared-draft",
+  "the-quiet-archive",
+  "the-vanishing-credit",
 ];
 
-test("publishes all twenty-five challenges in curriculum order", () => {
+test("publishes all thirty challenges in curriculum order", () => {
   assert.deepEqual(listChallenges().map((challenge) => challenge.id), expectedIds);
 });
 
@@ -86,6 +91,41 @@ test("runtime metadata exposes preview for built and dev-server browser projects
   assert.equal(backend.runtimeKind, "backend");
 });
 
+test("the pilot exposes its workflow preview and eight behavior-focused hidden scenarios", async () => {
+  const challenge = await getChallenge("the-reopened-loan");
+  const visible = publicChallenge(challenge);
+  assert.equal(challenge.requiresMongo, true);
+  assert.equal(challenge.previewMode, "integrated");
+  assert.equal(visible.previewEnabled, true);
+  assert.equal(challenge.criteria.length, 8);
+  assert.ok(visible.files.every((file) => !file.path.startsWith("tests/") && !file.path.includes("verification/")));
+  const scenario = challenge.files.find((file) => file.path === "tests/scenario.test.js")?.content;
+  assert.match(scenario, /Challenge: The Reopened Loan/);
+  assert.match(scenario, /Bug category: Workflow invariants \/ resource ownership/);
+  assert.match(scenario, /Scenarios: 8/);
+  assert.match(scenario, /Behavioral symptom:/);
+  for (const criterion of challenge.criteria) assert.ok(scenario.includes(criterion.title), `${criterion.id}: missing observable scenario`);
+});
+
+test("the four multi-requirement challenges expose behavior-focused private scenarios", async () => {
+  for (const id of ["the-split-shipment", "the-shared-draft", "the-quiet-archive", "the-vanishing-credit"]) {
+    const challenge = await getChallenge(id);
+    const visible = publicChallenge(challenge);
+    assert.equal(challenge.requiresMongo, true);
+    assert.equal(challenge.previewMode, "integrated");
+    assert.equal(visible.previewEnabled, true);
+    assert.ok(challenge.criteria.length >= 7);
+    assert.ok(visible.files.every((file) => !file.path.startsWith("tests/") && !file.path.includes("verification/")));
+    const scenario = challenge.files.find((file) => file.path === "tests/scenario.test.js")?.content;
+    assert.ok(scenario, `${id}: hidden scenarios exist`);
+    assert.match(scenario, /Challenge:/);
+    assert.match(scenario, /Bug category:/);
+    assert.match(scenario, /Scenarios: 7/);
+    assert.match(scenario, /Behavioral symptom:/);
+    for (const criterion of challenge.criteria) assert.ok(scenario.includes(criterion.title), `${id}: no observable scenario for ${criterion.id}`);
+  }
+});
+
 test("each challenge exposes a realistic project without hidden tests", async () => {
   for (const id of expectedIds) {
     const challenge = await getChallenge(id);
@@ -110,8 +150,70 @@ test("student-facing READMEs describe the problem, not developer setup", async (
     assert.ok(readme, `${id}: README.md is present`);
     assert.ok(publicChallenge(challenge).files.some((file) => file.path === "README.md"), `${id}: README.md is student-visible`);
     assert.doesNotMatch(readme.content, banned, `${id}: README.md leaks developer setup instructions`);
-    for (const section of ["## Where to look", "## Expected behavior"]) {
+    const sections = ["## Product context", "## How to reproduce", "## Expected behavior", "## Constraints", "## Success criteria"];
+    for (const section of sections) {
       assert.ok(readme.content.includes(section), `${id}: README.md should contain "${section}"`);
     }
+    if (expectedIds.indexOf(id) >= 8) {
+      const context = readme.content.split("## Product context")[1].split("## How to reproduce")[0].trim();
+      const count = [...new Intl.Segmenter("en", { granularity: "sentence" }).segment(context)].filter(({ segment }) => segment.trim()).length;
+      assert.ok(count >= 2 && count <= 3, `${id}: product context should contain two or three sentences`);
+    }
+  }
+});
+
+test("Batch B preserves all 84 grading identities, symptoms and context boundaries", async () => {
+  const baseline = JSON.parse(await fs.readFile(new URL("../verification/batch-b/catalogue-baseline.json", import.meta.url), "utf8"));
+  const { isCoachFilePath } = await import("../../lib/coach-files.js");
+  assert.equal(baseline.length, 17);
+  assert.equal(baseline.reduce((count, item) => count + item.criterionIds.length, 0), 84);
+  for (const original of baseline) {
+    const challenge = await getChallenge(original.id);
+    assert.deepEqual(challenge.criteria.map(({ id }) => id), original.criterionIds);
+    assert.equal(challenge.problemStatement, original.problemStatement);
+    assert.equal(challenge.requiresMongo, true);
+    assert.ok(publicChallenge(challenge).files.every((file) => !file.path.startsWith("tests/") && !file.path.includes("verification/")));
+    const tests = challenge.files.filter((file) => file.path.endsWith(".test.js"));
+    const allTests = tests.map((file) => file.content).join("\n");
+    for (const criterion of challenge.criteria) assert.ok(allTests.includes(criterion.title), `${original.id}: scenario title must match a graded criterion`);
+    for (const file of tests) {
+      assert.match(file.content, /^(?:\/\/ @vitest-environment [^\n]+\n)?\/\*[\s\S]*?Challenge:/);
+      assert.match(file.content, /Bug category:/i);
+      assert.match(file.content, /Scenarios:\s*[1-5]/);
+      assert.match(file.content, /Behavioral symptom:/i);
+      assert.equal(isCoachFilePath(file.path), false);
+    }
+    assert.ok(!challenge.files.some((file) => file.path.includes("verification/")));
+  }
+  assert.equal(isCoachFilePath("server/verification/batch-b/group-one.mjs"), false);
+});
+
+test("Batch A preserves grading identities and keeps test helpers out of learner/coach files", async () => {
+  const gradingIds = [
+    ["returns-user", "renders-name", "unknown-user"],
+    ["single-search", "latest-search", "search-errors"],
+    ["stores-date", "returns-date", "nullable-date"],
+    ["rejects-missing-token", "client-server-contract", "accepts-valid-token"],
+    ["single-click", "rapid-clicks", "immutable-state"],
+    ["dashboard-path", "environment-url", "trailing-slash"],
+    ["first-item", "full-page", "next-page"],
+    ["orders-success", "forwards-error", "no-false-success"],
+  ];
+  for (const [index, id] of expectedIds.slice(0, 8).entries()) {
+    const challenge = await getChallenge(id);
+    assert.deepEqual(challenge.criteria.map((criterion) => criterion.id), gradingIds[index]);
+    assert.equal(challenge.requiresMongo, undefined, "Legacy challenge upgrades must not introduce a database runtime");
+    const visible = publicChallenge(challenge);
+    assert.ok(visible.files.every((file) => !file.path.startsWith("tests/") && !file.path.startsWith("verification/")));
+    const tests = challenge.files.filter((file) => file.path.endsWith(".test.js"));
+    assert.equal(tests.length, 1);
+    const source = tests[0].content;
+    assert.match(source, /^\/\*[\s\S]*?Challenge:/);
+    assert.match(source, /Bug category:/i);
+    assert.match(source, /Scenarios:\s*3/);
+    assert.match(source, /Behavioral symptom:/i);
+    for (const criterion of challenge.criteria) assert.ok(source.includes(criterion.title), `${id}: graded criterion must match an executed test title`);
+    const readme = challenge.files.find((file) => file.path === "README.md").content;
+    assert.ok(readme.includes(challenge.problemStatement), `${id}: preserve the original symptom`);
   }
 });

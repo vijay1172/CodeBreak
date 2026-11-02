@@ -1,0 +1,1 @@
+export const people = { alice: { id: 'alice', name: 'Alice Morgan', teamId: 'editorial' }, bob: { id: 'bob', name: 'Bob Lee', teamId: 'editorial' }, cara: { id: 'cara', name: 'Cara Patel', teamId: 'guest' } };

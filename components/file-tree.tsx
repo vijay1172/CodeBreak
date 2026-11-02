@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, FileCode2, Folder, FolderOpen } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, FileCode2, Folder, FolderOpen } from "lucide-react";
 
 type FileNode = { type: "file"; name: string; path: string };
 type DirNode = { type: "dir"; name: string; path: string; children: TreeNode[] };
@@ -40,18 +40,19 @@ function ancestorsOf(path: string) {
   return segments.slice(0, -1).map((_, index) => segments.slice(0, index + 1).join("/"));
 }
 
-function Row({ node, depth, activePath, onSelect, expanded, toggle }: {
+function Row({ node, depth, activePath, onSelect, expanded, toggle, selected }: {
   node: TreeNode;
   depth: number;
   activePath: string;
   onSelect: (path: string) => void;
   expanded: Set<string>;
   toggle: (path: string) => void;
+  selected?: readonly string[];
 }) {
   const indent = { paddingLeft: `${6 + depth * 11}px` };
   if (node.type === "file") {
-    return <button className={node.path === activePath ? "active" : ""} style={indent} onClick={() => onSelect(node.path)} title={node.path}>
-      <FileCode2 size={14} aria-hidden="true"/><span>{node.name}</span>
+    return <button className={node.path === activePath ? "active" : ""} aria-pressed={selected ? selected.includes(node.path) : undefined} style={indent} onClick={() => onSelect(node.path)} title={node.path}>
+      {selected?.includes(node.path) ? <Check size={14} aria-hidden="true"/> : <FileCode2 size={14} aria-hidden="true"/>}<span>{node.name}</span>
     </button>;
   }
   const open = expanded.has(node.path);
@@ -62,15 +63,16 @@ function Row({ node, depth, activePath, onSelect, expanded, toggle }: {
       <span>{node.name}</span>
     </button>
     {open && node.children.map((child) => (
-      <Row key={child.path} node={child} depth={depth + 1} activePath={activePath} onSelect={onSelect} expanded={expanded} toggle={toggle}/>
+      <Row key={child.path} node={child} depth={depth + 1} activePath={activePath} onSelect={onSelect} expanded={expanded} toggle={toggle} selected={selected}/>
     ))}
   </>;
 }
 
-export function FileTree({ files, active, onSelect }: {
+export function FileTree({ files, active, onSelect, selected }: {
   files: { path: string }[];
   active: string;
   onSelect: (path: string) => void;
+  selected?: readonly string[];
 }) {
   const tree = useMemo(() => buildTree(files), [files]);
   const allDirs = useMemo(() => {
@@ -105,7 +107,7 @@ export function FileTree({ files, active, onSelect }: {
 
   return <div className="file-tree">
     {tree.map((node) => (
-      <Row key={node.path} node={node} depth={0} activePath={active} onSelect={onSelect} expanded={expanded} toggle={toggle}/>
+      <Row key={node.path} node={node} depth={0} activePath={active} onSelect={onSelect} expanded={expanded} toggle={toggle} selected={selected}/>
     ))}
   </div>;
 }

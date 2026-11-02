@@ -7,9 +7,10 @@ export function CheckoutPage() {
   const [quantity, setQuantity] = useState(1);
   const [order, setOrder] = useState(null);
   const [error, setError] = useState('');
-  async function refreshStock() {
-    try { const data = await fetchJSON('/api/stock/lamp'); setStock(data.stock); }
-    catch { setStock(null); }
+  function refreshStock() {
+    return fetchJSON('/api/orders/stock/lamp')
+      .then((data) => setStock(data.stock))
+      .catch(() => setStock(null));
   }
   useEffect(() => { refreshStock(); }, []);
   async function place(quantity) {

@@ -1,26 +1,19 @@
 import { once } from 'node:events';
 import request from 'supertest';
-import { openDatabase } from '../server/database/connect.js';
-import { defineModels } from '../server/models/index.js';
-import { seed } from '../server/seed.js';
 import { createApp } from '../server/app.js';
+// This payment fixture defines no database models or persistence operations.
 export async function workspace() {
-  const database = await openDatabase({ sandbox: true });
-  const models = defineModels(database.connection);
-  await Promise.all(Object.values(models).map(model => model.init()));
+  const models = {};
   const app = createApp(models);
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
   return {
     models, app, request: request(server),
     baseURL: 'http://127.0.0.1:' + server.address().port,
-    async reset() {
-      await Promise.all(Object.values(models).map(model => model.deleteMany({})));
-      await seed(models);
-    },
+    async reset() {},
     async close() {
+      server.closeAllConnections();
       await new Promise(resolve => server.close(resolve));
-      await database.close();
     },
   };
 }

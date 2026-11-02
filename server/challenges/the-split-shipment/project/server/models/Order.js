@@ -1,0 +1,2 @@
+import mongoose from 'mongoose';
+export function defineOrder(connection) { const line = new mongoose.Schema({ sku: { type: String, required: true }, quantity: { type: Number, required: true }, shipped: { type: Number, default: 0 } }, { _id: false }); const schema = new mongoose.Schema({ ownerId: { type: String, required: true }, lines: { type: [line], required: true }, status: { type: String, default: 'pending' } }, { timestamps: true }); return connection.model('ShipmentOrder', schema); }

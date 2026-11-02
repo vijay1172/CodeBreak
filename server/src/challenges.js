@@ -95,7 +95,7 @@ const challengeDefinitions = {
     criteria: [
       { id: "single-search", title: "shows results for a single completed search" },
       { id: "latest-search", title: "keeps results from the most recent query" },
-      { id: "search-errors", title: "rejects when the search service fails" },
+      { id: "search-errors", title: "distinguishes a failed search from an empty successful search" },
     ],
     hints: {
       tier1: "Two requests can resolve in a different order from the order in which they started.",
@@ -141,7 +141,7 @@ const challengeDefinitions = {
     testFile: "auth.integration.test.js",
     criteria: [
       { id: "rejects-missing-token", title: "rejects requests without a token" },
-      { id: "client-server-contract", title: "client and middleware agree on the authentication header" },
+      { id: "client-server-contract", title: "loads the supplied account dashboard through the application client" },
       { id: "accepts-valid-token", title: "accepts a valid bearer token and forwards the request" },
     ],
     hints: {
@@ -166,7 +166,7 @@ const challengeDefinitions = {
     criteria: [
       { id: "single-click", title: "increments once for one click" },
       { id: "rapid-clicks", title: "counts every rapid click in one render batch" },
-      { id: "immutable-state", title: "does not mutate the captured count value" },
+      { id: "immutable-state", title: "keeps successive click actions cumulative" },
     ],
     hints: {
       tier1: "React may queue several state updates before rendering again.",
@@ -187,9 +187,9 @@ const challengeDefinitions = {
     problemStatement: "The dashboard works locally but production still sends API requests to localhost.",
     testFile: "config.integration.test.js",
     criteria: [
-      { id: "dashboard-path", title: "builds the dashboard endpoint correctly" },
+      { id: "dashboard-path", title: "loads the dashboard from its configured endpoint" },
       { id: "environment-url", title: "uses the deployment API URL supplied by the environment" },
-      { id: "trailing-slash", title: "removes a trailing slash before appending a route" },
+      { id: "trailing-slash", title: "preserves dashboard behavior with trailing-slash API addresses" },
     ],
     hints: {
       tier1: "Look for a URL that is fixed to one developer environment.",
@@ -236,7 +236,7 @@ const challengeDefinitions = {
     extraEditablePaths: ["server/routes/orders.js"],
     criteria: [
       { id: "orders-success", title: "returns orders when the database succeeds" },
-      { id: "forwards-error", title: "forwards database errors to Express error middleware" },
+      { id: "forwards-error", title: "completes failed order requests with a controlled error response" },
       { id: "no-false-success", title: "does not send a success response after a database failure" },
     ],
     hints: {

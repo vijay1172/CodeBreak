@@ -1,0 +1,1 @@
+export function AccountSwitcher({ accountId, onChange }) { return <label>Demo account<select value={accountId} onChange={(event) => onChange(event.target.value)}><option value="alice">Alice · editorial</option><option value="bob">Bob · editorial</option><option value="cara">Cara · guest</option></select></label>; }

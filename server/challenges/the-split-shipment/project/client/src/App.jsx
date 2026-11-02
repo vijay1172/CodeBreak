@@ -1,0 +1,19 @@
+import { useEffect, useState } from 'react';
+import { call } from './api/http.js';
+import { AccountSwitcher } from './components/AccountSwitcher.jsx';
+import { OrderForm } from './components/OrderForm.jsx';
+import { ShipmentForm } from './components/ShipmentForm.jsx';
+export function App() {
+  const [accountId, setAccountId] = useState('alex');
+  const [token, setToken] = useState('');
+  const [orders, setOrders] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [mugs, setMugs] = useState(2), [notebooks, setNotebooks] = useState(1);
+  const [shipMugs, setShipMugs] = useState(1), [shipNotebooks, setShipNotebooks] = useState(0);
+  const [notice, setNotice] = useState('');
+  useEffect(() => { let current = true; setToken(''); setSelected(null); setOrders([]); setNotice(''); call('', '/demo/session', 'POST', { accountId }).then(async (session) => { const list = await call(session.token, '/orders'); if (current) { setToken(session.token); setOrders(list.orders); } }).catch((error) => { if (current) setNotice(error.message); }); return () => { current = false; }; }, [accountId]);
+  async function refresh(id = selected?.id) { if (!token) return; try { const list = await call(token, '/orders'); setOrders(list.orders); if (id) setSelected((await call(token, `/orders/${id}`)).order); } catch (error) { setNotice(error.message); } }
+  async function create(event) { event.preventDefault(); setNotice(''); try { const lines = [{ sku: 'mug', quantity: Number(mugs) }, { sku: 'notebook', quantity: Number(notebooks) }].filter((line) => line.quantity > 0); const { order } = await call(token, '/orders', 'POST', { lines }); setSelected(order); await refresh(order.id); setNotice('Order created.'); } catch (error) { setNotice(error.message); } }
+  async function ship(event) { event.preventDefault(); if (!selected) return; setNotice(''); try { const lines = [{ sku: 'mug', quantity: Number(shipMugs) }, { sku: 'notebook', quantity: Number(shipNotebooks) }].filter((line) => line.quantity > 0); const { order } = await call(token, `/orders/${selected.id}/ship`, 'POST', { lines }); setSelected(order); await refresh(order.id); setNotice('Shipment recorded.'); } catch (error) { setNotice(error.message); } }
+  return <main><header><span className="mark">D</span><div><small>NEIGHBORHOOD SHOP</small><h1>Dispatch Desk</h1></div></header><section className="intro"><div><p className="eyebrow">ORDER FULFILLMENT</p><h2>Every parcel should count.</h2><p>Build an order, send it in parcels, and watch each line and the order status update.</p></div><AccountSwitcher accountId={accountId} onChange={setAccountId}/></section>{notice && <p className="notice" role="status">{notice}</p>}<div className="grid"><section className="card"><h3>Create order</h3><OrderForm mugs={mugs} notebooks={notebooks} setMugs={setMugs} setNotebooks={setNotebooks} onCreate={create} disabled={!token}/><h3>My orders</h3><button className="secondary" onClick={() => refresh()}>Refresh orders</button><ul>{orders.map((order) => <li key={order.id}><button className="link" onClick={() => setSelected(order)}>Order {order.id.slice(-6)} · {order.status}</button></li>)}</ul></section><section className="card"><h3>Order details</h3>{selected ? <><p>Order <code>{selected.id}</code></p><p className="status">{selected.status === 'partial' ? 'Partially shipped' : selected.status === 'shipped' ? 'Shipped' : 'Pending'}</p><ul>{selected.lines.map((line) => <li key={line.sku}>{line.name}: {line.shipped} of {line.quantity} shipped</li>)}</ul><button className="secondary" onClick={() => refresh(selected.id)}>Refresh order</button><h3>Send shipment</h3><ShipmentForm mugs={shipMugs} notebooks={shipNotebooks} setMugs={setShipMugs} setNotebooks={setShipNotebooks} onShip={ship}/></> : <p>Create or choose an order to view its parcels.</p>}</section></div></main>;
+}

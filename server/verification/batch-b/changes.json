@@ -1,0 +1,305 @@
+{
+  "scope": "Changes made for Batch B only; pre-existing workspace edits excluded",
+  "files": [
+    {
+      "path": "server/test/batch-b-verification.test.js",
+      "reason": "Verify credential-stripped local child environments and two distinct correct-fix fixtures confined to learner-editable files"
+    },
+    {
+      "path": "server/challenges/the-penny-gap/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-penny-gap/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-penny-gap/project/tests/scenario.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/a-day-too-early/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/a-day-too-early/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/a-day-too-early/project/tests/scenario.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-split-import/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-split-import/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-split-import/project/tests/scenario.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-room-that-wont-leave/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-room-that-wont-leave/project/tests/browser.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-room-that-wont-leave/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-room-that-wont-leave/project/tests/scenario.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-borrowed-language/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-borrowed-language/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-borrowed-language/project/tests/scenario.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-search-that-guesses/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-search-that-guesses/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-search-that-guesses/project/tests/scenario.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/one-click-two-bookings/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/one-click-two-bookings/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/one-click-two-bookings/project/tests/scenario.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-invisible-update/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-invisible-update/project/client/src/components/ProfileForm.jsx",
+      "reason": "Approved initial-load and displayed-name presentation wiring; save defects preserved"
+    },
+    {
+      "path": "server/challenges/the-invisible-update/project/client/src/pages/ProfilePage.jsx",
+      "reason": "Approved initial-load and displayed-name presentation wiring; save defects preserved"
+    },
+    {
+      "path": "server/challenges/the-invisible-update/project/tests/dom.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-invisible-update/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-invisible-update/project/tests/profile.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-invisible-update/project/tests/profileSaver.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-duplicate-order/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-duplicate-order/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-duplicate-order/project/tests/orders.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-leaked-password/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-leaked-password/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-leaked-password/project/tests/users.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-frozen-dropdown/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-frozen-dropdown/project/tests/categories.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-frozen-dropdown/project/tests/categoryRoutes.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-frozen-dropdown/project/tests/dom.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-frozen-dropdown/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-ghost-cart/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-ghost-cart/project/tests/entitlements.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-ghost-cart/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-runaway-query/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-runaway-query/project/tests/admin.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-runaway-query/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-confused-timezone/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-confused-timezone/project/tests/events.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-confused-timezone/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-missing-notification/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-missing-notification/project/client/src/pages/CheckoutPage.jsx",
+      "reason": "Approved stock URL wiring and equivalent promise-based refresh"
+    },
+    {
+      "path": "server/challenges/the-missing-notification/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-missing-notification/project/tests/notifications.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-public-secret/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-public-secret/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-public-secret/project/tests/payment-process.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-public-secret/project/tests/secrets.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/challenges/the-slow-search/project/README.md",
+      "reason": "Five-section learner brief, reproduction, contracts and observable success criteria"
+    },
+    {
+      "path": "server/challenges/the-slow-search/project/tests/helpers.js",
+      "reason": "Isolated fixtures, browser/HTTP bridges or bounded cleanup"
+    },
+    {
+      "path": "server/challenges/the-slow-search/project/tests/search.test.js",
+      "reason": "Independent HTTP/rendered scenarios, complete contracts, read-back and maintainer header"
+    },
+    {
+      "path": "server/src/additional-challenges.js",
+      "reason": "Reword five implementation-oriented criterion titles; keep all IDs/counts and symptoms"
+    },
+    {
+      "path": "server/test/challenges.test.js",
+      "reason": "Five-section and sentence-length checks plus 84 stable criteria, symptoms and hidden-context boundary regressions"
+    },
+    {
+      "path": "server/test/batch-a-session-auth.test.js",
+      "reason": "Extend existing account middleware HTTP coverage to all 25 challenge lab creations"
+    },
+    {
+      "path": "server/verification/batch-b/README.md",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/catalogue-baseline.json",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/fixtures.mjs",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/group-one.mjs",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/group-two.mjs",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/group-three.mjs",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/verify.mjs",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/browser.mjs",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/environment.mjs",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/results.json",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    },
+    {
+      "path": "server/verification/batch-b/changes.json",
+      "reason": "Maintainer-only review, independent correct-fix fixtures, verification/evidence or credential-isolated tooling"
+    }
+  ]
+}

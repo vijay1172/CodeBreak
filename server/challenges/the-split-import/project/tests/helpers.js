@@ -14,11 +14,12 @@ export async function workspace() {
   return {
     models, app, request: request(server),
     baseURL: 'http://127.0.0.1:' + server.address().port,
-    async reset() {
+    async reset({ seedFixtures = true } = {}) {
       await Promise.all(Object.values(models).map(model => model.deleteMany({})));
-      await seed(models);
+      if (seedFixtures) await seed(models);
     },
     async close() {
+      server.closeAllConnections();
       await new Promise(resolve => server.close(resolve));
       await database.close();
     },

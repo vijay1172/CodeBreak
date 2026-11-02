@@ -1,0 +1,6281 @@
+{
+  "verifiedAt": "2026-11-01T15:46:45.972Z",
+  "scope": "Batch B only; contextual coach and pilot remain gated",
+  "verified": true,
+  "totals": {
+    "challenges": 17,
+    "gradedCriteria": 84,
+    "localVerificationCases": 85,
+    "daytonaVerificationCases": 85,
+    "productionBrowserCases": 51,
+    "correctedCriteriaPassedPerMatrix": 168,
+    "backendTests": {
+      "passed": 61,
+      "total": 61
+    },
+    "frontendTests": {
+      "passed": 21,
+      "total": 21
+    },
+    "productionBuild": "passed; existing config/chunk warnings remain",
+    "platformBrowserRegression": "passed",
+    "scopedLint": "passed",
+    "syntaxChecks": "passed",
+    "whitespaceCheck": "passed",
+    "remainingVerificationSandboxes": 0
+  },
+  "documentationNote": "Six product-context paragraphs were shortened to the required 2–3 sentences after runtime verification. All non-README file hashes stayed identical; final catalogue/README regressions passed.",
+  "limitations": [
+    "Public Secret's pinned production compiler removes unused credential values: browser-exposure regressions already pass the starter; server-configuration criteria fail. The original scanner claim needs a separately approved fixture review.",
+    "Payment verification uses synthetic server-only configuration; no deployed credential or sandbox environment was added. Unconfigured previews retain their safe configuration error.",
+    "Order persistence uses existing database inspection for Duplicate Order and Missing Notification because they have no HTTP read endpoint, as approved.",
+    "Slow Search verifies index presence and bounded seller retrieval, not wall-clock performance or every query planner decision.",
+    "Platform authentication regression uses real middleware plus production-registration checks, not a fully booted Atlas-backed deployment."
+  ],
+  "challenges": [
+    {
+      "id": "the-penny-gap",
+      "runtimeHash": "323cf635fda2b511f2e603eb43f6bd075a0397a96ce8e9f10c469ef517ef5c4a",
+      "verifiedProjectHash": "46f92d84f594d73b466dd8bc543f46a566db2361d5883417088d8531e3180ee4",
+      "finalProjectHash": "46f92d84f594d73b466dd8bc543f46a566db2361d5883417088d8531e3180ee4",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "failed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "failed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "passed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "passed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "not_run"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "not_run"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "not_run"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "not_run"
+            },
+            {
+              "id": "unknown-product",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "failed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "failed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "failed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "failed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "passed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "passed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "passed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "not_run"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "not_run"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "not_run"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "not_run"
+            },
+            {
+              "id": "unknown-product",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "whole-prices",
+              "status": "passed"
+            },
+            {
+              "id": "decimal-prices",
+              "status": "failed"
+            },
+            {
+              "id": "invoice-snapshot",
+              "status": "failed"
+            },
+            {
+              "id": "quantity-validation",
+              "status": "passed"
+            },
+            {
+              "id": "unknown-product",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "subtotalCents": 84,
+            "savedReadBack": true
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "subtotalCents": 87,
+            "savedReadBack": true
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "subtotalCents": 87,
+            "savedReadBack": true
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "a-day-too-early",
+      "runtimeHash": "5eb9bc783014e914a1f186dcafd35bfe27ed26d7ee5c2e290a7a9e64d8bad035",
+      "verifiedProjectHash": "2cd50d53a580179e332f939d3c4b33f58c868126e9a11d59efc8c022e87cadee",
+      "finalProjectHash": "2cd50d53a580179e332f939d3c4b33f58c868126e9a11d59efc8c022e87cadee",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "failed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "passed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "passed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "not_run"
+            },
+            {
+              "id": "date-display",
+              "status": "not_run"
+            },
+            {
+              "id": "date-order",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-date",
+              "status": "not_run"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "failed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "failed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "passed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "passed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "not_run"
+            },
+            {
+              "id": "date-display",
+              "status": "not_run"
+            },
+            {
+              "id": "date-order",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-date",
+              "status": "not_run"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "date-storage",
+              "status": "passed"
+            },
+            {
+              "id": "date-display",
+              "status": "failed"
+            },
+            {
+              "id": "date-order",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-date",
+              "status": "passed"
+            },
+            {
+              "id": "missing-assignment",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "viewer": "America/Los_Angeles",
+            "visibleDay": "March 11, 2028"
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "viewer": "America/Los_Angeles",
+            "visibleDay": "March 12, 2028"
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "viewer": "America/Los_Angeles",
+            "visibleDay": "March 12, 2028"
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-split-import",
+      "runtimeHash": "4d4cb62fd0da41219d172dc8c0639c9a90d2132a72b4cf8d111695317ba25c13",
+      "verifiedProjectHash": "80843e5346cfc01434de8c8c9c5e7a0d819f325bd77e21059c1d4eaad1036481",
+      "finalProjectHash": "80843e5346cfc01434de8c8c9c5e7a0d819f325bd77e21059c1d4eaad1036481",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "failed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "passed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "passed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "not_run"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "not_run"
+            },
+            {
+              "id": "repeat-import",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-import",
+              "status": "not_run"
+            },
+            {
+              "id": "empty-import",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "failed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "failed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "passed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "passed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "not_run"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "not_run"
+            },
+            {
+              "id": "repeat-import",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-import",
+              "status": "not_run"
+            },
+            {
+              "id": "empty-import",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "ordinary-csv",
+              "status": "passed"
+            },
+            {
+              "id": "multiline-csv",
+              "status": "failed"
+            },
+            {
+              "id": "repeat-import",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-import",
+              "status": "passed"
+            },
+            {
+              "id": "empty-import",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "importStatus": 422,
+            "savedContacts": 0
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "importStatus": 201,
+            "savedContacts": 2
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "importStatus": 201,
+            "savedContacts": 2
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-room-that-wont-leave",
+      "runtimeHash": "556177db312328724cabb27d4157dd8576a2054c3f3e1e3c54d71eecad8544e8",
+      "verifiedProjectHash": "710696a40e4b6dc5a082e178478cf565932deceea9451154d0adae4411debbeb",
+      "finalProjectHash": "710696a40e4b6dc5a082e178478cf565932deceea9451154d0adae4411debbeb",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "not_run"
+            },
+            {
+              "id": "status-update",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-status",
+              "status": "not_run"
+            },
+            {
+              "id": "live-delivery",
+              "status": "not_run"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "not_run"
+            },
+            {
+              "id": "status-update",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-status",
+              "status": "not_run"
+            },
+            {
+              "id": "live-delivery",
+              "status": "not_run"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "member-directory",
+              "status": "passed"
+            },
+            {
+              "id": "status-update",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-status",
+              "status": "passed"
+            },
+            {
+              "id": "live-delivery",
+              "status": "passed"
+            },
+            {
+              "id": "subscription-lifecycle",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "notificationsAfterLeaving": 8
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "notificationsAfterLeaving": 1
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "notificationsAfterLeaving": 1
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-borrowed-language",
+      "runtimeHash": "de3642366abf504f93a0e936179d6bd74008a2f559bebdcf610a851e9dfb4f2f",
+      "verifiedProjectHash": "8c39abb5fe2af79f7a0b73c15b2e8ad2ac198ce2f19fc131a533c14efb84f74d",
+      "finalProjectHash": "8c39abb5fe2af79f7a0b73c15b2e8ad2ac198ce2f19fc131a533c14efb84f74d",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "failed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "passed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "passed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "not_run"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "not_run"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "not_run"
+            },
+            {
+              "id": "locale-validation",
+              "status": "not_run"
+            },
+            {
+              "id": "missing-product",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "failed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "failed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "passed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "passed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "not_run"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "not_run"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "not_run"
+            },
+            {
+              "id": "locale-validation",
+              "status": "not_run"
+            },
+            {
+              "id": "missing-product",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "localized-product",
+              "status": "passed"
+            },
+            {
+              "id": "cache-reuse",
+              "status": "passed"
+            },
+            {
+              "id": "locale-isolation",
+              "status": "failed"
+            },
+            {
+              "id": "locale-validation",
+              "status": "passed"
+            },
+            {
+              "id": "missing-product",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "selectedLanguage": "fr",
+            "returnedLanguage": "en",
+            "title": "Travel mug"
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "selectedLanguage": "fr",
+            "returnedLanguage": "fr",
+            "title": "Tasse de voyage"
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "selectedLanguage": "fr",
+            "returnedLanguage": "fr",
+            "title": "Tasse de voyage"
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-search-that-guesses",
+      "runtimeHash": "4f9ea383eb76523a17dfc0a099a93e01e0dbfd0e2306aa12f13a09979f877296",
+      "verifiedProjectHash": "b07f3e2c605008e50907fc97789d15d69e063c85c81f975872d076b9c89c6eac",
+      "finalProjectHash": "b07f3e2c605008e50907fc97789d15d69e063c85c81f975872d076b9c89c6eac",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "failed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "passed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "passed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "not_run"
+            },
+            {
+              "id": "literal-search",
+              "status": "not_run"
+            },
+            {
+              "id": "archived-items",
+              "status": "not_run"
+            },
+            {
+              "id": "empty-search",
+              "status": "not_run"
+            },
+            {
+              "id": "query-length",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "failed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "failed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "passed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "passed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "not_run"
+            },
+            {
+              "id": "literal-search",
+              "status": "not_run"
+            },
+            {
+              "id": "archived-items",
+              "status": "not_run"
+            },
+            {
+              "id": "empty-search",
+              "status": "not_run"
+            },
+            {
+              "id": "query-length",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "word-search",
+              "status": "passed"
+            },
+            {
+              "id": "literal-search",
+              "status": "failed"
+            },
+            {
+              "id": "archived-items",
+              "status": "passed"
+            },
+            {
+              "id": "empty-search",
+              "status": "passed"
+            },
+            {
+              "id": "query-length",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "matchingCodes": [
+              "node-dot",
+              "node-near"
+            ]
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "matchingCodes": [
+              "node-dot"
+            ]
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "matchingCodes": [
+              "node-dot"
+            ]
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "one-click-two-bookings",
+      "runtimeHash": "468681a1f2fa561e343e413b2f7b46a1d37110f3e8a38afb99270535bb2de75f",
+      "verifiedProjectHash": "879cbe9674b9989f7ae5af2b834173defea28fbe2544783479beda4ce198ee0d",
+      "finalProjectHash": "602d7512adc42a36d74c13b24795abdf61c953fc57c49fe9942644190416d4a9",
+      "documentationOnlyEditsAfterRuntimeVerification": [
+        "README.md"
+      ],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "failed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "passed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "passed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "not_run"
+            },
+            {
+              "id": "server-replay",
+              "status": "not_run"
+            },
+            {
+              "id": "lost-response",
+              "status": "not_run"
+            },
+            {
+              "id": "separate-operations",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "failed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "failed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "passed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "passed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "not_run"
+            },
+            {
+              "id": "server-replay",
+              "status": "not_run"
+            },
+            {
+              "id": "lost-response",
+              "status": "not_run"
+            },
+            {
+              "id": "separate-operations",
+              "status": "not_run"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 1,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "normal-booking",
+              "status": "passed"
+            },
+            {
+              "id": "server-replay",
+              "status": "passed"
+            },
+            {
+              "id": "lost-response",
+              "status": "failed"
+            },
+            {
+              "id": "separate-operations",
+              "status": "passed"
+            },
+            {
+              "id": "invalid-booking",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "committedRegistrationsForOneClick": 2
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "committedRegistrationsForOneClick": 1
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "committedRegistrationsForOneClick": 1
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-invisible-update",
+      "runtimeHash": "abd22fad3294cc06c362a885ac58ce955598f1a9685a9c86dd079d0e688684b6",
+      "verifiedProjectHash": "4be8c828130f1c196948c5cc7dba84c2e43e36fb6411c475ee270d66e65771e8",
+      "finalProjectHash": "bf00dc1b01decc73a8d47ba76c5de36ee93402fbb98a40be6f8e4b319a41bbba",
+      "documentationOnlyEditsAfterRuntimeVerification": [
+        "README.md"
+      ],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tiu-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tiu-1",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-2",
+              "status": "passed"
+            },
+            {
+              "id": "tiu-3",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-4",
+              "status": "failed"
+            },
+            {
+              "id": "tiu-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "nameAfterReload": "Maya Rivera"
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "nameAfterReload": "Browser Learner"
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "nameAfterReload": "Browser Learner"
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-duplicate-order",
+      "runtimeHash": "242b22b6718798ffda4b66b3fed0ac7386e16922506c5fa46adab64d62b109d8",
+      "verifiedProjectHash": "c61b73be3e04419baf13bb85005a31178b9ca1e4fdd5ac870c57d5df9a041c83",
+      "finalProjectHash": "410de36052c28e387e5a199e3f72fdc10226b5e39aadd981222f078457fefd84",
+      "documentationOnlyEditsAfterRuntimeVerification": [
+        "README.md"
+      ],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tdo-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tdo-1",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-2",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-3",
+              "status": "failed"
+            },
+            {
+              "id": "tdo-4",
+              "status": "passed"
+            },
+            {
+              "id": "tdo-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "concurrentOrderCount": 2,
+            "matchingIdentities": false
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "concurrentOrderCount": 1,
+            "matchingIdentities": true
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "concurrentOrderCount": 1,
+            "matchingIdentities": true
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-leaked-password",
+      "runtimeHash": "d879fe4df1c82142e56e44b5cefeb9bc78b4fa3db4684cf55e565419d7d56810",
+      "verifiedProjectHash": "3f253ae6787b302b94ac6c2fb3aabbe3b6f0a8a43f18d42598475966390c391f",
+      "finalProjectHash": "3f253ae6787b302b94ac6c2fb3aabbe3b6f0a8a43f18d42598475966390c391f",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 2,
+            "total": 4
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 0,
+            "total": 4
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 0,
+            "total": 4
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 4,
+            "total": 4
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tlp-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tlp-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tlp-4",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 2,
+            "total": 4
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 2,
+            "total": 4
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 0,
+            "total": 4
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 4,
+            "failed": 0,
+            "total": 4
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 4,
+            "total": 4
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tlp-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tlp-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tlp-4",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 2,
+            "total": 4
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tlp-1",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-2",
+              "status": "failed"
+            },
+            {
+              "id": "tlp-3",
+              "status": "passed"
+            },
+            {
+              "id": "tlp-4",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "publicProfileExposesPrivateFields": true
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "publicProfileExposesPrivateFields": false
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "publicProfileExposesPrivateFields": false
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-frozen-dropdown",
+      "runtimeHash": "6d79b7fe66bf376819e87196fb8c4a029013fbd801c8b3608090c0fab9f02779",
+      "verifiedProjectHash": "c5bd15e57278806cd35bd3b152f48dd995c9955d9e9b01c9b4ea0c5bc935eb62",
+      "finalProjectHash": "c5bd15e57278806cd35bd3b152f48dd995c9955d9e9b01c9b4ea0c5bc935eb62",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tfd-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tfd-1",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-2",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-3",
+              "status": "failed"
+            },
+            {
+              "id": "tfd-4",
+              "status": "passed"
+            },
+            {
+              "id": "tfd-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "categoryOptions": [
+              "Notebooks",
+              "Pens"
+            ]
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "categoryOptions": [
+              "No categories"
+            ]
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "categoryOptions": [
+              "No categories"
+            ]
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-ghost-cart",
+      "runtimeHash": "014721680aa661233d9410c286921db71599f30996147c32102521bfb33b1663",
+      "verifiedProjectHash": "9a400885bc0377c80bfb598c94a7516cef3bb5b45659813f5d4c3b6180c33ba4",
+      "finalProjectHash": "ee5dcd63aef9240a7b72d66071f617380f07b8e5f116d0628d3736d5828a64db",
+      "documentationOnlyEditsAfterRuntimeVerification": [
+        "README.md"
+      ],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tgc-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tgc-1",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-2",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-3",
+              "status": "failed"
+            },
+            {
+              "id": "tgc-4",
+              "status": "passed"
+            },
+            {
+              "id": "tgc-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "freshLoginShowsPremium": false
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "freshLoginShowsPremium": true
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "freshLoginShowsPremium": true
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-runaway-query",
+      "runtimeHash": "467c090447410afbeb9c7dd258dd9b5e545cac9a48aa9d71101cd8e68206c782",
+      "verifiedProjectHash": "21dd1ed9b58104605da08881f79c4ccf9ede7dbdd4c89c9b7924555b7c7dd27d",
+      "finalProjectHash": "21dd1ed9b58104605da08881f79c4ccf9ede7dbdd4c89c9b7924555b7c7dd27d",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 1,
+            "failed": 4,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "failed"
+            },
+            {
+              "id": "trq-2",
+              "status": "failed"
+            },
+            {
+              "id": "trq-3",
+              "status": "failed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "passed"
+            },
+            {
+              "id": "trq-2",
+              "status": "passed"
+            },
+            {
+              "id": "trq-3",
+              "status": "passed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "passed"
+            },
+            {
+              "id": "trq-2",
+              "status": "passed"
+            },
+            {
+              "id": "trq-3",
+              "status": "passed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-2",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-3",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-4",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 1,
+            "failed": 4,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "failed"
+            },
+            {
+              "id": "trq-2",
+              "status": "failed"
+            },
+            {
+              "id": "trq-3",
+              "status": "failed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 1,
+            "failed": 4,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "failed"
+            },
+            {
+              "id": "trq-2",
+              "status": "failed"
+            },
+            {
+              "id": "trq-3",
+              "status": "failed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "passed"
+            },
+            {
+              "id": "trq-2",
+              "status": "passed"
+            },
+            {
+              "id": "trq-3",
+              "status": "passed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "passed"
+            },
+            {
+              "id": "trq-2",
+              "status": "passed"
+            },
+            {
+              "id": "trq-3",
+              "status": "passed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-2",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-3",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-4",
+              "status": "not_run"
+            },
+            {
+              "id": "trq-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 1,
+            "failed": 4,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "trq-1",
+              "status": "failed"
+            },
+            {
+              "id": "trq-2",
+              "status": "failed"
+            },
+            {
+              "id": "trq-3",
+              "status": "failed"
+            },
+            {
+              "id": "trq-4",
+              "status": "passed"
+            },
+            {
+              "id": "trq-5",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "defaultRows": 200,
+            "requestedPageRows": 200
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "defaultRows": 50,
+            "requestedPageRows": 20
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "defaultRows": 50,
+            "requestedPageRows": 20
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-confused-timezone",
+      "runtimeHash": "3a3410b59381f1256f65fd937b190bfac34ed02f55822b0671ba75f3b3147b1f",
+      "verifiedProjectHash": "216ffb0d7820a43b00dc58ea28eebf6f0319cc703fe0318d1fd2930f2cd5729a",
+      "finalProjectHash": "216ffb0d7820a43b00dc58ea28eebf6f0319cc703fe0318d1fd2930f2cd5729a",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "failed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "failed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "passed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "passed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "passed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "passed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "failed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "failed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "failed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "failed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "passed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "passed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "passed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "passed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tct-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tct-1",
+              "status": "passed"
+            },
+            {
+              "id": "tct-2",
+              "status": "failed"
+            },
+            {
+              "id": "tct-3",
+              "status": "passed"
+            },
+            {
+              "id": "tct-4",
+              "status": "failed"
+            },
+            {
+              "id": "tct-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "viewer": "America/Los_Angeles",
+            "visibleDay": "September 19, 2026"
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "viewer": "America/Los_Angeles",
+            "visibleDay": "September 20, 2026"
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "viewer": "America/Los_Angeles",
+            "visibleDay": "September 20, 2026"
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-missing-notification",
+      "runtimeHash": "390a9ba552ea72ae20fd54b8c1ca45863e14a5c9cc9de37dc694702ec122bd91",
+      "verifiedProjectHash": "a9f2e60bcab06e54774b4ca4949409cdcd0f7cf58e569ebc3b83f9c1d58654a2",
+      "finalProjectHash": "8571c5471c09a4d8dce3af22b6e0cf01a3d94b8188cd982d6885e51f87e4bad9",
+      "documentationOnlyEditsAfterRuntimeVerification": [
+        "README.md"
+      ],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 3,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 3,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 3,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tmn-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 2,
+            "failed": 3,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tmn-1",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-2",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-3",
+              "status": "failed"
+            },
+            {
+              "id": "tmn-4",
+              "status": "passed"
+            },
+            {
+              "id": "tmn-5",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "insufficientStockStatus": 201,
+            "stock": 12
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "insufficientStockStatus": 500,
+            "stock": 12
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "insufficientStockStatus": 500,
+            "stock": 12
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-public-secret",
+      "runtimeHash": "e2cf86006d00c82c4a8810a506048a09512e5ee6669d042c76767f7a585be9d6",
+      "verifiedProjectHash": "ed6d05e8db0aaf8e5600914878919a0c67b12df9df7e43fb23e50bf301b3d7f5",
+      "finalProjectHash": "ed6d05e8db0aaf8e5600914878919a0c67b12df9df7e43fb23e50bf301b3d7f5",
+      "documentationOnlyEditsAfterRuntimeVerification": [],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "failed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "passed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "passed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "failed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "failed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "passed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "passed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tps-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tps-1",
+              "status": "passed"
+            },
+            {
+              "id": "tps-2",
+              "status": "failed"
+            },
+            {
+              "id": "tps-3",
+              "status": "passed"
+            },
+            {
+              "id": "tps-4",
+              "status": "passed"
+            },
+            {
+              "id": "tps-5",
+              "status": "failed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "deliveredScriptExposesSyntheticCredential": false,
+            "configuredPaymentVerified": false
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "deliveredScriptExposesSyntheticCredential": false,
+            "configuredPaymentVerified": true
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "deliveredScriptExposesSyntheticCredential": false,
+            "configuredPaymentVerified": true
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    },
+    {
+      "id": "the-slow-search",
+      "runtimeHash": "2dccd124cfd21772881984c4aea6fdb81a46350ef3a678b0a55dffdb1fe030c1",
+      "verifiedProjectHash": "d1bf1470b39ad86415d7a6769906f193cab673b23cf6b28a9eb7ff8795ffc50f",
+      "finalProjectHash": "e7a8e5ad5c0aa019b38939969dbec2adc9433f3657ed795f010e0cf01ac318e4",
+      "documentationOnlyEditsAfterRuntimeVerification": [
+        "README.md"
+      ],
+      "verified": true,
+      "local": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "failed"
+            },
+            {
+              "id": "tss-2",
+              "status": "failed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "passed"
+            },
+            {
+              "id": "tss-2",
+              "status": "passed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "passed"
+            },
+            {
+              "id": "tss-2",
+              "status": "passed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "failed"
+            },
+            {
+              "id": "tss-2",
+              "status": "failed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "daytona": [
+        {
+          "name": "starter",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "failed"
+            },
+            {
+              "id": "tss-2",
+              "status": "failed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-1",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "passed"
+            },
+            {
+              "id": "tss-2",
+              "status": "passed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "fix-2",
+          "phase": "test",
+          "summary": {
+            "passed": 5,
+            "failed": 0,
+            "total": 5
+          },
+          "allPassed": true,
+          "exitCode": 0,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "passed"
+            },
+            {
+              "id": "tss-2",
+              "status": "passed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "name": "invalid-syntax",
+          "phase": "compile",
+          "summary": {
+            "passed": 0,
+            "failed": 5,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-2",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-3",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-4",
+              "status": "not_run"
+            },
+            {
+              "id": "tss-5",
+              "status": "not_run"
+            }
+          ]
+        },
+        {
+          "name": "starter-restored",
+          "phase": "test",
+          "summary": {
+            "passed": 3,
+            "failed": 2,
+            "total": 5
+          },
+          "allPassed": false,
+          "exitCode": 1,
+          "assertions": [
+            {
+              "id": "tss-1",
+              "status": "failed"
+            },
+            {
+              "id": "tss-2",
+              "status": "failed"
+            },
+            {
+              "id": "tss-3",
+              "status": "passed"
+            },
+            {
+              "id": "tss-4",
+              "status": "passed"
+            },
+            {
+              "id": "tss-5",
+              "status": "passed"
+            }
+          ]
+        }
+      ],
+      "browser": [
+        {
+          "name": "starter",
+          "pageErrors": [],
+          "observation": {
+            "resultCount": 50,
+            "indexed": false,
+            "sellerReads": 50
+          }
+        },
+        {
+          "name": "fix-1",
+          "pageErrors": [],
+          "observation": {
+            "resultCount": 50,
+            "indexed": true,
+            "sellerReads": 1
+          }
+        },
+        {
+          "name": "fix-2",
+          "pageErrors": [],
+          "observation": {
+            "resultCount": 50,
+            "indexed": true,
+            "sellerReads": 0
+          }
+        }
+      ],
+      "remoteSandboxCleanedUp": true
+    }
+  ]
+}

@@ -170,7 +170,7 @@ const specifications = [
       },
       {
         "id": "cache-reuse",
-        "title": "reuses cached data for repeated equivalent requests"
+        "title": "returns consistent data for repeated equivalent requests"
       },
       {
         "id": "locale-isolation",
@@ -375,7 +375,7 @@ const specifications = [
       },
       {
         "id": "tlp-4",
-        "title": "never loads the password hash without an explicit request"
+        "title": "returns a controlled error for an unknown public profile"
       }
     ],
     "hints": {
@@ -519,7 +519,7 @@ const specifications = [
     "criteria": [
       {
         "id": "tct-1",
-        "title": "stores the chosen day as a UTC timestamp"
+        "title": "persists the chosen calendar day without changing it"
       },
       {
         "id": "tct-2",
@@ -615,7 +615,7 @@ const specifications = [
       },
       {
         "id": "tps-5",
-        "title": "stops sourcing browser configuration from import.meta.env"
+        "title": "preserves public payment configuration without exposing server credentials"
       }
     ],
     "hints": {
@@ -628,7 +628,7 @@ const specifications = [
       "realWorldContext": "Vite and similar build tools deliberately inline VITE_ values into the bundle. Security scanners flag secret keys in shipped JavaScript within minutes, and leaked payment keys are spent in real time.",
       "patternToWatch": "Assume everything in the client folder is public. Secrets live only in server environment variables read at request time, and the client layer carries nothing but public configuration."
     },
-    "referenceFix": "client/src/config/constants.js (good fix): export only public configuration; delete the stripe secret, the Mongo URI, and every import.meta.env reference.\nserver/controllers/paymentController.js: read process.env.STRIPE_SECRET_KEY at request time (the buggy controller reads the VITE_-prefixed name).\nAlternative fix: expose the secret through a lazy getter in server/config/env.js and have the controller use that getter — the client-side cleanup is still required."
+    "referenceFix": "client/src/config/constants.js (good fix): export only public configuration; delete the stripe secret, the Mongo URI, and every import.meta.env reference.\nclient/src/api/paymentApi.js: keep any browser diagnostic limited to public configuration.\nserver/controllers/paymentController.js: read process.env.STRIPE_SECRET_KEY at request time (the buggy controller reads the VITE_-prefixed name).\nAlternative fix: expose the secret through a lazy getter in server/config/env.js and have the controller use that getter — the client-side cleanup is still required."
   },
   {
     "id": "the-slow-search",
@@ -647,7 +647,7 @@ const specifications = [
       },
       {
         "id": "tss-3",
-        "title": "answers a full catalog search quickly"
+        "title": "returns a bounded full catalog response with seller details"
       },
       {
         "id": "tss-4",
@@ -669,6 +669,142 @@ const specifications = [
       "patternToWatch": "Index the fields you filter on, replace per-row lookups with a join or populate, and assert on query counts in tests — wall-clock timings are too flaky to trust."
     },
     "referenceFix": "server/models/Product.js (good fix): declare an index on the name field.\nserver/repositories/productRepository.js: replace the per-product seller lookup with .populate('seller', 'name').\nAlternative fix: keep the index and replace the loop with an aggregation $lookup joining sellers in the same round trip."
+  },
+  {
+    "id": "the-reopened-loan",
+    "title": "The Reopened Loan",
+    "category": "Workflow invariants / resource ownership",
+    "difficulty": "intermediate",
+    "problemStatement": "An equipment request can appear approved after its borrower has cancelled it. Borrowers have also reported seeing or changing requests that belong to someone else, even though the account switcher shows their own identity.",
+    "criteria": [
+      { "id": "loan-create", "title": "creates a borrower-owned request and reads back its saved fields" },
+      { "id": "loan-cancel", "title": "cancels a pending owned request and persists cancellation" },
+      { "id": "loan-approve", "title": "approves a pending request using the reviewer identity" },
+      { "id": "loan-stale", "title": "rejects stale approval of a cancelled request without changing stored state" },
+      { "id": "loan-owner", "title": "rejects another borrower's reads and mutations" },
+      { "id": "loan-invalid", "title": "rejects invalid creation input without inserting records" },
+      { "id": "loan-unauth", "title": "rejects unauthenticated requests without changing records" },
+      { "id": "loan-role", "title": "rejects borrower attempts to invoke reviewer-only actions" }
+    ],
+    "hints": {
+      "tier1": "Compare the request shown in each account with what a fresh read returns after every action. A screen that was opened earlier may no longer reflect the current record.",
+      "tier2": "Trace how an authenticated identity and the current request status are checked on both read and action routes. Check the stored record again after a rejected action.",
+      "tier3": "An ownership filter must be applied when a borrower looks up or changes a request. An approval must only move a request that is still pending; a stale reviewer screen cannot make a cancelled request active again."
+    },
+    "debrief": {
+      "rootCause": "Borrower-specific lookups did not consistently scope requests to the authenticated borrower, and reviewer approval did not verify that a request was still pending before saving approved status.",
+      "realWorldContext": "Review workflows often span several people and browser tabs. A stale page must not override a later cancellation, and an identifier alone must not grant access to another person's record.",
+      "patternToWatch": "Treat authorization and state transitions as server-enforced invariants on each read and mutation, then confirm the final stored state through a fresh API read."
+    },
+    "referenceFix": "Scope borrower detail and cancellation lookups by the authenticated borrower. Reject approval unless the current request is pending, ideally as a conditional database update so stale submissions cannot reopen cancelled requests."
+  },
+  {
+    "id": "the-split-shipment",
+    "title": "The Split Shipment",
+    "category": "Workflow state / partial fulfillment",
+    "difficulty": "intermediate",
+    "problemStatement": "A customer order can remain partially shipped even after every requested item has been fulfilled across two parcels. The line quantities look complete, but the order summary and a fresh read disagree with that evidence.",
+    "criteria": [
+      { "id": "shipment-create", "title": "creates a customer order with its requested quantities and reads it back" },
+      { "id": "shipment-partial", "title": "records a partial shipment without changing unshipped line quantities" },
+      { "id": "shipment-complete", "title": "marks an order shipped after two shipments complete every line" },
+      { "id": "shipment-over", "title": "rejects shipping more than remains and preserves the saved order" },
+      { "id": "shipment-invalid", "title": "rejects malformed order and shipment quantities without inserting changes" },
+      { "id": "shipment-owner", "title": "keeps another customer from reading or shipping the order" },
+      { "id": "shipment-auth", "title": "requires a signed demo session for all order reads and changes" }
+    ],
+    "hints": {
+      "tier1": "Compare the quantities on each order line with the summary after a second parcel. Refresh to check which values persisted.",
+      "tier2": "Trace when the order status is derived relative to the shipment quantities, and check what each response sends back.",
+      "tier3": "A status derived from the pre-shipment snapshot can lag one action behind. Derive it from the updated quantities before saving the order."
+    },
+    "debrief": {
+      "rootCause": "The order summary was calculated before the current shipment changed line quantities, so the final parcel persisted a stale partial status.",
+      "realWorldContext": "Fulfillment systems often split one order across multiple parcels. Customers and operations need line-level quantities and the aggregate status to agree after every shipment.",
+      "patternToWatch": "When a state field is derived from child records, establish the update order and test a multi-step sequence through a fresh read."
+    },
+    "referenceFix": "Apply the validated line increments before deriving the order status, then persist both together. A conditional atomic update is a stronger option when concurrent shipments are in scope."
+  },
+  {
+    "id": "the-shared-draft",
+    "title": "The Shared Draft",
+    "category": "Collaborative editing / optimistic concurrency",
+    "difficulty": "intermediate",
+    "problemStatement": "A teammate saving an older editor tab can silently replace a newer announcement draft. Both saves appear successful, but the newer text disappears from the shared draft.",
+    "criteria": [
+      { "id": "draft-create", "title": "creates a team draft and reads back its first saved revision" },
+      { "id": "draft-current", "title": "lets a teammate save a revision based on the latest version" },
+      { "id": "draft-stale", "title": "rejects an older editor view without overwriting the newer saved text" },
+      { "id": "draft-history", "title": "keeps a readable revision sequence after two current-version saves" },
+      { "id": "draft-invalid", "title": "rejects blank content and missing version without adding a revision" },
+      { "id": "draft-team", "title": "keeps a guest team from reading or editing the editorial draft" },
+      { "id": "draft-auth", "title": "requires a signed demo session to read or save a draft" }
+    ],
+    "hints": {
+      "tier1": "Open the same draft in two tabs and compare the versions each editor is looking at before saving.",
+      "tier2": "A stale save must be rejected against the stored version, not merely labeled stale after the write has happened.",
+      "tier3": "The expected version needs to participate in the database update condition so two close saves cannot both accept the same starting version."
+    },
+    "debrief": {
+      "rootCause": "The save operation did not require the stored draft version to match the editor's expected version, allowing a stale tab to overwrite newer text.",
+      "realWorldContext": "Collaborative tools routinely have stale tabs and delayed requests. A visible revision history does not prevent lost updates unless the write itself checks concurrency.",
+      "patternToWatch": "Use optimistic concurrency for shared records and assert that rejected stale writes leave both content and revision history unchanged."
+    },
+    "referenceFix": "Include expectedVersion in the atomic team-scoped update filter and return 409 when an existing draft's version no longer matches."
+  },
+  {
+    "id": "the-quiet-archive",
+    "title": "The Quiet Archive",
+    "category": "Soft deletion / read-path consistency",
+    "difficulty": "intermediate",
+    "problemStatement": "Archived notes leave the active list but remain visible through ordinary search and direct links. Restoring a note should bring it back to all active views without exposing another editor's private notes.",
+    "criteria": [
+      { "id": "archive-create", "title": "creates a private note and reads back its saved fields" },
+      { "id": "archive-hidden", "title": "hides an archived note from active list, title search, and direct read" },
+      { "id": "archive-restore", "title": "restores an archived note to all active read paths" },
+      { "id": "archive-owner", "title": "keeps another editor out of lists, links, and transitions" },
+      { "id": "archive-invalid", "title": "rejects invalid note and search input without creating a record" },
+      { "id": "archive-auth", "title": "requires authentication and leaves notes unchanged after rejected requests" },
+      { "id": "archive-transition", "title": "rejects repeated archive or restore while preserving the saved state" }
+    ],
+    "hints": {
+      "tier1": "After archiving, compare the active list, search results, direct link, and archive view for the same note.",
+      "tier2": "Read paths may use different filters even when they display the same kind of note. Check their visibility contract consistently.",
+      "tier3": "Treat the archived marker as part of every active read predicate; the archive view and restore action have different visibility rules."
+    },
+    "debrief": {
+      "rootCause": "The active list excluded archived records, but search and direct reads omitted the same visibility condition.",
+      "realWorldContext": "A soft-deleted record is still in storage, so every read path must intentionally decide whether it belongs in the active or archive view.",
+      "patternToWatch": "Test list, search, direct read, and restore together. A single correct list filter does not establish application-wide visibility."
+    },
+    "referenceFix": "Apply the active-only archived condition to search and direct-read queries while preserving owner scoping and the explicit archive/restore routes."
+  },
+  {
+    "id": "the-vanishing-credit",
+    "title": "The Vanishing Credit",
+    "category": "Multi-write consistency / account credit",
+    "difficulty": "intermediate",
+    "problemStatement": "A return declined because it would exceed an account's credit limit can still appear in return history. That phantom return prevents a later eligible return, although the account balance never received the earlier credit.",
+    "criteria": [
+      { "id": "credit-order", "title": "creates an order and reads back its saved fields" },
+      { "id": "credit-success", "title": "credits a successful return exactly once and records its history" },
+      { "id": "credit-duplicate", "title": "rejects a second return for the same order without changing credit" },
+      { "id": "credit-limit", "title": "declines an over-limit return without recording it and permits a later eligible return" },
+      { "id": "credit-invalid", "title": "rejects invalid order and return input without changing records" },
+      { "id": "credit-owner", "title": "prevents another customer from reading or returning an order" },
+      { "id": "credit-auth", "title": "requires authentication without changing balances or returns" }
+    ],
+    "hints": {
+      "tier1": "Compare the balance and return history after a declined return. Do they tell the same story?",
+      "tier2": "Trace the order in which the account balance and return record are written, including the rejected limit case.",
+      "tier3": "A rejected credit must not leave a return record behind. Check eligibility before durable writes, or use an atomic unit of work for multi-record updates."
+    },
+    "debrief": {
+      "rootCause": "The return record was inserted before checking whether account credit could be applied, leaving a durable phantom record after a declined credit.",
+      "realWorldContext": "Financial workflows cannot let history and balances diverge. A failed operation must be all-or-nothing or have a reliable compensation path.",
+      "patternToWatch": "Assert both balance and history on success and rejection, and include a later valid operation to expose residue from the failed one."
+    },
+    "referenceFix": "Check credit-limit eligibility before inserting the return and keep the balance/history update atomic under concurrent requests where supported."
   }
 ];
 export function additionalChallenges(validationCommand) {
