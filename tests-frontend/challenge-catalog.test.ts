@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { challengeCatalog, getCatalogEntry, labChallengeParams, relatedChallenges } from "../lib/challenge-catalog.ts";
 
 test("every published challenge is available to the lab route", () => {
@@ -7,6 +9,14 @@ test("every published challenge is available to the lab route", () => {
   for (const entry of challengeCatalog) {
     assert.equal(getCatalogEntry(entry.id)?.title, entry.title, entry.id);
   }
+});
+
+test("the global navigation exposes a safe responsive support link", () => {
+  const source = fs.readFileSync(path.resolve("components/site-shell.tsx"), "utf8");
+  assert.match(source, /href="https:\/\/buymeacoffee\.com\/YOUR_USERNAME"/);
+  assert.match(source, /target="_blank"/);
+  assert.match(source, /rel="noopener noreferrer"/);
+  assert.match(source, /className="support-link"/);
 });
 
 test("related challenges never include the challenge itself", () => {

@@ -43,6 +43,21 @@ test("upstream URL building never doubles the query string", () => {
   assert.equal(buildUpstreamUrl(upstream, "/no-query").href, "https://upstream.example:3000/no-query");
 });
 
+test("preview requests forward challenge bearer tokens without forwarding platform cookies", () => {
+  const headers = __testables.proxyRequestHeaders({
+    accept: "application/json",
+    authorization: "Bearer demo-session-token",
+    cookie: "brokenrepo_session=platform-secret",
+    "content-type": "application/json",
+  }, Buffer.from('{"title":"Draft"}'));
+
+  assert.equal(headers.authorization, "Bearer demo-session-token");
+  assert.equal(headers.accept, "application/json");
+  assert.equal(headers["content-type"], "application/json");
+  assert.equal(headers["content-length"], "17");
+  assert.equal("cookie" in headers, false);
+});
+
 test("preview middleware falls through when the label is not a session id", () => {
   const { previewProxyHandler } = __testables;
   const calls = { next: 0, status: 0 };

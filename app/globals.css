@@ -57,6 +57,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono)}
 .site-header nav>a:not(.button):hover,.site-header .text-button:hover{color:var(--primary)}
 .site-footer a:hover{text-decoration:underline}
 .text-button{border:0;background:none;padding:8px 0;color:var(--primary);font-weight:650}
+.support-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid var(--input);border-radius:5px;color:var(--foreground);font-size:12px;font-weight:700;line-height:1;white-space:nowrap;transition:background .15s ease,border-color .15s ease,color .15s ease}
+.support-link:hover{background:var(--hover-surface);border-color:var(--primary);color:var(--primary)}
 .button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;background:var(--primary);color:var(--primary-foreground);border:1px solid var(--primary);border-radius:5px;font-size:14px;font-weight:750;line-height:1.4;text-align:center;transition:background .15s}
 .button:hover{background:var(--primary-hover)}
 .button.secondary{background:transparent;color:var(--primary);border-color:var(--input)}
@@ -335,7 +337,7 @@ input,textarea{caret-color:var(--primary)}
 .cm-editor .cm-tooltip-autocomplete ul li[aria-selected]{background:var(--accent);color:var(--accent-foreground)}
 [data-sonner-toast][data-styled=true]{--normal-bg:var(--card);--normal-text:var(--foreground);--normal-border:var(--border);--success-bg:var(--success-surface);--success-text:var(--success);--success-border:var(--success);--error-bg:var(--error-surface);--error-text:var(--error-ink)}
 
-@media(max-width:760px){.site-header{position:relative}.site-header>.brand{min-height:44px}.site-header nav{width:100%}.site-header .theme-toggle{position:absolute;right:20px;top:16px}}
+@media(max-width:760px){.site-header{position:relative}.site-header>.brand{min-height:44px}.site-header nav{width:100%}.site-header .theme-toggle{position:absolute;right:20px;top:16px}.support-link{width:40px;padding:8px}.support-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}}
 /* Editor tab bar — mirrors the output-tabs selection style (blue text + bottom border). */
 .tab-toolbar{display:flex;align-items:center;gap:12px}
 .tab-strip{display:flex;gap:2px;overflow-x:auto;min-width:0;flex:1;scrollbar-width:thin}

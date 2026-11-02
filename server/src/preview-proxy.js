@@ -185,6 +185,21 @@ function buildUpstreamUrl(upstreamUrl, pathWithQuery) {
   return new URL(pathWithQuery, upstreamUrl.origin);
 }
 
+// Forward only the request metadata the sandbox application needs. In
+// particular, demo identities use a challenge-local bearer token; dropping
+// Authorization here made the session handshake succeed but every protected
+// request arrive at the sandbox anonymously. Platform cookies and other
+// credentials remain deliberately excluded.
+function proxyRequestHeaders(requestHeaders, body) {
+  return {
+    accept: requestHeaders.accept || "*/*",
+    ...(requestHeaders["content-type"] ? { "content-type": requestHeaders["content-type"] } : {}),
+    ...(requestHeaders.authorization ? { authorization: requestHeaders.authorization } : {}),
+    ...(body ? { "content-length": String(body.length) } : {}),
+    ...SKIP_WARNING_HEADERS,
+  };
+}
+
 async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
   const target = pathAndQuery.startsWith("/") ? pathAndQuery : "/" + pathAndQuery;
 
@@ -193,12 +208,7 @@ async function proxyRequest(req, res, upstreamEntry, pathAndQuery) {
     const body = req.rawBody && req.rawBody.length ? req.rawBody : undefined;
     return fetch(buildUpstreamUrl(upstreamUrl, pathWithQuery), {
       method: req.method,
-      headers: {
-        accept: req.headers.accept || "*/*",
-        ...(req.headers["content-type"] ? { "content-type": req.headers["content-type"] } : {}),
-        ...(body ? { "content-length": String(body.length) } : {}),
-        ...SKIP_WARNING_HEADERS,
-      },
+      headers: proxyRequestHeaders(req.headers, body),
       body: req.method === "HEAD" ? undefined : body,
       redirect: "manual",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -327,4 +337,4 @@ export function resetPreviewProxyCacheForTests() {
   upstreamCache.clear();
 }
 
-export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost, isPageNavigation, buildUpstreamUrl, previewProxyHandler };
+export const __testables = { verifyPreviewToken, isPreviewHost, sessionIdFromHost, isPageNavigation, buildUpstreamUrl, proxyRequestHeaders, previewProxyHandler };
