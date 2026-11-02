@@ -1,6 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { challengeCatalog, relatedChallenges } from "../lib/challenge-catalog.ts";
+import { challengeCatalog, getCatalogEntry, labChallengeParams, relatedChallenges } from "../lib/challenge-catalog.ts";
+
+test("every published challenge is available to the lab route", () => {
+  assert.deepEqual(labChallengeParams(), challengeCatalog.map((entry) => ({ id: entry.id })));
+  for (const entry of challengeCatalog) {
+    assert.equal(getCatalogEntry(entry.id)?.title, entry.title, entry.id);
+  }
+});
 
 test("related challenges never include the challenge itself", () => {
   for (const entry of challengeCatalog) {

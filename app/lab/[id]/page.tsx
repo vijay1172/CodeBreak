@@ -1,23 +1,21 @@
 import { BrokenRepoApp } from "@/components/brokenrepo-app";
 import { TrackVisit } from "@/components/track-visit";
+import { getCatalogEntry, labChallengeParams } from "@/lib/challenge-catalog";
 import { notFound } from "next/navigation";
-const titles: Record<string, string> = {
-  "the-missing-name": "The Missing Name", "the-ghost-update": "The Ghost Update",
-  "the-silent-field": "The Silent Field", "locked-out-sometimes": "Locked Out, Sometimes",
-  "the-stubborn-counter": "The Stubborn Counter", "works-on-my-machine": "Works On My Machine",
-  "the-vanishing-last-item": "The Vanishing Last Item", "the-silent-crash": "The Silent Crash",
-  "the-penny-gap": "The Penny Gap", "a-day-too-early": "A Day Too Early",
-  "the-split-import": "The Split Import", "the-room-that-wont-leave": "The Room That Won’t Leave",
-  "the-borrowed-language": "The Borrowed Language", "the-search-that-guesses": "The Search That Guesses",
-  "one-click-two-bookings": "One Click, Two Bookings",
-  "the-invisible-update": "The Invisible Update", "the-duplicate-order": "The Duplicate Order", "the-leaked-password": "The Leaked Password", "the-frozen-dropdown": "The Frozen Dropdown", "the-ghost-cart": "The Ghost Cart", "the-runaway-query": "The Runaway Query", "the-confused-timezone": "The Confused Timezone", "the-missing-notification": "The Missing Notification", "the-public-secret": "The Public Secret", "the-slow-search": "The Slow Search",
-};
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return labChallengeParams();
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return { title: titles[id] || "Challenge not found", description: "Debug " + (titles[id] || "a project") + " in the BrokenRepo practice lab. Edit code and verify your fix with live tests.", robots: { index: false } };
+  const entry = getCatalogEntry(id);
+  return { title: entry?.title || "Challenge not found", description: "Debug " + (entry?.title || "a project") + " in the BrokenRepo practice lab. Edit code and verify your fix with live tests.", robots: { index: false } };
 }
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!titles[id]) notFound();
+  if (!getCatalogEntry(id)) notFound();
   return <><TrackVisit kind="lab_open" challengeId={id}/><BrokenRepoApp challengeId={id}/></>;
 }

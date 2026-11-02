@@ -463,6 +463,13 @@ export function getCatalogEntry(id: string) {
   return challengeCatalog.find((entry) => entry.id === id);
 }
 
+// The lab route and the public challenge library must use the same source of
+// truth. Keeping route IDs in a second map caused newly published challenges
+// to appear in the library but resolve to the global 404 page when opened.
+export function labChallengeParams() {
+  return challengeCatalog.map((entry) => ({ id: entry.id }));
+}
+
 // Same-category challenges first (the closest practice neighbours), then
 // catalog order fills the remainder, so every detail page links out to a few
 // siblings and no challenge is an orphan for crawlers or readers.
