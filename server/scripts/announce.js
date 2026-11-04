@@ -99,12 +99,21 @@ async function sendAnnouncement(user) {
     }),
     signal: AbortSignal.timeout(15_000),
   });
-  if (!response.ok) throw new Error(`Resend returned HTTP ${response.status}`);
+  if (!response.ok) {
+    const providerBody = await response.json().catch(() => ({}));
+    const providerMessage = String(providerBody?.message || providerBody?.name || "request rejected")
+      .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[redacted-email]")
+      .replace(/\bre_[A-Za-z0-9_-]+\b/g, "[redacted-key]")
+      .replace(/token=[^&\s]+/gi, "token=[redacted]")
+      .slice(0, 300);
+    throw new Error(`HTTP ${response.status}: ${providerMessage}`);
+  }
 }
 
 const client = new MongoClient(mongoUri, { appName: "brokenrepo-one-time-announcement", serverSelectionTimeoutMS: 10_000 });
 let sent = 0;
 const failed = [];
+const failureReasons = new Map();
 
 try {
   await client.connect();
@@ -167,17 +176,23 @@ try {
           { $set: { announcementSent: true, announcementSentAt: new Date() }, $unset: { announcementSendingAt: "" } },
         );
         sent += 1;
-      } catch {
+      } catch (error) {
         // A provider failure releases the claim for a deliberate retry. If the
         // provider succeeded but MongoDB did not record completion, retain the
         // claim so an accidental rerun cannot send a duplicate.
         if (!delivered) await usersCollection.updateOne({ _id: user._id }, { $unset: { announcementSendingAt: "" } }).catch(() => {});
         failed.push(user.email);
+        const reason = error instanceof Error ? error.message : "Unknown provider error";
+        failureReasons.set(reason, (failureReasons.get(reason) || 0) + 1);
       }
       await sleep(SEND_DELAY_MS);
     }
     console.log(`Sent successfully: ${sent}`);
     console.log(`Failed: ${failed.length}`);
+    if (failureReasons.size) {
+      console.log("Failure reasons:");
+      for (const [reason, count] of failureReasons) console.log(`- ${count} × ${reason}`);
+    }
     if (failed.length) console.log(`Failed addresses: ${failed.join(", ")}`);
   }
 } finally {
