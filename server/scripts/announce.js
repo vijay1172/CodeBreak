@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
+import { isLikelyGenuineEmail, selectAnnouncementAudience } from "../src/announcement-audience.js";
 import { createUnsubscribeToken } from "../src/unsubscribe.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -10,8 +11,13 @@ dotenv.config({ path: path.resolve(here, "../../.env.local") });
 dotenv.config({ path: path.resolve(here, "../.env") });
 
 const dryRun = process.argv.includes("--dry-run");
-const unknownArguments = process.argv.slice(2).filter((argument) => argument !== "--dry-run");
+const limitArgument = process.argv.slice(2).find((argument) => argument.startsWith("--limit="));
+const requestedLimit = limitArgument ? Number(limitArgument.slice("--limit=".length)) : null;
+const unknownArguments = process.argv.slice(2).filter((argument) => argument !== "--dry-run" && argument !== limitArgument);
 if (unknownArguments.length) throw new Error(`Unknown argument: ${unknownArguments[0]}`);
+if (requestedLimit !== null && (!Number.isInteger(requestedLimit) || requestedLimit < 1 || requestedLimit > 100)) {
+  throw new Error("--limit must be an integer between 1 and 100");
+}
 
 const mongoUri = process.env.MONGODB_URI?.trim();
 const databaseName = process.env.MONGODB_DB_NAME?.trim() || "Codebreak";
@@ -109,16 +115,27 @@ try {
       announcementSent: { $ne: true },
       announcementSendingAt: { $exists: false },
     },
-    { projection: { _id: 1, email: 1 } },
+    { projection: { _id: 1, email: 1, createdAt: 1 } },
   ).toArray();
-  const eligibleUsers = users.flatMap((user) => {
+  const validUsers = users.flatMap((user) => {
     const parsed = emailSchema.safeParse(user.email);
-    return parsed.success ? [{ _id: user._id, email: parsed.data.toLowerCase() }] : [];
+    return parsed.success ? [{ _id: user._id, email: parsed.data.toLowerCase(), createdAt: user.createdAt }] : [];
   });
+  const likelyGenuineUsers = validUsers.filter((user) => isLikelyGenuineEmail(user.email));
+  const engagedUserIds = new Set(await client.db(databaseName).collection("progress").distinct("userId", {
+    userId: { $in: likelyGenuineUsers.map((user) => user._id) },
+    $or: [{ attempted: true }, { solved: true }, { attempts: { $gt: 0 } }],
+  }));
+  const selectionLimit = requestedLimit || likelyGenuineUsers.length;
+  const eligibleUsers = selectAnnouncementAudience(likelyGenuineUsers, engagedUserIds, selectionLimit);
 
-  console.log(`Eligible users found: ${eligibleUsers.length}`);
-  if (eligibleUsers.length > DAILY_LIMIT) {
-    console.log(`Stopped before sending: ${eligibleUsers.length} exceeds the ${DAILY_LIMIT}-email daily safety limit.`);
+  console.log(`Valid subscribed users found: ${validUsers.length}`);
+  console.log(`Obviously synthetic or disposable addresses excluded: ${validUsers.length - likelyGenuineUsers.length}`);
+  console.log(`Likely genuine candidates: ${likelyGenuineUsers.length}`);
+  console.log(`Engaged candidates prioritized: ${engagedUserIds.size}`);
+  console.log(`Selected for this run: ${eligibleUsers.length}`);
+  if (!requestedLimit && likelyGenuineUsers.length > DAILY_LIMIT) {
+    console.log(`Stopped before sending: ${likelyGenuineUsers.length} exceeds the ${DAILY_LIMIT}-email daily safety limit. Rerun with --limit=100 after reviewing this dry run.`);
     console.log("Sent successfully: 0");
     console.log("Failed: 0");
     process.exitCode = 2;

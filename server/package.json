@@ -8,10 +8,11 @@
   },
   "scripts": {
     "announce:dry-run": "node scripts/announce.js --dry-run",
+    "announce:dry-run-100": "node scripts/announce.js --dry-run --limit=100",
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "test": "node --test test/*.test.js",
-    "check": "node --check src/index.js && node --check src/daytona.js && node --check src/challenges.js && node --check src/result-parser.js && node --check src/runtime-inspector.js && node --check src/preview-proxy.js && node --check src/session-store.js && node --check src/coach-router.js && node --check src/coach-context.js && node --check src/coach-policy.js && node --check src/gemini-coach.js && node --check src/unsubscribe.js && node --check scripts/announce.js"
+    "check": "node --check src/index.js && node --check src/daytona.js && node --check src/challenges.js && node --check src/result-parser.js && node --check src/runtime-inspector.js && node --check src/preview-proxy.js && node --check src/session-store.js && node --check src/coach-router.js && node --check src/coach-context.js && node --check src/coach-policy.js && node --check src/gemini-coach.js && node --check src/unsubscribe.js && node --check src/announcement-audience.js && node --check scripts/announce.js"
   },
   "dependencies": {
     "@daytona/sdk": "^0.214.0",
