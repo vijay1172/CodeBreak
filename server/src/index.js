@@ -20,6 +20,7 @@ import { parseTestRun } from "./result-parser.js";
 import { RUNTIME_HTTP_PREFIX } from "./runtime-inspector.js";
 import { previewHostForSession, previewProxyConfigured, previewProxyHandler, signPreviewToken } from "./preview-proxy.js";
 import { accountRouter, requireAccount, requireAdmin, saveProgress, setupAccounts } from "./accounts.js";
+import { createUnsubscribeHandler } from "./unsubscribe.js";
 import { database, eventsCollection } from "./session-store.js";
 import {
   closeSessionStore,
@@ -157,6 +158,7 @@ app.post("/api/track", trackLimiter, async (req, res) => {
 });
 
 app.use("/api", directTrafficLimiter);
+app.get("/api/unsubscribe", createUnsubscribeHandler({ database, secret: config.unsubscribeSecret }));
 
 const testRunLimiter = rateLimit({
   windowMs: 15 * 60_000,

@@ -30,6 +30,7 @@ export const config = {
   daytonaTarget: process.env.DAYTONA_TARGET?.trim() || "us",
   mongoUri: required("MONGODB_URI"),
   mongoDbName: process.env.MONGODB_DB_NAME?.trim() || "Codebreak",
+  unsubscribeSecret: required("UNSUBSCRIBE_SECRET"),
   clientOrigins: (process.env.CLIENT_ORIGINS || "http://localhost:5173,http://localhost:3000")
     .split(",")
     .map((value) => value.trim())
