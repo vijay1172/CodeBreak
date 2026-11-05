@@ -5,6 +5,8 @@ import { Notifications } from "@/components/site-shell";
 import { TrackVisit } from "@/components/track-visit";
 import { SITE_URL } from "@/lib/site-config";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AdSenseLoader } from "@/components/adsense-loader";
+import { ADSENSE_CLIENT_ID } from "@/lib/adsense";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -30,6 +32,9 @@ export const metadata: Metadata = {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
   },
+  other: {
+    "google-adsense-account": ADSENSE_CLIENT_ID,
+  },
 };
 
 export default function RootLayout({
@@ -39,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<TrackVisit/><Notifications/></ThemeProvider></body>
+      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<AdSenseLoader/><TrackVisit/><Notifications/></ThemeProvider></body>
     </html>
   );
 }
