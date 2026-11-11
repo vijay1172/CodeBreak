@@ -84,13 +84,11 @@ export function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChan
       </header>
       <div className="mc-price"><strong>₹299</strong><span>/ 12 months</span></div>
       <ul className="mc-upgrade-list">
-        <li><ShieldCheck size={17}/>Movie Ticket Booking exercise</li>
-        <li><ShieldCheck size={17}/>Advanced debugging challenges 28–30</li>
-        <li><ShieldCheck size={17}/>Premium scenarios and solution discussions</li>
+        <li><ShieldCheck size={17}/>Advanced premium debugging challenges</li>
+        <li><ShieldCheck size={17}/>Access to any upcoming premium machine coding problems</li>
       </ul>
       <button className="button" type="button" disabled={busy} onClick={checkout}>{busy ? <><LoaderCircle className="mc-spin" size={16}/>Opening secure checkout…</> : "Continue to secure checkout"}</button>
       {error && <p className="mc-checkout-error" role="alert">{error}{error.includes("Log in") && <> <Link href={`/login?next=${encodeURIComponent("/machine-coding/movie-ticket-booking")}`}>Log in here</Link>.</>}</p>}
-      <p className="mc-dialog-note">Parking Lot and Car Pooling remain free.</p>
     </section>
   </div>;
 }

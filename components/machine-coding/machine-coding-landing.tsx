@@ -13,7 +13,7 @@ export function MachineCodingLanding({ exercises }: { exercises: MachineCodingEx
       <div>
         <p className="eyebrow">SDE interview practice · Browser based</p>
         <h1>Design the system.<br/><span>Prove the behavior.</span></h1>
-        <p>Practice the object-oriented implementation rounds used by product companies. You get a focused brief, a multi-file JavaScript workspace, and scenario-based feedback—without setup or a cloud sandbox.</p>
+        <p>Practice the object-oriented implementation rounds used by product companies.</p>
       </div>
       <div className="mc-hero-proof" aria-label="How Machine Coding practice works">
         <div><Code2/><strong>Write real code</strong><span>JavaScript modules in the browser</span></div>
@@ -22,7 +22,7 @@ export function MachineCodingLanding({ exercises }: { exercises: MachineCodingEx
       </div>
     </section>
     <section className="mc-catalog page-width" aria-labelledby="machine-coding-exercises">
-      <div className="mc-section-heading"><div><p className="eyebrow">Initial practice set</p><h2 id="machine-coding-exercises">Choose an exercise</h2></div><p>All three are intermediate and model a connected product workflow—not an isolated algorithm.</p></div>
+      <div className="mc-section-heading"><div><p className="eyebrow">Initial practice set</p><h2 id="machine-coding-exercises">Choose an exercise</h2></div></div>
       <div className="mc-card-grid">{exercises.map((exercise, index) => {
         const premium = exercise.access === "premium";
         return <article className={`mc-exercise-card${premium ? " premium" : ""}`} key={exercise.id}>
