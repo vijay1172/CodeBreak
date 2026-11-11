@@ -278,6 +278,7 @@ export function listChallenges() {
     category,
     difficulty,
     stack,
+    premium: ["the-shared-draft", "the-quiet-archive", "the-vanishing-credit"].includes(id),
   }));
 }
 

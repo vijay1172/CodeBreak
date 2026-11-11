@@ -21,6 +21,7 @@ import { RUNTIME_HTTP_PREFIX } from "./runtime-inspector.js";
 import { previewHostForSession, previewProxyConfigured, previewProxyHandler, signPreviewToken } from "./preview-proxy.js";
 import { accountRouter, requireAccount, requireAdmin, saveProgress, setupAccounts } from "./accounts.js";
 import { createUnsubscribeHandler } from "./unsubscribe.js";
+import { createMachineCodingRouter, hasMachineCodingPremium, PREMIUM_CHALLENGE_IDS } from "./machine-coding.js";
 import { database, eventsCollection } from "./session-store.js";
 import {
   closeSessionStore,
@@ -229,6 +230,12 @@ app.get("/api/challenges", (_req, res) => {
 });
 
 app.use("/api/auth", accountRouter);
+app.use("/api/machine-coding", createMachineCodingRouter({
+  database,
+  requireAccount,
+  keyId: config.razorpayKeyId,
+  keySecret: config.razorpayKeySecret,
+}));
 app.get("/api/progress", requireAccount, async (req, res) => {
   const progress = await database().collection("progress").find({ userId: req.userId }, { projection: { files: 0, lastResult: 0, userId: 0, _id: 0 } }).toArray();
   res.set("Cache-Control", "no-store").json({ progress });
@@ -286,6 +293,13 @@ app.use("/api/sessions/:sessionId/coach", createCoachRouter({
 app.get("/api/challenges/:challengeId", async (req, res) => {
   const challenge = await getChallenge(req.params.challengeId);
   if (!challenge) return res.status(404).json({ error: "Challenge not found" });
+  if (PREMIUM_CHALLENGE_IDS.has(challenge.id)) {
+    return requireAccount(req, res, async () => {
+      const user = await database().collection("users").findOne({ _id: req.userId }, { projection: { machineCodingPremiumUntil: 1 } });
+      if (!hasMachineCodingPremium(user)) return res.status(403).json({ error: "A BrokenRepo premium pass is required for this challenge." });
+      return res.json(publicChallenge(challenge));
+    });
+  }
   return res.json(publicChallenge(challenge));
 });
 
@@ -308,6 +322,10 @@ app.post("/api/sessions", sandboxStartLimiter, async (req, res) => {
 
   const challenge = await getChallenge(parsed.data.challengeId);
   if (!challenge) return res.status(404).json({ error: "Challenge not found" });
+  if (PREMIUM_CHALLENGE_IDS.has(challenge.id)) {
+    const user = await database().collection("users").findOne({ _id: req.userId }, { projection: { machineCodingPremiumUntil: 1 } });
+    if (!hasMachineCodingPremium(user)) return res.status(403).json({ error: "A BrokenRepo premium pass is required for this challenge." });
+  }
 
   const activeSessions = await database().collection("sessions").countDocuments({
     userId: req.userId,

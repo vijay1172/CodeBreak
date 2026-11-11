@@ -17,7 +17,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     try {
       await jsonRequest("/auth/" + mode, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: data.get("email"), password: data.get("password") }) });
       toast.success(signup ? "Your account is ready. Pick a challenge to start." : "Welcome back. Your progress is ready.");
-      router.push("/challenges"); router.refresh();
+      const requestedNext = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("next") : null;
+      const next = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/challenges";
+      router.push(next); router.refresh();
     } catch (error) { setError(error instanceof Error ? error.message : "Couldn’t connect. Please try again."); }
     finally { setBusy(false); }
   }

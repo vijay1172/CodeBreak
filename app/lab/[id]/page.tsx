@@ -2,6 +2,7 @@ import { BrokenRepoApp } from "@/components/brokenrepo-app";
 import { TrackVisit } from "@/components/track-visit";
 import { getCatalogEntry, labChallengeParams } from "@/lib/challenge-catalog";
 import { notFound } from "next/navigation";
+import { PremiumChallengeGate } from "@/components/premium-challenge-gate";
 
 export const dynamicParams = false;
 
@@ -17,5 +18,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!getCatalogEntry(id)) notFound();
+  if (["the-shared-draft", "the-quiet-archive", "the-vanishing-credit"].includes(id)) return <><TrackVisit kind="lab_open" challengeId={id}/><PremiumChallengeGate challengeId={id}/></>;
   return <><TrackVisit kind="lab_open" challengeId={id}/><BrokenRepoApp challengeId={id}/></>;
 }

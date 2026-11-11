@@ -10,6 +10,7 @@ const initialItems: ChallengeSummary[] = challengeCatalog.map((entry) => ({
   category: entry.category,
   difficulty: entry.difficulty,
   stack: "MERN",
+  premium: ["the-shared-draft", "the-quiet-archive", "the-vanishing-credit"].includes(entry.id),
 }));
 
 export const metadata = { title: "Debugging practice challenges — fix real code bugs", description: "Twenty-five full stack debugging challenges on real repos: API contracts, auth, React state, caching, dates, timezones, security, and performance. Repo based questions practice for interviews and OA prep.", alternates: { canonical: "/challenges" } };

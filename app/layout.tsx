@@ -7,6 +7,7 @@ import { SITE_URL } from "@/lib/site-config";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AdSenseLoader } from "@/components/adsense-loader";
 import { ADSENSE_CLIENT_ID } from "@/lib/adsense";
+import { SeasonalSnowfall } from "@/components/seasonal-snowfall";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -44,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a>{children}<AdSenseLoader/><TrackVisit/><Notifications/></ThemeProvider></body>
+      <body className="antialiased"><ThemeProvider><a className="skip-link" href="#main-content">Skip to content</a><SeasonalSnowfall/>{children}<AdSenseLoader/><TrackVisit/><Notifications/></ThemeProvider></body>
     </html>
   );
 }

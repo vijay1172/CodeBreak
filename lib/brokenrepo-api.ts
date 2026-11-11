@@ -25,7 +25,7 @@ export type Challenge = {
   files: ChallengeFile[];
 };
 
-export type ChallengeSummary = Pick<Challenge, "id" | "title" | "category" | "difficulty" | "stack">;
+export type ChallengeSummary = Pick<Challenge, "id" | "title" | "category" | "difficulty" | "stack"> & { premium?: boolean };
 
 export type SessionStatus =
   | "provisioning"

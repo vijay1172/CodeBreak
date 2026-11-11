@@ -81,7 +81,7 @@ accountRouter.post("/login", async (req, res) => {
 });
 accountRouter.get("/me", requireAccount, async (req, res) => {
   const user = await database().collection("users").findOne({ _id: req.userId });
-  res.json({ user: { id: user._id, email: user.email, role: user.role ?? "user" } });
+  res.json({ user: { id: user._id, email: user.email, role: user.role ?? "user", machineCodingPremiumUntil: user.machineCodingPremiumUntil ?? null } });
 });
 accountRouter.post("/logout", requireAccount, async (req, res) => {
   await database().collection("authSessions").deleteOne({ _id: digest(req.authToken) });

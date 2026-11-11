@@ -1,0 +1,71 @@
+// Local browser persistence, execution and ZIP integration. No backend records
+// or Daytona sessions are created by this test.
+import assert from "node:assert/strict";
+import { mkdir, readFile } from "node:fs/promises";
+import { unzipSync, strFromU8 } from "fflate";
+import { chromium, expect } from "@playwright/test";
+
+const browser = await chromium.launch({ channel: "chrome", headless: true });
+const base = process.env.BROKENREPO_TEST_URL || "http://localhost:5174";
+const output = new URL("../outputs/machine-coding/", import.meta.url);
+await mkdir(output, { recursive: true });
+try {
+  const context = await browser.newContext();
+  await context.route("**/api/backend/**", (route) => route.fulfill({ status: 401, contentType: "application/json", body: "{}" }));
+  const page = await context.newPage();
+  await page.goto(`${base}/machine-coding/parking-lot`);
+  const editor = page.locator(".cm-content");
+  await expect(editor).toBeVisible();
+  await page.getByRole("button", { name: "Add JavaScript file" }).click();
+  await page.getByRole("textbox", { name: "New JavaScript filename" }).fill("../bad.js");
+  await page.getByRole("button", { name: "Create file" }).click();
+  await expect(page.getByRole("alert")).toContainText("folders");
+  await page.getByRole("textbox", { name: "New JavaScript filename" }).fill("helpers.js");
+  await page.getByRole("button", { name: "Create file" }).click();
+  await editor.fill("export const answer = 42;");
+  await expect(page.getByRole("status")).toHaveText("Saved locally");
+  await page.getByRole("tab", { name: "solution.js" }).click();
+  await editor.fill("import { answer } from './helpers.js'; export class ParkingLot { constructor() { console.log(answer); throw new Error('Testing save'); } }");
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(page.getByRole("timer")).not.toContainText("00:00");
+  await page.getByRole("button", { name: "Pause", exact: true }).click();
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  await expect(page.locator(".mc-scenario-result")).toHaveCount(9);
+  await expect(page.locator(".mc-machine-console")).toContainText("42");
+  await expect(page.getByRole("status")).toHaveText("Saved locally");
+  const savedTime = await page.locator(".stopwatch-time").textContent();
+  await page.reload();
+  await expect(page.getByRole("region", { name: "Restore saved progress" })).toBeVisible();
+  await page.screenshot({ path: new URL("restore-progress.png", output).pathname, fullPage: true });
+  await page.getByRole("button", { name: "Restore progress" }).click();
+  await expect(page.getByRole("tab", { name: "helpers.js" })).toBeVisible();
+  await expect(page.locator(".stopwatch-time")).toHaveText(savedTime);
+  await expect(page.locator(".mc-scenario-result")).toHaveCount(9);
+  await expect(editor).toContainText("Testing save");
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const download = await downloadPromise;
+  const zip = unzipSync(await readFile(await download.path()));
+  assert.deepEqual(Object.keys(zip).sort(), ["helpers.js", "solution.js"]);
+  assert.equal(strFromU8(zip["helpers.js"]), "export const answer = 42;");
+  await page.getByRole("button", { name: "Reset scaffold" }).click();
+  await page.getByRole("button", { name: "Confirm reset" }).click();
+  await expect(page.getByRole("tab")).toHaveCount(1);
+  await expect(editor).toContainText("Not implemented");
+  await page.waitForTimeout(1200);
+  assert.equal(await page.evaluate(() => localStorage.getItem("brokenrepo:machine-coding:v1:parking-lot")), null);
+  await page.reload();
+  await expect(editor).toBeVisible();
+  await expect(page.getByRole("region", { name: "Restore saved progress" })).toHaveCount(0);
+  await page.evaluate(() => {
+    localStorage.setItem("brokenrepo:machine-coding:v1:parking-lot", JSON.stringify({ version: 1, files: [{ name: "solution.js", content: "export class ParkingLot {}" }], activeFile: "solution.js", elapsedMs: 60000, runningSince: Date.now() - 5000, result: null, discussionUnlocked: true, savedAt: Date.now() }));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Restore progress" }).click();
+  await expect(page.getByRole("button", { name: "Pause", exact: true })).toBeVisible();
+  await expect(page.locator(".stopwatch-time")).not.toHaveText("01:00");
+  await page.getByRole("button", { name: "See solution discussion" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Self-review checklist");
+  console.log("PASS: invalid filename rejection, multi-file execution, autosave, timer pause, reload/restore, saved results, ZIP contents, and reset clearing localStorage.");
+  await context.close();
+} finally { await browser.close(); }

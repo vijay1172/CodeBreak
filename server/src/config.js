@@ -45,5 +45,7 @@ export const config = {
   // Optional, server-only. Never forward this configuration into a sandbox or browser.
   geminiApiKey: process.env.GEMINI_API_KEY?.trim() || "",
   geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash-lite",
+  razorpayKeyId: process.env.RAZORPAY_KEY_ID?.trim() || "",
+  razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET?.trim() || "",
   projectRoot: path.resolve(here, ".."),
 };

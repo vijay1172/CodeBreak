@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Circle, Search } from "lucide-react";
+import { CheckCircle2, Circle, Crown, Search } from "lucide-react";
 import { jsonRequest, listChallenges, type ChallengeSummary } from "@/lib/brokenrepo-api";
 import { SiteHeader, SiteFooter } from "./site-shell";
 type Progress = { challengeId: string; attempted?: boolean; solved?: boolean; attempts?: number };
@@ -39,7 +39,7 @@ export function ChallengeLibrary({ progressOnly = false, initialItems }: { progr
     <div className="challenge-list">{visible.map((item, index) => {
       const saved = progress.find(x => x.challengeId === item.id);
       const href = loggedIn ? "/lab/" + item.id : "/challenges/" + item.id;
-      return <article className="challenge-row" key={item.id}><span className="challenge-number">{String(index + 1).padStart(2,"0")}</span><div><h2><Link href={href}>{item.title}</Link></h2><p>{item.category}</p></div><span className="level">{item.difficulty}</span><span className={"completion " + (saved?.solved ? "solved" : "")}>{saved?.solved ? <CheckCircle2 size={16}/> : <Circle size={16}/>}{saved?.solved ? "Solved" : saved?.attempted ? "Attempted" : "Not started"}</span><Link className="button secondary small" href={href}>{saved?.attempted ? "Continue" : "Open challenge"}</Link></article>;
+      return <article className="challenge-row" key={item.id}><span className="challenge-number">{String(index + 1).padStart(2,"0")}</span><div><h2><Link href={href}>{item.title}</Link>{item.premium && <span className="mc-access-tag premium challenge-premium-tag"><Crown size={12}/>Premium</span>}</h2><p>{item.category}</p></div><span className="level">{item.difficulty}</span><span className={"completion " + (saved?.solved ? "solved" : "")}>{saved?.solved ? <CheckCircle2 size={16}/> : <Circle size={16}/>}{saved?.solved ? "Solved" : saved?.attempted ? "Attempted" : "Not started"}</span><Link className="button secondary small" href={href}>{item.premium ? "View access" : saved?.attempted ? "Continue" : "Open challenge"}</Link></article>;
     })}</div>
     {loaded && !error && visible.length === 0 && <p className="empty-state">No matching challenges. Try another search or clear the filters.</p>}
   </main><SiteFooter/></>;
