@@ -10,6 +10,7 @@ import type { SandboxRunResult } from "@/lib/machine-coding/execution-types";
 import { BrowserExecutionEngine } from "@/lib/machine-coding/browser-execution-engine";
 import { useLocalWorkspace } from "./use-local-workspace";
 import { formatPracticeTime, validFileName } from "@/lib/machine-coding/local-progress";
+import { trackProductEvent } from "@/components/track-visit";
 
 const CodeEditor = dynamic(() => import("@/components/code-editor").then((module) => module.CodeEditor), {
   ssr: false,
@@ -46,11 +47,13 @@ export function MachineCodingWorkspaceShell({ exercise, content, accountId = "lo
   async function runScenarios() {
     setRunning(true);
     setRunError(null);
+    trackProductEvent("machine_coding_run", exercise.id);
     try {
       const engine = engineRef.current ?? new BrowserExecutionEngine();
       engineRef.current = engine;
       const result = await engine.run({ entryFile: content.entryFile, files: workspace.files, scenarios: content.scenarios });
       const completed = result.status === "completed" && result.scenarios.filter((scenario) => coreNames.has(scenario.name)).length === coreNames.size && result.scenarios.filter((scenario) => coreNames.has(scenario.name)).every((scenario) => scenario.status === "passed");
+      if (completed) trackProductEvent("machine_coding_complete", exercise.id);
       workspace.recordResult(result, completed);
       if (result.status !== "completed") setRunError(result.error ?? "The isolated run could not complete.");
     } catch (error) {

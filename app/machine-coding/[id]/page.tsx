@@ -3,6 +3,7 @@ import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getMachineCodingExercise, machineCodingExercises } from "@/lib/machine-coding/catalog";
 import { getMachineCodingContent } from "@/lib/machine-coding/exercise-content";
 import { MachineCodingExerciseGate } from "@/components/machine-coding/machine-coding-exercise-gate";
+import { TrackVisit } from "@/components/track-visit";
 
 export const dynamicParams = false;
 
@@ -19,6 +20,6 @@ export default async function MachineCodingExercisePage({ params }: { params: Pr
   const exercise = getMachineCodingExercise((await params).id);
   if (!exercise) notFound();
   const content = exercise.access === "free" ? getMachineCodingContent(exercise.id) : undefined;
-  return <><SiteHeader/><MachineCodingExerciseGate exercise={exercise} freeContent={content}/><SiteFooter/></>;
+  return <><SiteHeader/><TrackVisit kind="machine_coding_view" challengeId={exercise.id}/><MachineCodingExerciseGate exercise={exercise} freeContent={content}/><SiteFooter/></>;
 }
 

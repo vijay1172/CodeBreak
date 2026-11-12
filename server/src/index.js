@@ -122,9 +122,10 @@ const directTrafficLimiter = rateLimit({
   handler: tooManyRequests("Too many requests. Please slow down and try again shortly."),
 });
 const trackSchema = z.object({
-  kind: z.enum(["pageview", "challenge_view", "lab_open"]),
+  kind: z.enum(["pageview", "challenge_view", "lab_open", "machine_coding_view", "machine_coding_run", "machine_coding_complete"]),
   path: z.string().min(1).max(300),
   challengeId: z.string().trim().max(120).optional(),
+  referrerHost: z.string().trim().max(253).optional(),
 });
 
 // Public, anonymous beacon. Registered before the global /api limiter so pageview
@@ -145,11 +146,15 @@ app.post("/api/track", trackLimiter, async (req, res) => {
   const ua = req.get("x-client-ua") || "";
   const visitorId = createHash("sha256").update(`${ip}|${ua}`).digest("hex").slice(0, 32);
   const device = /iPad|Tablet/i.test(ua) ? "tablet" : /Mobi|Android|iPhone/i.test(ua) ? "mobile" : "desktop";
+  const candidateHost = parsed.data.referrerHost?.toLowerCase().replace(/^www\./, "");
+  const isHost = candidateHost && /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(candidateHost);
+  const referrerHost = isHost && !["brokenrepo.tech", "localhost"].includes(candidateHost) ? candidateHost : "direct";
   const event = {
     kind: parsed.data.kind,
     path: parsed.data.path,
     challengeId: parsed.data.challengeId || null,
     visitorId,
+    referrerHost,
     device,
     country: (req.get("x-client-country") || "").slice(0, 2).toUpperCase() || null,
     createdAt: new Date(),
@@ -603,9 +608,10 @@ app.post("/api/sessions/:sessionId/end", async (req, res) => {
 
 app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) => {
   const db = database();
+  const since7 = new Date(Date.now() - 7 * 864e5);
   const since30 = new Date(Date.now() - 30 * 864e5);
   const since12w = new Date(Date.now() - 12 * 7 * 864e5);
-  const [totalUsers, dailySignups, weeklySignups, challengeStats, reportCounts, funnelViews, dailyTraffic, topPages, devices, countries] = await Promise.all([
+  const [totalUsers, dailySignups, weeklySignups, challengeStats, reportCounts, funnelViews, dailyTraffic, topPages, devices, countries, userActivity, anonymousJourney, acquisition, machineCodingActivity] = await Promise.all([
     db.collection("users").countDocuments({}),
     db.collection("users").aggregate([
       { $match: { createdAt: { $gte: since30 } } },
@@ -658,10 +664,54 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
       { $sort: { pageviews: -1 } },
       { $limit: 10 },
     ]).toArray(),
+    db.collection("progress").aggregate([
+      { $match: { updatedAt: { $gte: since30 } } },
+      { $group: { _id: "$userId", latestActivity: { $max: "$updatedAt" }, activeDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } } } } },
+      { $project: { latestActivity: 1, activeDays: { $size: "$activeDays" } } },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { createdAt: { $gte: since30 }, kind: { $in: ["pageview", "challenge_view", "lab_open"] } } },
+      { $group: { _id: "$visitorId", paths: { $addToSet: "$path" }, kinds: { $addToSet: "$kind" } } },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: "pageview", createdAt: { $gte: since30 } } },
+      { $group: { _id: { $ifNull: ["$referrerHost", "unknown"] }, visitors: { $addToSet: "$visitorId" }, pageviews: { $sum: 1 } } },
+      { $project: { visitors: { $size: "$visitors" }, pageviews: 1 } },
+      { $sort: { visitors: -1, pageviews: -1 } },
+      { $limit: 10 },
+    ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: { $in: ["machine_coding_view", "machine_coding_run", "machine_coding_complete"] }, createdAt: { $gte: since30 } } },
+      { $group: { _id: { exerciseId: "$challengeId", kind: "$kind" }, visitors: { $addToSet: "$visitorId" }, events: { $sum: 1 } } },
+    ]).toArray(),
   ]);
   const stats = new Map(challengeStats.map((row) => [row._id, row]));
   const reportsBy = new Map(reportCounts.map((row) => [row._id, row.reports]));
   const viewsBy = new Map(funnelViews.map((row) => [row._id, row.viewers]));
+  const activeAccounts7d = userActivity.filter((row) => new Date(row.latestActivity) >= since7).length;
+  const activeAccounts30d = userActivity.length;
+  const returningAccounts30d = userActivity.filter((row) => row.activeDays >= 2).length;
+  const journeyCounts = {
+    home: 0,
+    challengeCatalog: 0,
+    challengeOpened: 0,
+    labOpened: 0,
+  };
+  for (const row of anonymousJourney) {
+    if (row.paths.includes("/")) journeyCounts.home += 1;
+    if (row.paths.includes("/challenges")) journeyCounts.challengeCatalog += 1;
+    if (row.kinds.includes("challenge_view")) journeyCounts.challengeOpened += 1;
+    if (row.kinds.includes("lab_open")) journeyCounts.labOpened += 1;
+  }
+  const machineCodingBy = new Map();
+  for (const row of machineCodingActivity) {
+    const exerciseId = row._id.exerciseId || "catalog";
+    const entry = machineCodingBy.get(exerciseId) || { id: exerciseId, views: 0, viewers: 0, runs: 0, runners: 0, completions: 0, completers: 0 };
+    if (row._id.kind === "machine_coding_view") { entry.views = row.events; entry.viewers = row.visitors; }
+    if (row._id.kind === "machine_coding_run") { entry.runs = row.events; entry.runners = row.visitors; }
+    if (row._id.kind === "machine_coding_complete") { entry.completions = row.events; entry.completers = row.visitors; }
+    machineCodingBy.set(row._id.exerciseId, entry);
+  }
   const challenges = listChallenges().map(({ id, title }) => {
     const stat = stats.get(id) || {};
     const viewers = viewsBy.get(id) || 0;
@@ -683,9 +733,16 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
   });
   return res.set("Cache-Control", "no-store").json({
     generatedAt: new Date().toISOString(),
-    growth: { totalUsers, dailySignups, weeklySignups },
+    growth: {
+      totalUsers, dailySignups, weeklySignups,
+      activeAccounts7d,
+      activeAccounts30d,
+      returningAccounts30d,
+      accountsWithProgress: await db.collection("progress").distinct("userId").then((ids) => ids.length),
+    },
     challenges,
-    traffic: { dailyTraffic, topPages, devices, countries },
+    traffic: { dailyTraffic, topPages, devices, countries, acquisition, anonymousJourney: journeyCounts },
+    machineCoding: [...machineCodingBy.values()],
   });
 });
 
