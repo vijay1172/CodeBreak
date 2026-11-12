@@ -1,5 +1,5 @@
 export type MachineCodingExercise = {
-  id: "parking-lot" | "car-pooling" | "movie-ticket-booking";
+  id: "parking-lot" | "car-pooling" | "movie-ticket-booking" | "messaging-app";
   title: string;
   difficulty: "Intermediate";
   estimatedMinutes: number;
@@ -39,6 +39,16 @@ export const machineCodingExercises: MachineCodingExercise[] = [
     entryPoint: "BookingSystem",
     summary: "Coordinate shows, seat selection, booking conflicts, cancellations, and a waitlist follow-up.",
     focus: ["Consistency", "Duplicate prevention", "Waitlist design"],
+  },
+  {
+    id: "messaging-app",
+    title: "Messaging App",
+    difficulty: "Intermediate",
+    estimatedMinutes: 105,
+    access: "premium",
+    entryPoint: "MessagingApp",
+    summary: "Build private conversations, ordered message history, and read receipts.",
+    focus: ["Conversation modelling", "Membership rules", "Read receipts"],
   },
 ];
 

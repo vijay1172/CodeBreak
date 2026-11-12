@@ -58,6 +58,27 @@ test("active premium learners receive the complete premium scenario contract", a
   });
 });
 
+test("premium learners can fetch Messaging App scenarios without shipping them in the public catalog", async () => {
+  await withApi({ user: { _id: "learner-1", machineCodingPremiumUntil: new Date(Date.now() + 60_000) } }, async ({ baseUrl }) => {
+    const response = await fetch(`${baseUrl}/premium-exercise/messaging-app`, { headers: { authorization: "Bearer learner-token" } });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.exercise.scenarios.length, 15);
+    assert.equal(body.exercise.scenarios.at(-1).group, "follow-up");
+    assert.equal(body.exercise.scenarios[0].entryPoint, "MessagingApp");
+    const unknown = await fetch(`${baseUrl}/premium-exercise/not-an-exercise`, { headers: { authorization: "Bearer learner-token" } });
+    assert.equal(unknown.status, 404);
+  });
+});
+
+test("Messaging App scenario definitions remain behind the active premium entitlement", async () => {
+  await withApi({}, async ({ baseUrl }) => {
+    const response = await fetch(`${baseUrl}/premium-exercise/messaging-app`, { headers: { authorization: "Bearer learner-token" } });
+    assert.equal(response.status, 403);
+    assert.match((await response.json()).error, /pass is required/i);
+  });
+});
+
 test("checkout creates a fixed-price INR order and records it for the signed-in user", async () => {
   let requestedOrder;
   await withApi({ fetchImpl: async (_url, options) => {

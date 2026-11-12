@@ -14,7 +14,7 @@ async function prepare(context) {
     const url = new URL(route.request().url());
     if (url.pathname.endsWith("/track")) return route.fulfill({ status: 204 });
     if (url.pathname.endsWith("/auth/me")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ user: { id: "browser-test-user", email: "learner@example.test" } }) });
-    if (url.pathname.endsWith("/premium-exercise")) return route.fulfill({ status: 403, contentType: "application/json", body: JSON.stringify({ error: "A Machine Coding pass is required for this exercise." }) });
+    if (url.pathname.includes("/premium-exercise")) return route.fulfill({ status: 403, contentType: "application/json", body: JSON.stringify({ error: "A Machine Coding pass is required for this exercise." }) });
     if (url.pathname.endsWith("/challenges/the-shared-draft")) return route.fulfill({ status: 403, contentType: "application/json", body: JSON.stringify({ error: "A BrokenRepo premium pass is required for this challenge." }) });
     return route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "Login required" }) });
   });
@@ -32,13 +32,13 @@ try {
 
   await page.goto(`${base}/machine-coding`);
   await expect(page.getByRole("heading", { name: "Choose an exercise" })).toBeVisible();
-  await expect(page.locator(".mc-exercise-card")).toHaveCount(3);
+  await expect(page.locator(".mc-exercise-card")).toHaveCount(4);
   await expect(page.locator(".mc-access-tag.free")).toHaveCount(2);
-  await expect(page.locator(".mc-access-tag.premium")).toHaveCount(1);
+  await expect(page.locator(".mc-access-tag.premium")).toHaveCount(2);
   // The landing markup is server-rendered; wait for the client event handlers
   // before exercising the modal interaction.
   await page.waitForTimeout(500);
-  await page.getByRole("button", { name: /View premium access/ }).click();
+  await page.getByRole("button", { name: /View premium access/ }).first().click();
   await expect(page.getByRole("dialog")).toContainText("₹299");
   await expect(page.getByRole("dialog")).toContainText("12 months");
   await page.screenshot({ path: new URL("premium-modal.png", output).pathname, fullPage: true });
@@ -51,10 +51,13 @@ try {
   await expect(page.getByRole("complementary", { name: "Scenario and console output" })).toBeVisible();
   await expect(page.getByRole("timer", { name: "Practice timer" })).toContainText("00:00");
   await expect(page.getByRole("heading", { name: "Core requirements" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Edge cases" })).toHaveCount(0);
+  await expect(page.getByText("Additional edge-case prompts unlock after your first run.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Follow-up requirement" })).toBeVisible();
   await page.getByRole("button", { name: "Run", exact: true }).click();
   await expect(page.locator(".mc-scenario-result")).toHaveCount(9);
   await expect(page.locator(".mc-scenario-result.failed")).toHaveCount(9);
+  await expect(page.getByRole("heading", { name: "Edge cases" })).toBeVisible();
   await expect(page.locator(".mc-score")).toContainText("0/9");
   await page.screenshot({ path: new URL("workspace-desktop.png", output).pathname, fullPage: true });
 
@@ -62,6 +65,10 @@ try {
   await expect(page.getByRole("heading", { name: "Movie Ticket Booking" })).toBeVisible();
   await expect(page.getByRole("button", { name: /View 12-month access/ })).toBeVisible();
   assert.equal((await page.content()).includes("promotes the oldest satisfiable waitlist request"), false, "Premium scenarios must not be rendered into the locked route");
+  await page.goto(`${base}/machine-coding/messaging-app`);
+  await expect(page.getByRole("heading", { name: "Messaging App" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /View 12-month access/ })).toBeVisible();
+  assert.equal((await page.content()).includes("creates a conversation with its first sequential identifier"), false, "Messaging App scenarios must not be rendered into the locked route");
   await page.getByRole("button", { name: /View 12-month access/ }).click();
   await expect(page.getByRole("dialog")).toContainText("₹299");
   await page.goto(`${base}/lab/the-shared-draft`);
@@ -73,7 +80,7 @@ try {
   await prepare(mobile);
   const phone = await mobile.newPage();
   await phone.goto(`${base}/machine-coding`);
-  await expect(phone.locator(".mc-exercise-card")).toHaveCount(3);
+  await expect(phone.locator(".mc-exercise-card")).toHaveCount(4);
   assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, "Machine Coding landing must not overflow horizontally");
   await phone.screenshot({ path: new URL("landing-mobile.png", output).pathname, fullPage: true });
   await phone.goto(`${base}/machine-coding/car-pooling`);
@@ -82,7 +89,7 @@ try {
   assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, "Machine Coding workspace must not overflow horizontally");
   await phone.screenshot({ path: new URL("workspace-mobile.png", output).pathname, fullPage: true });
   await mobile.close();
-  console.log("PASS: homepage discovery, seasonal snowfall, three exercise cards, free/premium labels, upgrade modal, desktop workspace layout, and mobile responsiveness.");
+  console.log("PASS: homepage discovery, seasonal snowfall, four exercise cards, free/premium labels, upgrade modal, progressive edge-case prompts, desktop workspace layout, and mobile responsiveness.");
 } finally {
   await browser.close();
 }

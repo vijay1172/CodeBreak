@@ -43,6 +43,65 @@ const premiumExercise = {
   },
 };
 
+const messagingExercise = {
+  entryFile: "solution.js",
+  brief: {
+    context: "A product team is prototyping private one-to-one and group messaging. Participants should see a conversation's full history in a stable order, and the product needs a clear way to record which participants have read each message.",
+    task: "Implement and export a MessagingApp class that creates conversations, sends messages, returns authorized conversation history, and supports read receipts as a follow-up.",
+    coreRequirements: [
+      "createConversation({ participantIds }) creates a conversation with a sequential ID beginning C-1 and returns { conversationId, participantIds }.",
+      "sendMessage({ conversationId, senderId, text }) creates a sequential message beginning M-1 and returns { messageId, conversationId, senderId, text, readBy }.",
+      "getMessages({ conversationId, userId }) returns messages in creation order, with readBy initially an empty array.",
+      "getConversation(conversationId, userId) returns { conversationId, participantIds } only to a participant.",
+    ],
+    edgeCases: [
+      "Reject conversations with fewer than two unique, non-empty participant IDs.",
+      "Reject blank message text and messages sent by non-participants.",
+      "Reject attempts to read a nonexistent conversation or access it as a non-participant.",
+      "Reject marking a message sent by the same user as read, and reject unknown message IDs.",
+    ],
+    followUp: "Implement read receipts with markRead. A user cannot mark their own message as read; repeated marks by the same participant should not duplicate that participant in readBy.",
+    notes: ["Keep all state in memory; do not use network, storage, DOM, or wall-clock time.", "Return plain objects and arrays rather than mutable internal collections.", "Throw an Error for invalid operations."],
+  },
+  scaffold: `export class MessagingApp {
+  constructor() { throw new Error("Not implemented"); }
+  createConversation(details) { throw new Error("Not implemented"); }
+  sendMessage(details) { throw new Error("Not implemented"); }
+  getMessages(details) { throw new Error("Not implemented"); }
+  getConversation(conversationId, userId) { throw new Error("Not implemented"); }
+  markRead(details) { throw new Error("Not implemented"); }
+}
+`,
+  scenarios: [
+    { name: "creates a conversation with its first sequential identifier", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }], expected: { conversationId: "C-1", participantIds: ["U1", "U2"] } },
+    { name: "returns conversation details to one of its participants", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }], saveAs: "conversation" }, { method: "getConversation", args: [{ $ref: "conversation.conversationId" }, "U2"] }], expected: { conversationId: "C-1", participantIds: ["U1", "U2"] } },
+    { name: "sends a message with a sequential identifier and empty read receipt", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }], saveAs: "conversation" }, { method: "sendMessage", args: [{ conversationId: { $ref: "conversation.conversationId" }, senderId: "U1", text: "Hello" }] }], expected: { messageId: "M-1", conversationId: "C-1", senderId: "U1", text: "Hello", readBy: [] } },
+    { name: "returns messages in the order they were created", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }], saveAs: "conversation" }, { method: "sendMessage", args: [{ conversationId: { $ref: "conversation.conversationId" }, senderId: "U1", text: "First" }] }, { method: "sendMessage", args: [{ conversationId: { $ref: "conversation.conversationId" }, senderId: "U2", text: "Second" }] }, { method: "getMessages", args: [{ conversationId: { $ref: "conversation.conversationId" }, userId: "U1" }] }], expected: [{ messageId: "M-1", conversationId: "C-1", senderId: "U1", text: "First", readBy: [] }, { messageId: "M-2", conversationId: "C-1", senderId: "U2", text: "Second", readBy: [] }] },
+    { name: "keeps message histories separate between conversations", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }], saveAs: "first" }, { method: "createConversation", args: [{ participantIds: ["U3", "U4"] }], saveAs: "second" }, { method: "sendMessage", args: [{ conversationId: { $ref: "first.conversationId" }, senderId: "U1", text: "Private one" }] }, { method: "sendMessage", args: [{ conversationId: { $ref: "second.conversationId" }, senderId: "U3", text: "Private two" }] }, { method: "getMessages", args: [{ conversationId: { $ref: "first.conversationId" }, userId: "U2" }] }], expected: [{ messageId: "M-1", conversationId: "C-1", senderId: "U1", text: "Private one", readBy: [] }] },
+    { name: "rejects a conversation with fewer than two participants", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1"] }] }], expectedError: "At least two participants" },
+    { name: "rejects duplicate participants in one conversation", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U1"] }] }], expectedError: "unique participants" },
+    { name: "rejects a message containing only whitespace", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }, { method: "sendMessage", args: [{ conversationId: "C-1", senderId: "U1", text: "   " }] }], expectedError: "Message text is required" },
+    { name: "prevents a non-participant from sending to a conversation", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }, { method: "sendMessage", args: [{ conversationId: "C-1", senderId: "U3", text: "Intrusion" }] }], expectedError: "not a participant" },
+    { name: "prevents a non-participant from reading conversation history", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }, { method: "getMessages", args: [{ conversationId: "C-1", userId: "U3" }] }], expectedError: "not a participant" },
+    { name: "rejects history requests for a nonexistent conversation", group: "core", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "getMessages", args: [{ conversationId: "C-404", userId: "U1" }] }], expectedError: "Conversation not found" },
+    { name: "marks another participant's message as read", group: "follow-up", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }, { method: "sendMessage", args: [{ conversationId: "C-1", senderId: "U1", text: "Read me" }], saveAs: "message" }, { method: "markRead", args: [{ conversationId: "C-1", userId: "U2", messageId: { $ref: "message.messageId" } }] }, { method: "getMessages", args: [{ conversationId: "C-1", userId: "U1" }] }], expected: [{ messageId: "M-1", conversationId: "C-1", senderId: "U1", text: "Read me", readBy: ["U2"] }] },
+    { name: "does not duplicate a participant on repeated read receipts", group: "follow-up", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }, { method: "sendMessage", args: [{ conversationId: "C-1", senderId: "U1", text: "Read once" }], saveAs: "message" }, { method: "markRead", args: [{ conversationId: "C-1", userId: "U2", messageId: { $ref: "message.messageId" } }] }, { method: "markRead", args: [{ conversationId: "C-1", userId: "U2", messageId: { $ref: "message.messageId" } }] }, { method: "getMessages", args: [{ conversationId: "C-1", userId: "U1" }] }], expected: [{ messageId: "M-1", conversationId: "C-1", senderId: "U1", text: "Read once", readBy: ["U2"] }] },
+    { name: "does not allow a sender to mark their own message as read", group: "follow-up", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }, { method: "sendMessage", args: [{ conversationId: "C-1", senderId: "U1", text: "Own message" }], saveAs: "message" }, { method: "markRead", args: [{ conversationId: "C-1", userId: "U1", messageId: { $ref: "message.messageId" } }] }], expectedError: "own message" },
+    { name: "rejects a read receipt for an unknown message", group: "follow-up", entryPoint: "MessagingApp", kind: "class", calls: [{ method: "createConversation", args: [{ participantIds: ["U1", "U2"] }] }, { method: "markRead", args: [{ conversationId: "C-1", userId: "U2", messageId: "M-404" }] }], expectedError: "Message not found" },
+  ],
+  discussion: {
+    keyDecisions: ["Separate conversation membership from message storage.", "Keep message ordering based on deterministic creation sequence.", "Treat read receipts as a per-message set of participant IDs."],
+    commonMistakes: ["Returning messages to any caller who knows a conversation ID.", "Mutating shared arrays in returned objects.", "Recording duplicate read receipts or allowing a sender to mark their own message read."],
+    followUpIntent: "Read receipts extend message state while testing whether access control and per-message identity remain clear.",
+    selfReview: ["Can a non-participant infer message content?", "Are IDs stable and sequential?", "Does each conversation retain an independent history?", "Are read receipts unique and valid participant IDs?"],
+  },
+};
+
+const premiumExercises = new Map([
+  ["movie-ticket-booking", premiumExercise],
+  ["messaging-app", messagingExercise],
+]);
+
 const checkoutInput = z.object({}).strict();
 const verifyInput = z.object({ orderId: z.string().min(1).max(100), paymentId: z.string().min(1).max(100), signature: z.string().regex(/^[a-f0-9]{64}$/i) });
 
@@ -51,11 +110,15 @@ export function createMachineCodingRouter({ database, requireAccount, keyId, key
   router.use((_req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
   router.use(requireAccount);
   router.use(rateLimit({ windowMs: 60_000, limit: 15, keyGenerator: (req) => String(req.userId), standardHeaders: "draft-8", legacyHeaders: false }));
-  router.get("/premium-exercise", async (req, res) => {
+  const servePremiumExercise = async (req, res) => {
     const user = await database().collection("users").findOne({ _id: req.userId }, { projection: { machineCodingPremiumUntil: 1 } });
     if (!hasMachineCodingPremium(user)) return res.status(403).json({ error: "A Machine Coding pass is required for this exercise." });
-    res.set("Cache-Control", "no-store").json({ exercise: premiumExercise });
-  });
+    const exercise = premiumExercises.get(req.params.exerciseId || "movie-ticket-booking");
+    if (!exercise) return res.status(404).json({ error: "Premium exercise not found." });
+    res.set("Cache-Control", "no-store").json({ exercise });
+  };
+  router.get("/premium-exercise", servePremiumExercise);
+  router.get("/premium-exercise/:exerciseId", servePremiumExercise);
   router.post("/checkout", async (req, res) => {
     if (!checkoutInput.safeParse(req.body || {}).success) return res.status(400).json({ error: "Invalid checkout request." });
     if (!keyId || !keySecret) return res.status(503).json({ error: "Secure checkout is not configured yet. Please try again later." });

@@ -25,7 +25,7 @@ export function MachineCodingExerciseGate({ exercise, freeContent }: { exercise:
         const session = await jsonRequest<{ user: { id: string } }>("/auth/me");
         if (current) setAccountId(session.user.id);
         if (exercise.access === "premium") {
-          const result = await jsonRequest<{ exercise: MachineCodingContent }>("/machine-coding/premium-exercise");
+          const result = await jsonRequest<{ exercise: MachineCodingContent }>(`/machine-coding/premium-exercise/${encodeURIComponent(exercise.id)}`);
           if (current) { setContent(result.exercise); setState("ready"); }
         } else if (current && freeContent) setState("ready");
       } catch (error) {

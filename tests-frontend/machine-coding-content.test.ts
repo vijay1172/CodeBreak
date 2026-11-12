@@ -3,16 +3,15 @@ import assert from "node:assert/strict";
 import { machineCodingExercises } from "../lib/machine-coding/catalog.ts";
 import { parkingLotContent } from "../lib/machine-coding/exercises/parking-lot.ts";
 import { carPoolingContent } from "../lib/machine-coding/exercises/car-pooling.ts";
-import { movieTicketBookingContent } from "../lib/machine-coding/exercises/movie-ticket-booking.ts";
 
 const contentById = {
   "parking-lot": parkingLotContent,
   "car-pooling": carPoolingContent,
-  "movie-ticket-booking": movieTicketBookingContent,
 };
+const freeExercises = machineCodingExercises.filter((exercise) => exercise.access === "free");
 
-test("every Machine Coding exercise has a complete interview brief and scaffold", () => {
-  for (const exercise of machineCodingExercises) {
+test("every free Machine Coding exercise has a complete brief and scaffold", () => {
+  for (const exercise of freeExercises) {
     const content = contentById[exercise.id];
     assert.ok(content.brief.context.length > 80, exercise.id);
     assert.ok(content.brief.task.length > 40, exercise.id);
@@ -25,8 +24,8 @@ test("every Machine Coding exercise has a complete interview brief and scaffold"
   }
 });
 
-test("every exercise has independent core, edge, state, and follow-up scenarios", () => {
-  for (const exercise of machineCodingExercises) {
+test("every free exercise has independent core, edge, state, and follow-up scenarios", () => {
+  for (const exercise of freeExercises) {
     const scenarios = contentById[exercise.id].scenarios;
     assert.ok(scenarios.length >= 8, exercise.id);
     assert.equal(new Set(scenarios.map(({ name }) => name)).size, scenarios.length, exercise.id);
@@ -41,8 +40,8 @@ test("every exercise has independent core, edge, state, and follow-up scenarios"
   }
 });
 
-test("every exercise includes a substantive solution discussion without a code answer", () => {
-  for (const exercise of machineCodingExercises) {
+test("every free exercise includes a substantive solution discussion without a code answer", () => {
+  for (const exercise of freeExercises) {
     const discussion = contentById[exercise.id].discussion;
     assert.ok(discussion.keyDecisions.length >= 3, exercise.id);
     assert.ok(discussion.commonMistakes.length >= 3, exercise.id);

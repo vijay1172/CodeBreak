@@ -112,7 +112,7 @@ export function MachineCodingWorkspaceShell({ exercise, content, accountId = "lo
         <p>{content.brief.context}</p>
         <section><h3>Your task</h3><p>{content.brief.task}</p></section>
         <section><h3>Core requirements</h3><ol>{content.brief.coreRequirements.map((item) => <li key={item}>{item}</li>)}</ol></section>
-        <section><h3>Edge cases</h3><ul>{content.brief.edgeCases.map((item) => <li key={item}>{item}</li>)}</ul></section>
+        {runResult ? <section><h3>Edge cases</h3><ul>{content.brief.edgeCases.map((item) => <li key={item}>{item}</li>)}</ul></section> : <p className="mc-edge-cases-locked">Additional edge-case prompts unlock after your first run.</p>}
         <section className="mc-follow-up"><h3>Follow-up requirement</h3><p>{content.brief.followUp}</p></section>
         <section><h3>Notes</h3><ul>{content.brief.notes.map((item) => <li key={item}>{item}</li>)}</ul></section>
       </aside>
@@ -134,7 +134,7 @@ export function MachineCodingWorkspaceShell({ exercise, content, accountId = "lo
           {runError ? <div className="mc-run-error"><XCircle size={18}/><p>{runError}</p></div> : runResult ? <div className="mc-scenario-list">{runResult.scenarios.map((scenario) => <article className={`mc-scenario-result ${scenario.status}`} key={scenario.name}>
             {scenario.status === "passed" ? <CheckCircle2 size={16}/> : <XCircle size={16}/>}<div><strong>{scenario.name}</strong><span>{content.scenarios.find((item) => item.name === scenario.name)?.group === "follow-up" ? "Follow-up" : "Core"} · {scenario.durationMs} ms</span>
             {scenario.status === "failed" && <details><summary>Compare output</summary><p>{scenario.error ? `Error: ${scenario.error}` : `Actual: ${displayValue(scenario.actual)}\nExpected: ${displayValue(scenario.expected)}`}</p></details>}</div>
-          </article>)}</div> : <div className="mc-empty-output"><strong>Ready for {content.scenarios.length} scenarios</strong><p>Run the exercise to check core behavior, edge cases, and the follow-up requirement.</p></div>}
+          </article>)}</div> : <div className="mc-empty-output"><strong>Ready for {content.scenarios.length} scenarios</strong><p>Run the exercise to check your current implementation.</p></div>}
         </section>
         <section><header><SquareTerminal size={15}/><h2>Console output</h2></header>
           {runResult?.console.length ? <div className="mc-machine-console">{runResult.console.map((entry, index) => <p className={entry.level} key={`${entry.level}-${index}`}><span>{entry.level}</span>{entry.args.map(displayValue).join(" ")}</p>)}</div> : <div className="mc-console-placeholder"><span>$</span><p>{running ? "Running inside the isolated worker…" : "Console messages from the isolated Worker appear here."}</p></div>}

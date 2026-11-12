@@ -17,7 +17,7 @@ export function MachineCodingLanding({ exercises }: { exercises: MachineCodingEx
       </div>
       <div className="mc-hero-proof" aria-label="How Machine Coding practice works">
         <div><Code2/><strong>Write real code</strong><span>JavaScript modules in the browser</span></div>
-        <div><Layers3/><strong>Handle change</strong><span>Core, edge cases, then a follow-up</span></div>
+        <div><Layers3/><strong>Handle change</strong><span>Start with core behavior, then adapt</span></div>
         <div><Clock3/><strong>Practice the round</strong><span>Timed, observable scenarios</span></div>
       </div>
     </section>

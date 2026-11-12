@@ -4,7 +4,7 @@ import { machineCodingExercises } from "@/lib/machine-coding/catalog";
 
 export const metadata = {
   title: "Machine Coding interview practice",
-  description: "Practice browser-based object-oriented machine coding rounds with observable scenarios, edge cases, and follow-up requirements.",
+  description: "Practice browser-based object-oriented machine coding rounds with progressively revealed requirements and observable scenarios.",
   alternates: { canonical: "/machine-coding" },
 };
 
