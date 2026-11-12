@@ -19,7 +19,8 @@ type Metrics = {
     acquisition: { _id: string; visitors: number; pageviews: number }[];
     anonymousJourney: { home: number; challengeCatalog: number; challengeOpened: number; labOpened: number };
   };
-  machineCoding: { id: string; views: number; viewers: number; runs: number; runners: number; completions: number; completers: number }[];
+  machineCoding: { id: string; views: number; viewers: number; paywallOpens: number; paywallVisitors: number; runs: number; runners: number; completions: number; completers: number }[];
+  premiumInterest: { premiumExerciseViews: number; paywallOpens: number; paywallVisitors: number; paidAccounts: number; exercises: Metrics["machineCoding"] };
 };
 function humanDuration(ms: number) {
   const minutes = Math.round(ms / 60_000);
@@ -119,6 +120,8 @@ export function AdminDashboard() {
     return () => window.clearTimeout(timer);
   }, [load]);
 
+  const premiumInterest = metrics?.premiumInterest ?? { premiumExerciseViews: 0, paywallOpens: 0, paywallVisitors: 0, paidAccounts: 0, exercises: [] };
+
   return <main id="main-content" tabIndex={-1} className="page-width admin">
     <div className="page-heading"><h1>Admin dashboard.</h1><p>{metrics ? `Generated ${new Date(metrics.generatedAt).toLocaleString()}` : "Loading metrics…"}</p></div>
     {error && <p className="error-message" role="alert">{error}</p>}
@@ -129,10 +132,10 @@ export function AdminDashboard() {
       <section className="admin-section"><h2>Growth</h2>
         <div className="admin-stats">
           <div><strong>{metrics.growth.totalUsers}</strong><span>Total signups</span></div>
-          <div><strong>{metrics.growth.accountsWithProgress}</strong><span>Accounts with saved challenge progress</span></div>
-          <div><strong>{metrics.growth.activeAccounts7d}</strong><span>Active learners (7 days)</span></div>
-          <div><strong>{metrics.growth.activeAccounts30d}</strong><span>Active learners (30 days)</span></div>
-          <div><strong>{metrics.growth.returningAccounts30d}</strong><span>Active on 2+ days (30 days)</span></div>
+          <div><strong>{metrics.growth.accountsWithProgress ?? 0}</strong><span>Accounts with saved challenge progress</span></div>
+          <div><strong>{metrics.growth.activeAccounts7d ?? 0}</strong><span>Active learners (7 days)</span></div>
+          <div><strong>{metrics.growth.activeAccounts30d ?? 0}</strong><span>Active learners (30 days)</span></div>
+          <div><strong>{metrics.growth.returningAccounts30d ?? 0}</strong><span>Active on 2+ days (30 days)</span></div>
         </div>
         <p className="admin-note">Active means a signed-in learner saved code or ran tests. Returning means progress was updated on at least two separate days; this is a hands-on activity proxy, not a count of logins.</p>
         <h3>Signups per day (30 days)</h3>
@@ -167,15 +170,26 @@ export function AdminDashboard() {
 
       <section className="admin-section"><h2>Machine Coding engagement (30 days)</h2>
         <p className="admin-note">Machine Coding code and progress remain in the learner’s browser. These are anonymous visitor-ID counts, not account-level completions.</p>
-        <Table head={["Exercise", "Views", "Unique viewers", "Runs", "Unique runners", "Core completions", "Unique completers"]} rows={metrics.machineCoding.map((row) => [machineCodingTitles[row.id] || row.id, row.views, row.viewers, row.runs, row.runners, row.completions, row.completers])}/>
+        <Table head={["Exercise", "Views", "Unique viewers", "Runs", "Unique runners", "Core completions", "Unique completers"]} rows={(metrics.machineCoding || []).map((row) => [machineCodingTitles[row.id] || row.id, row.views, row.viewers, row.runs, row.runners, row.completions, row.completers])}/>
+      </section>
+
+      <section className="admin-section"><h2>Premium interest</h2>
+        <p className="admin-note">Premium exercise views and paywall activity cover the last 30 days. A verified payer is counted from the successful payment verification response, not a checkout attempt. Views and paywall opens are anonymous and are not joined to purchasers, so this is not a person-level conversion rate. Payment tracking starts with the backend deployment; historic purchases are not backfilled.</p>
+        <div className="admin-stats">
+          <div><strong>{premiumInterest.premiumExerciseViews}</strong><span>Premium exercise views</span></div>
+          <div><strong>{premiumInterest.paywallVisitors}</strong><span>Anonymous IDs opening paywall</span></div>
+          <div><strong>{premiumInterest.paywallOpens}</strong><span>Paywall opens</span></div>
+          <div><strong>{premiumInterest.paidAccounts}</strong><span>Verified payers (30 days)</span></div>
+        </div>
+        <Table head={["Premium exercise", "Views", "Unique viewers", "Paywall opens"]} rows={premiumInterest.exercises.map((row) => [machineCodingTitles[row.id] || row.id, row.views, row.viewers, row.paywallOpens])}/>
       </section>
 
       <section className="admin-section"><h2>Site traffic — first-party (30 days)</h2>
         <h3>Pageviews and anonymous visitor IDs per day</h3>
         <Bars data={metrics.traffic.dailyTraffic} valueKey="pageviews" label="pageviews"/>
         <div className="admin-columns">
-          <div><h3>Anonymous journey</h3><p className="admin-note">Distinct anonymous visitor IDs by stage; stages are not joined to account signups and may not represent distinct people.</p><Journey data={metrics.traffic.anonymousJourney}/></div>
-          <div><h3>Top referral domains</h3><Table head={["Referrer", "Visitor IDs", "Views"]} rows={metrics.traffic.acquisition.map((row) => [row._id, row.visitors, row.pageviews])}/></div>
+          <div><h3>Anonymous journey</h3><p className="admin-note">Distinct anonymous visitor IDs by stage; stages are not joined to account signups and may not represent distinct people.</p><Journey data={metrics.traffic.anonymousJourney ?? { home: 0, challengeCatalog: 0, challengeOpened: 0, labOpened: 0 }}/></div>
+          <div><h3>Top referral domains</h3><Table head={["Referrer", "Visitor IDs", "Views"]} rows={(metrics.traffic.acquisition || []).map((row) => [row._id, row.visitors, row.pageviews])}/></div>
           <div><h3>Top pages</h3><Table head={["Path", "Views"]} rows={metrics.traffic.topPages.map((row) => [row._id, row.pageviews])}/></div>
           <div><h3>Devices</h3><Table head={["Device", "Views"]} rows={metrics.traffic.devices.map((row) => [row._id || "unknown", row.pageviews])}/></div>
           <div><h3>Countries</h3><Table head={["Country", "Views"]} rows={metrics.traffic.countries.map((row) => [row._id || "unknown", row.pageviews])}/></div>

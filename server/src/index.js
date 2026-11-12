@@ -122,7 +122,7 @@ const directTrafficLimiter = rateLimit({
   handler: tooManyRequests("Too many requests. Please slow down and try again shortly."),
 });
 const trackSchema = z.object({
-  kind: z.enum(["pageview", "challenge_view", "lab_open", "machine_coding_view", "machine_coding_run", "machine_coding_complete"]),
+  kind: z.enum(["pageview", "challenge_view", "lab_open", "machine_coding_view", "machine_coding_paywall_open", "machine_coding_run", "machine_coding_complete"]),
   path: z.string().min(1).max(300),
   challengeId: z.string().trim().max(120).optional(),
   referrerHost: z.string().trim().max(253).optional(),
@@ -611,7 +611,7 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
   const since7 = new Date(Date.now() - 7 * 864e5);
   const since30 = new Date(Date.now() - 30 * 864e5);
   const since12w = new Date(Date.now() - 12 * 7 * 864e5);
-  const [totalUsers, dailySignups, weeklySignups, challengeStats, reportCounts, funnelViews, dailyTraffic, topPages, devices, countries, userActivity, anonymousJourney, acquisition, machineCodingActivity] = await Promise.all([
+  const [totalUsers, dailySignups, weeklySignups, challengeStats, reportCounts, funnelViews, dailyTraffic, topPages, devices, countries, userActivity, anonymousJourney, acquisition, machineCodingActivity, premiumPaywallTotals, paidAccounts] = await Promise.all([
     db.collection("users").countDocuments({}),
     db.collection("users").aggregate([
       { $match: { createdAt: { $gte: since30 } } },
@@ -681,9 +681,16 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
       { $limit: 10 },
     ]).toArray(),
     eventsCollection().aggregate([
-      { $match: { kind: { $in: ["machine_coding_view", "machine_coding_run", "machine_coding_complete"] }, createdAt: { $gte: since30 } } },
+      { $match: { kind: { $in: ["machine_coding_view", "machine_coding_paywall_open", "machine_coding_run", "machine_coding_complete"] }, createdAt: { $gte: since30 } } },
       { $group: { _id: { exerciseId: "$challengeId", kind: "$kind" }, visitors: { $addToSet: "$visitorId" }, events: { $sum: 1 } } },
     ]).toArray(),
+    eventsCollection().aggregate([
+      { $match: { kind: "machine_coding_paywall_open", createdAt: { $gte: since30 } } },
+      { $group: { _id: "$visitorId", opens: { $sum: 1 } } },
+      { $group: { _id: null, visitors: { $sum: 1 }, opens: { $sum: "$opens" } } },
+      { $project: { _id: 0, visitors: 1, opens: 1 } },
+    ]).toArray(),
+    db.collection("users").countDocuments({ machineCodingLastPaymentAt: { $gte: since30 } }),
   ]);
   const stats = new Map(challengeStats.map((row) => [row._id, row]));
   const reportsBy = new Map(reportCounts.map((row) => [row._id, row.reports]));
@@ -706,8 +713,9 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
   const machineCodingBy = new Map();
   for (const row of machineCodingActivity) {
     const exerciseId = row._id.exerciseId || "catalog";
-    const entry = machineCodingBy.get(exerciseId) || { id: exerciseId, views: 0, viewers: 0, runs: 0, runners: 0, completions: 0, completers: 0 };
+    const entry = machineCodingBy.get(exerciseId) || { id: exerciseId, views: 0, viewers: 0, paywallOpens: 0, paywallVisitors: 0, runs: 0, runners: 0, completions: 0, completers: 0 };
     if (row._id.kind === "machine_coding_view") { entry.views = row.events; entry.viewers = row.visitors; }
+    if (row._id.kind === "machine_coding_paywall_open") { entry.paywallOpens = row.events; entry.paywallVisitors = row.visitors; }
     if (row._id.kind === "machine_coding_run") { entry.runs = row.events; entry.runners = row.visitors; }
     if (row._id.kind === "machine_coding_complete") { entry.completions = row.events; entry.completers = row.visitors; }
     machineCodingBy.set(row._id.exerciseId, entry);
@@ -743,6 +751,13 @@ app.get("/api/admin/metrics", requireAccount, requireAdmin, async (_req, res) =>
     challenges,
     traffic: { dailyTraffic, topPages, devices, countries, acquisition, anonymousJourney: journeyCounts },
     machineCoding: [...machineCodingBy.values()],
+    premiumInterest: {
+      premiumExerciseViews: [...machineCodingBy.values()].filter((row) => ["movie-ticket-booking", "messaging-app"].includes(row.id)).reduce((sum, row) => sum + row.views, 0),
+      paywallOpens: premiumPaywallTotals[0]?.opens || 0,
+      paywallVisitors: premiumPaywallTotals[0]?.visitors || 0,
+      paidAccounts,
+      exercises: [...machineCodingBy.values()].filter((row) => ["movie-ticket-booking", "messaging-app"].includes(row.id)),
+    },
   });
 });
 

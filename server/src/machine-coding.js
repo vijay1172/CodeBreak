@@ -163,7 +163,7 @@ export function createMachineCodingRouter({ database, requireAccount, keyId, key
     const premiumUntil = new Date(base.getTime() + 365 * 24 * 60 * 60 * 1000);
     const update = await userCollection.updateOne(
       { _id: req.userId, machineCodingPendingOrderId: orderId },
-      { $set: { machineCodingPremiumUntil: premiumUntil, machineCodingLastPaymentId: paymentId }, $unset: { machineCodingPendingOrderId: "", machineCodingPendingOrderAt: "" } },
+      { $set: { machineCodingPremiumUntil: premiumUntil, machineCodingLastPaymentId: paymentId, machineCodingLastPaymentAt: now() }, $unset: { machineCodingPendingOrderId: "", machineCodingPendingOrderAt: "" } },
     );
     if (update.matchedCount !== 1) return res.status(409).json({ error: "This payment was already used or the checkout changed." });
     return res.json({ premiumUntil: premiumUntil.toISOString() });

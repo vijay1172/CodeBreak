@@ -107,6 +107,7 @@ test("payment verification checks the signed captured payment before granting tw
     const result = await response.json();
     assert.ok(Math.abs((new Date(result.premiumUntil).getTime() - Date.now()) - 365 * 24 * 60 * 60 * 1000) < 1000);
     assert.equal(record.machineCodingLastPaymentId, "pay_123");
+    assert.ok(Math.abs(record.machineCodingLastPaymentAt.getTime() - Date.now()) < 1000);
     assert.equal(record.machineCodingPendingOrderId, undefined);
     assert.equal(outboundCalls, 1);
   });

@@ -5,6 +5,7 @@ import { Crown, LoaderCircle, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { jsonRequest } from "@/lib/brokenrepo-api";
+import { trackProductEvent } from "@/components/track-visit";
 
 type RazorpayResult = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
 type RazorpayFailure = { error?: { description?: string } };
@@ -22,13 +23,15 @@ function loadRazorpay() {
   });
 }
 
-export function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function UpgradeModal({ open, onOpenChange, exerciseId }: { open: boolean; onOpenChange: (open: boolean) => void; exerciseId?: string }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!open) return;
+
+    trackProductEvent("machine_coding_paywall_open", exerciseId);
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -43,7 +46,7 @@ export function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChan
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open, onOpenChange]);
+  }, [open, onOpenChange, exerciseId]);
 
   async function checkout() {
     setBusy(true); setError("");

@@ -8,6 +8,7 @@ import { UpgradeModal } from "./upgrade-modal";
 
 export function MachineCodingLanding({ exercises }: { exercises: MachineCodingExercise[] }) {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeExerciseId, setUpgradeExerciseId] = useState<string>();
   return <>
     <section className="mc-hero page-width">
       <div>
@@ -31,11 +32,11 @@ export function MachineCodingLanding({ exercises }: { exercises: MachineCodingEx
           <p>{exercise.summary}</p>
           <div className="mc-card-meta"><span>{exercise.difficulty}</span><span><Clock3 size={14}/>{exercise.estimatedMinutes} min</span></div>
           <ul>{exercise.focus.map((focus) => <li key={focus}>{focus}</li>)}</ul>
-          {premium ? <button className="button secondary" onClick={() => setUpgradeOpen(true)}>View premium access<Crown size={15}/></button> : <Link className="button" href={`/machine-coding/${exercise.id}`}>Start exercise<ArrowRight size={15}/></Link>}
+          {premium ? <button className="button secondary" onClick={() => { setUpgradeExerciseId(exercise.id); setUpgradeOpen(true); }}>View premium access<Crown size={15}/></button> : <Link className="button" href={`/machine-coding/${exercise.id}`}>Start exercise<ArrowRight size={15}/></Link>}
         </article>;
       })}</div>
     </section>
-    <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen}/>
+    <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} exerciseId={upgradeExerciseId}/>
   </>;
 }
 
