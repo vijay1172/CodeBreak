@@ -46,7 +46,7 @@ export function ProfileSettingsCard() {
   return <section className="profile-settings" aria-labelledby="profile-settings-title">
     <div className="profile-settings-heading">
       <span className="profile-settings-icon" aria-hidden="true"><Share2 size={18}/></span>
-      <div><p className="eyebrow">Your public presence</p><h2 id="profile-settings-title">Share your work</h2><p>Turn completed debugging challenges into a profile you control.</p></div>
+      <div><h2 id="profile-settings-title">Share your work</h2></div>
       <span className={profile.enabled ? "profile-visibility is-public" : "profile-visibility"}>{profile.enabled ? <><Globe2 size={14}/> Public</> : <><LockKeyhole size={14}/> Private</>}</span>
     </div>
     {loading ? <p className="profile-settings-status" role="status">Loading profile settings…</p> : <form onSubmit={save}>

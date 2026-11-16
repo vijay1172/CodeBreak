@@ -46,7 +46,6 @@ export function PublicProfileView({ profile }: { profile: PublicProfile }) {
     <section className="profile-hero" data-profile-reveal>
       <div className="profile-identity">
         <div className="profile-avatar" aria-hidden="true">{initials}<span/></div>
-        <p className="eyebrow profile-public-label"><span/> PUBLIC PRACTICE PROFILE</p>
         <h1>{profile.displayName}</h1>
         <p className="profile-handle">@{profile.handle}{profile.memberSince && <span> · Practicing since {profile.memberSince}</span>}</p>
         {profile.bio && <p className="profile-bio">{profile.bio}</p>}
@@ -62,12 +61,12 @@ export function PublicProfileView({ profile }: { profile: PublicProfile }) {
     </section>
 
     <section className="profile-capabilities" data-profile-reveal aria-labelledby="profile-capabilities-title">
-      <div className="profile-section-heading"><div><p className="eyebrow">Evidence, not estimates</p><h2 id="profile-capabilities-title">Where the work adds up.</h2></div><p>Each area below reflects completed debugging challenges, not a generated skill score.</p></div>
+      <div className="profile-section-heading"><div><h2 id="profile-capabilities-title">Where the work adds up.</h2></div></div>
       {profile.categories.length ? <div className="profile-category-grid">{profile.categories.map((category, index) => <article className="profile-category" key={category.name} style={{ "--profile-delay": `${Math.min(index, 5) * 70}ms` } as React.CSSProperties}><span className="profile-category-index">{String(index + 1).padStart(2, "0")}</span><div><h3>{category.name}</h3><p>{category.solved} of {category.total} challenges solved</p></div><div className="profile-category-meter" aria-label={`${category.solved} of ${category.total} solved`}><span style={{ width: `${Math.max(8, Math.round(category.solved / Math.max(1, category.total) * 100))}%` }}/></div></article>)}</div> : <div className="profile-empty-category"><Layers3 size={18}/><p>Completed work will build a skill picture here.</p></div>}
     </section>
 
     <section className="profile-work" id="completed-work" data-profile-reveal aria-labelledby="profile-work-title">
-      <div className="profile-section-heading"><div><p className="eyebrow">The work speaks</p><h2 id="profile-work-title">Completed challenges<span className="profile-title-count">{String(profile.completedChallenges.length).padStart(2, "0")}</span></h2></div><p>Every solve is attached to a real challenge and its passing test suite.</p></div>
+      <div className="profile-section-heading"><div><h2 id="profile-work-title">Completed challenges<span className="profile-title-count">{String(profile.completedChallenges.length).padStart(2, "0")}</span></h2></div></div>
       {profile.completedChallenges.length ? <div className="profile-work-list">{profile.completedChallenges.map((challenge, index) => <article className="profile-work-item" key={challenge.id} style={{ "--profile-delay": `${Math.min(index, 7) * 55}ms` } as React.CSSProperties}><span className="profile-work-number">{String(index + 1).padStart(2, "0")}</span><div className="profile-work-main"><p className="profile-work-meta"><span>{challenge.category}</span><span>·</span><span>{challenge.difficulty}</span></p><h3><Link href={`/challenges/${challenge.id}`}>{challenge.title}<ArrowUpRight size={16}/></Link></h3></div><span className="profile-work-date"><CheckCircle2 size={15}/>{formatDate(challenge.solvedAt)}</span></article>)}</div> : <div className="profile-empty-work"><div className="profile-empty-symbol"><Sparkles size={22}/></div><div><h3>The first solve is waiting.</h3><p>Complete a debugging challenge and it will appear here as a piece of your public practice record.</p><Link className="underlined" href="/challenges">Browse challenges <ExternalLink size={14}/></Link></div></div>}
     </section>
 
