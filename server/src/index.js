@@ -22,6 +22,7 @@ import { previewHostForSession, previewProxyConfigured, previewProxyHandler, sig
 import { accountRouter, requireAccount, requireAdmin, saveProgress, setupAccounts } from "./accounts.js";
 import { createUnsubscribeHandler } from "./unsubscribe.js";
 import { createMachineCodingRouter, hasMachineCodingPremium, PREMIUM_CHALLENGE_IDS } from "./machine-coding.js";
+import { createProfileRouter } from "./profiles.js";
 import { database, eventsCollection } from "./session-store.js";
 import {
   closeSessionStore,
@@ -235,6 +236,7 @@ app.get("/api/challenges", (_req, res) => {
 });
 
 app.use("/api/auth", accountRouter);
+app.use("/api/profiles", createProfileRouter({ database, requireAccount, challenges: listChallenges }));
 app.use("/api/machine-coding", createMachineCodingRouter({
   database,
   requireAccount,

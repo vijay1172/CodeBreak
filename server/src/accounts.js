@@ -19,6 +19,7 @@ export async function verifyPassword(password, stored) {
 }
 export async function setupAccounts() {
   await database().collection("users").createIndex({ email: 1 }, { unique: true });
+  await database().collection("users").createIndex({ "publicProfile.handle": 1 }, { unique: true, sparse: true });
   await database().collection("authSessions").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
   await database().collection("progress").createIndex({ userId: 1, challengeId: 1 }, { unique: true });
   await database().collection("authLimits").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });

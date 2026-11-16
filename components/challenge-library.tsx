@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CheckCircle2, Circle, Crown, Search } from "lucide-react";
 import { jsonRequest, listChallenges, type ChallengeSummary } from "@/lib/brokenrepo-api";
 import { SiteHeader, SiteFooter } from "./site-shell";
+import { ProfileSettingsCard } from "./profile-settings";
 type Progress = { challengeId: string; attempted?: boolean; solved?: boolean; attempts?: number };
 export function ChallengeLibrary({ progressOnly = false, initialItems }: { progressOnly?: boolean; initialItems?: ChallengeSummary[] }) {
   const [items, setItems] = useState<ChallengeSummary[]>(initialItems ?? []);
@@ -27,6 +28,7 @@ export function ChallengeLibrary({ progressOnly = false, initialItems }: { progr
   const visible = items.filter(x => (!difficulty || x.difficulty === difficulty) && (!category || x.category === category) && (x.title + " " + x.category).toLowerCase().includes(query.toLowerCase()));
   return <><SiteHeader/><main id="main-content" tabIndex={-1} className="page-width library">
     <div className="page-heading"><h1>{progressOnly ? "Your debugging practice." : "Find your next bug."}</h1><p>{progressOnly ? "Every attempt teaches you something. Here’s what you’ve worked through." : "Choose a symptom. Explore the project. Figure out what went wrong."}</p></div>
+    {progressOnly && loggedIn && <ProfileSettingsCard/>}
     {loggedIn ? <div className="progress-strip"><span><strong>{progress.filter(x => x.attempted).length}</strong> attempted</span><span><strong>{progress.filter(x => x.solved).length} / {items.length}</strong> solved</span><span>Code and test results are saved to your account.</span></div> : loaded && <p className="save-note">Progress saves automatically once you’re logged in.</p>}
     {error && <div className="error-message" role="alert">{error} <button className="underlined" onClick={() => window.location.reload()}>Try again</button></div>}
     {!loaded && <p role="status">Loading challenges…</p>}
