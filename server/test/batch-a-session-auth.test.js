@@ -1,5 +1,5 @@
 /*
- * Challenge: The complete catalogue (all 30 challenges).
+ * Challenge: The complete catalogue (all 40 challenges).
  * Bug category: Platform account access.
  * Scenarios: 3.
  * Behavioral symptom: Lab actions are unavailable without a valid BrokenRepo account session.
@@ -53,8 +53,8 @@ async function guardedEndpoints(t) {
   };
 }
 
-test("all 30 challenge lab creations require account authentication", async (t) => {
-  assert.equal(challengeIds.length, 30);
+test("all 40 challenge lab creations require account authentication", async (t) => {
+  assert.equal(challengeIds.length, 40);
   const api = await guardedEndpoints(t);
   for (const challengeId of challengeIds) await api.request("/api/sessions", { method: "POST", body: { challengeId } });
 });

@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "./config.js";
 import { additionalChallenges } from "./additional-challenges.js";
+import { nextTenChallenges, nextTenIds } from "./next-ten-challenges.js";
 
 const baseEditablePaths = [
   "client/src/api/apiClient.js",
@@ -251,6 +252,7 @@ const challengeDefinitions = {
     },
   }),
   ...additionalChallenges(validationCommand),
+  ...nextTenChallenges(validationCommand),
 };
 
 async function walk(directory, root = directory) {
@@ -272,7 +274,9 @@ async function walk(directory, root = directory) {
 }
 
 export function listChallenges() {
-  return Object.values(challengeDefinitions).map(({ id, title, category, difficulty, stack }) => ({
+  const preferred = ["the-missing-name", "the-ghost-update", ...nextTenIds];
+  const ordered = [...preferred.map(id => challengeDefinitions[id]), ...Object.values(challengeDefinitions).filter(item => !preferred.includes(item.id))];
+  return ordered.map(({ id, title, category, difficulty, stack }) => ({
     id,
     title,
     category,

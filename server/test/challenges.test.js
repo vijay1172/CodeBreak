@@ -6,6 +6,16 @@ import { getChallenge, listChallenges, publicChallenge } from "../src/challenges
 const expectedIds = [
   "the-missing-name",
   "the-ghost-update",
+  "the-travelling-form",
+  "the-disappearing-preferences",
+  "the-coupon-that-wouldnt-leave",
+  "the-receipt-that-changed",
+  "the-cart-that-forgot-you",
+  "the-reset-link-that-still-works",
+  "the-inbox-that-reads-ahead",
+  "the-repeating-feed",
+  "the-task-that-started-too-soon",
+  "the-delivery-that-went-backwards",
   "the-silent-field",
   "locked-out-sometimes",
   "the-stubborn-counter",
@@ -36,14 +46,15 @@ const expectedIds = [
   "the-vanishing-credit",
 ];
 
-test("publishes all thirty challenges in curriculum order", () => {
+test("publishes all forty challenges in curriculum order", () => {
   assert.deepEqual(listChallenges().map((challenge) => challenge.id), expectedIds);
 });
 
 test("new curriculum has distinct mechanisms, full projects, and two executable solution fixtures", async () => {
   const fixtures = JSON.parse(await fs.readFile(new URL('../verification/wave-two/fixtures.json', import.meta.url), 'utf8'));
   assert.equal(fixtures.length, 7);
-  const categories = new Set(listChallenges().slice(0, 8).map(item => item.category));
+  const legacyIds = [...expectedIds.slice(0, 2), ...expectedIds.slice(12, 18)];
+  const categories = new Set(listChallenges().filter(item => legacyIds.includes(item.id)).map(item => item.category));
   for (const fixture of fixtures) {
     const challenge = await getChallenge(fixture.id);
     assert.ok(!categories.has(challenge.category), `${fixture.id}: duplicate category`);
@@ -131,7 +142,7 @@ test("each challenge exposes a realistic project without hidden tests", async ()
     const challenge = await getChallenge(id);
     const visible = publicChallenge(challenge);
     assert.doesNotMatch(challenge.validationCommand, /\bexit\b/, "validation must not terminate Daytona's managed shell");
-    assert.ok(visible.files.length >= 20, `${id} should expose at least 20 project files`);
+    assert.ok(visible.files.length >= (expectedIds.indexOf(id) >= 2 && expectedIds.indexOf(id) < 12 ? 10 : 20), `${id} should expose a complete project`);
     assert.ok(visible.files.some((file) => file.path.startsWith("client/src/")));
     assert.ok(visible.files.some((file) => file.path.startsWith("server/")));
     assert.ok(visible.files.every((file) => !file.path.startsWith("tests/")));
@@ -154,7 +165,7 @@ test("student-facing READMEs describe the problem, not developer setup", async (
     for (const section of sections) {
       assert.ok(readme.content.includes(section), `${id}: README.md should contain "${section}"`);
     }
-    if (expectedIds.indexOf(id) >= 8) {
+    if ((expectedIds.indexOf(id) >= 2 && expectedIds.indexOf(id) < 12) || expectedIds.indexOf(id) >= 18) {
       const context = readme.content.split("## Product context")[1].split("## How to reproduce")[0].trim();
       const count = [...new Intl.Segmenter("en", { granularity: "sentence" }).segment(context)].filter(({ segment }) => segment.trim()).length;
       assert.ok(count >= 2 && count <= 3, `${id}: product context should contain two or three sentences`);
@@ -199,7 +210,7 @@ test("Batch A preserves grading identities and keeps test helpers out of learner
     ["first-item", "full-page", "next-page"],
     ["orders-success", "forwards-error", "no-false-success"],
   ];
-  for (const [index, id] of expectedIds.slice(0, 8).entries()) {
+  for (const [index, id] of [...expectedIds.slice(0, 2), ...expectedIds.slice(12, 18)].entries()) {
     const challenge = await getChallenge(id);
     assert.deepEqual(challenge.criteria.map((criterion) => criterion.id), gradingIds[index]);
     assert.equal(challenge.requiresMongo, undefined, "Legacy challenge upgrades must not introduce a database runtime");

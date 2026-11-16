@@ -40,6 +40,56 @@ export const challengeCatalog: CatalogEntry[] = [
     ],
   },
   {
+    id: "the-travelling-form", title: "The Travelling Form", category: "Stateful form identity", shortTag: "form state", difficulty: "intermediate",
+    symptom: "Expense descriptions can become attached to the wrong rows when a draft report is rearranged before submission.",
+    criteria: ["creates a report whose saved rows and total match the submitted form", "keeps each expense intact when rows are reordered", "preserves existing rows when one is removed and a new row is added", "saves edited descriptions and amounts together", "submits the final report and rejects later edits", "rejects invalid rows without changing the saved report", "keeps another demo account from listing, reading, or updating the report", "rejects reads and writes without a valid demo session"],
+  },
+  {
+    id: "the-disappearing-preferences", title: "The Disappearing Preferences", category: "Partial update semantics", shortTag: "partial updates", difficulty: "intermediate",
+    symptom: "Saving one career-alert preference can make another choice disappear, and clearing a profile link does not always stick.",
+    criteria: ["opens a preference profile with defaults that survive a fresh read", "changes one notification without removing the others", "keeps an earlier false choice through a second partial update", "sets a website without changing notification choices", "clears a website explicitly while keeping existing notification choices", "rejects invalid settings without changing what is saved", "keeps another demo account from reading or modifying preferences", "rejects unauthenticated reads and writes"],
+  },
+  {
+    id: "the-coupon-that-wouldnt-leave", title: "The Coupon That Wouldn't Leave", category: "Derived price state", shortTag: "cart pricing", difficulty: "intermediate",
+    symptom: "A shop coupon can remain in the checkout total after the eligible products are removed or changed.",
+    criteria: ["creates and reads back a cart with server-calculated totals", "applies a coupon only to eligible products", "removes a discount when the last eligible item leaves the cart", "recalculates the discount when an eligible quantity changes", "removes an applied coupon and checks out at the undiscounted total", "rejects invalid items and coupons without changing the cart", "keeps another demo account from reading or changing the cart", "requires a valid demo session for reads and writes"],
+  },
+  {
+    id: "the-receipt-that-changed", title: "The Receipt That Changed", category: "Historical snapshot integrity", shortTag: "order snapshots", difficulty: "intermediate",
+    symptom: "An old order receipt changes when the product catalogue or saved address is edited later.",
+    criteria: ["creates and reads a receipt with the checkout-time purchase details", "keeps the original receipt when the catalogue price changes", "keeps the original product name after a catalogue rename", "keeps the original shipping line after the address book changes", "uses current source details for a new order without rewriting an older order", "rejects invalid orders and source edits without modifying a receipt", "keeps another demo account from reading or changing an order", "rejects reads and writes without a valid demo session"],
+  },
+  {
+    id: "the-cart-that-forgot-you", title: "The Cart That Forgot You", category: "Cart reconciliation", shortTag: "cart merge", difficulty: "intermediate",
+    symptom: "A guest cart merge can combine different product variants or add the same guest cart twice.",
+    criteria: ["creates a guest cart whose claim code and items survive a fresh read", "keeps red and blue variants separate when a guest cart is merged", "combines matching variants without exceeding stock", "leaves a customer cart unchanged when the same guest cart is merged again", "merges an empty guest cart without losing customer items", "rejects invalid variants and claim codes without changing a cart", "keeps another customer from reading or changing an account cart", "rejects cart reads and merges without a valid demo session"],
+  },
+  {
+    id: "the-reset-link-that-still-works", title: "The Reset Link That Still Works", category: "Single-use credential lifecycle", shortTag: "reset links", difficulty: "intermediate",
+    symptom: "A password-reset link can still change account state after it was used or replaced.",
+    criteria: ["creates a recovery request whose current token survives a fresh read", "redeems a valid link and records a single password change", "rejects a second use of an already redeemed link", "retires an older link when a replacement is issued", "lets the replacement link work exactly once", "rejects a weak password without consuming a valid link", "keeps another account from reading or redeeming a request", "requires a valid demo session to read or redeem a link"],
+  },
+  {
+    id: "the-inbox-that-reads-ahead", title: "The Inbox That Reads Ahead", category: "Bounded state transition", shortTag: "inbox state", difficulty: "intermediate",
+    symptom: "Acknowledging an older notification also marks later notifications read, making the unread badge inaccurate.",
+    criteria: ["creates and reads an unread notification with the correct badge", "keeps later messages unread when marking through the first message", "marks all earlier messages and the selected middle message read", "makes the badge zero after marking through the newest message", "leaves a later arrival unread after an earlier read action", "rejects blank messages without changing the inbox", "keeps another account from reading or acknowledging messages", "rejects reads and actions without a valid demo session"],
+  },
+  {
+    id: "the-repeating-feed", title: "The Repeating Feed", category: "Stable cursor pagination", shortTag: "cursor pagination", difficulty: "intermediate",
+    symptom: "Posts sharing the same timestamp can disappear between pages of a community feed.",
+    criteria: ["publishes a post and reads back its exact fields", "returns the newest page in a stable order", "continues through posts sharing the first page boundary time", "walks three pages without repeats or omissions", "handles an earlier-time boundary without repeating the first page", "rejects invalid posts, limits, and cursors without changing the feed", "keeps another account from reading a private feed post", "rejects unauthenticated feed reads and publication"],
+  },
+  {
+    id: "the-task-that-started-too-soon", title: "The Task That Started Too Soon", category: "Dependency readiness", shortTag: "task dependencies", difficulty: "intermediate",
+    symptom: "A task can be completed after only one of its required prerequisite tasks is done.",
+    criteria: ["creates and reads a task with a pending status", "keeps a task pending when only one of two prerequisites is done", "completes a task after every prerequisite is done", "allows a task with no prerequisites to complete once", "updates dependencies on a pending task and checks the new readiness", "rejects invalid and cyclic dependencies without changing saved tasks", "rejects dependencies from another account and hides foreign tasks", "requires a valid demo session to read and complete a task"],
+  },
+  {
+    id: "the-delivery-that-went-backwards", title: "The Delivery That Went Backwards", category: "Out-of-order event reconciliation", shortTag: "event ordering", difficulty: "intermediate",
+    symptom: "Late or retried courier events can move a shipment backward or duplicate its history.",
+    criteria: ["creates and reads a shipment with an empty event timeline", "records a signed event and advances the headline stage", "does not move backward when an older stage arrives after a newer stage", "ignores a retry using an event ID already in the timeline", "keeps delivered as the final headline stage despite late events", "rejects malformed and unsigned updates without changing the shipment", "keeps another seller from reading or updating a shipment", "requires a valid demo session for reads and courier updates"],
+  },
+  {
     id: "the-silent-field",
     title: "The Silent Field",
     category: "Database / schema bug",
